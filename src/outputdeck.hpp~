@@ -1,0 +1,8 @@
+class OuputDeck {
+  OutputDeck(std::string output) {
+  }
+ ~OutputDeck():
+
+  private:
+    
+}

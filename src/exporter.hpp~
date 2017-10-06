@@ -1,0 +1,20 @@
+class Exporter {
+  // Constructor
+  Exporter(std::string output) {
+    SetOutput(output);
+  }
+
+  // Destructor
+ ~Exporter();
+
+  virtual void Export();
+  
+  private:
+  void SetOutput(std::string output) {
+   outputfile = output;
+  }
+   
+  private:
+    std::string outputfile;
+    InputDeck *deck;
+};
