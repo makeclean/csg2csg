@@ -1,4 +1,8 @@
 
+#include "MCNPInput.hpp"
+
+#ifndef EXPORTER_HPP 
+#define EXPORTER_HPP 1
 
 class Exporter {
   public:
@@ -25,3 +29,5 @@ class Exporter {
     std::string outputfile;
     InputDeck deck;
 };
+
+#endif

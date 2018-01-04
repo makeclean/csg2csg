@@ -16,7 +16,7 @@
 #include "MCNPInput.hpp"
 
 #include "exporter.hpp"
-#include "exportfluka.hpp"
+#include "FLUKAExporter.hpp"
 
 void usage(ez::ezOptionParser& opt) {
 	std::string use;
@@ -88,8 +88,8 @@ int main(int argc, const char* argv[]){
   std::cout << "Reading input file..." << std::endl;
   std::ifstream input;
   input.open(import);
-  InputDeck& deck =InputDeck::build(input);
-  Exporter *exp = new ExporterFluka::ExporterFluka(deck,"output");
+  InputDeck& deck = InputDeck::build(input);
+  Exporter *exp = new FLUKAExporter::FLUKAExporter(deck,"output");
   delete exp;
   //exp->Export();
   std::cout << "Done reading input." << std::endl;
