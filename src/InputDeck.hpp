@@ -1,18 +1,30 @@
-#include <ifstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+#include <fstream>
+
 // Virtual Class which all CSG Input operations should
 // base off
-class InputDeck {
-  public:
-    virtual void build(std::ifstream input);
-    virtual void parseTitle();
-    virtual void parseCells();
-    virtual void parseSurfaces();
-    virtual void parseDataCards();
-    virtual void copyMacroBodies();
-  private:
-    virtual CellCard* lookup_cell_card(int index);
-    virtual SurfaceCard* lookup_surface_card(int index);
-    virtual DataCard* lookup_data_card(int index);
-}
 
+#ifndef INPUTDECK_HPP 
+#define INPUTDECK_HPP 1
+
+InputDeck {
+  public:
+  InputDeck(std::string filename);
+  ~InputDeck();
+  public:
+  virtual void parseCells()
+
+  private:
+  std::map<int,CellCard*> cells; /// maps of cell cards by id
+  std::map<int,SurfaceCard*> surfaces; /// maps of surface cards by id
+  std::vector<DataCard*> datacards; /// collection fo datacards
+  
+  LineExtractor* lines; /// line extractor class
+  std::string fileName; /// the filename to be input
+};
+
+#endif
   
