@@ -11,7 +11,6 @@ class MCNPCellCard(CellCard):
     # constructor
     def __init__(self,card_string):
         CellCard.__init__(self,card_string)
-        self.__interpret()
 
     # check the cell text description for parentheses
     # or not symbols these need extra work

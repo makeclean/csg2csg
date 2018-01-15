@@ -17,7 +17,6 @@ class MCNPSurfaceCard(SurfaceCard):
     # constructor
     def __init__(self,card_string):
         SurfaceCard.__init__(self,card_string)
-        self.classify()
 
     # determine if the surface is infinite or a macrobody
     def __mcnp_type(self,surface):
