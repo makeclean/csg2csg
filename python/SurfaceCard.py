@@ -1,5 +1,5 @@
 from Card import Card
-from enum import Enum
+from enum import Enum, auto
 
 class SurfaceCard(Card):
     """ Class for the storage of the generic SurfaceCard type
@@ -11,22 +11,22 @@ class SurfaceCard(Card):
     
     surface_type = 0
     surface_id = 0
+    surface_transform = 0
     surface_coefficients = []
     comment = ""
     
     class SurfaceType(Enum):
-        PLANE_GENERAL = 1
-        PLANE_X = 2
-        PLANE_Y = 3
-        PLANE_Z = 4
-        CYLINDER_GENERAL = 5
-        CYLINDER_X = 6
-        CYLINDER_Y = 7
-        CYLINDER_Z = 8
-        SPHERE_GENERAL = 9
-        TORUS_X = 10
-        TORUS_Y = 11
-        TORUS_Z = 12
+        PLANE_GENERAL = auto()
+        PLANE_X = auto()
+        PLANE_Y = auto()
+        PLANE_Z = auto()
+        CYLINDER_X = auto()
+        CYLINDER_Y = auto()
+        CYLINDER_Z = auto()
+        SPHERE_GENERAL = auto()
+        TORUS_X = auto()
+        TORUS_Y = auto()
+        TORUS_Z = auto()
     
     # constructor for building a surface card
     def __init__(self,card_string):

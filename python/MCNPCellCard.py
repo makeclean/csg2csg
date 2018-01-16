@@ -3,6 +3,23 @@
 from CellCard import CellCard
 from enum import Enum
 
+
+# if the string is a cell card or not
+def is_cell_card(line):
+    cell_card = line.split()
+    cellid = int(cell_card[0])
+    mat_num = int(cell_card[1])
+    if cellid and mat_num == 0:
+        return True
+    elif cellid > 0 and mat_num > 0:
+        try:
+            float(cell_card[2])
+        except ValueError:
+            print (cell_card[2]," cannot be converted to float")
+        return True
+    return False
+
+
 class MCNPCellCard(CellCard):
     """ Class for the instanciation of generic cell cards
     from MCNP cell card strings
@@ -11,6 +28,7 @@ class MCNPCellCard(CellCard):
     # constructor
     def __init__(self,card_string):
         CellCard.__init__(self,card_string)
+        self.__interpret()
 
     # check the cell text description for parentheses
     # or not symbols these need extra work
@@ -46,7 +64,7 @@ class MCNPCellCard(CellCard):
             idx += 1
             if idx == len(cell_description): break
 
-        self.cell_text_description = cell_description    
+        self.cell_interpreted = cell_description    
         return
 
     # generally spaceify the text so that between each item

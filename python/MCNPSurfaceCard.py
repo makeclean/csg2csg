@@ -1,5 +1,41 @@
 from SurfaceCard import SurfaceCard
 
+# function to determine if the card is a surface
+# card or not
+def is_surface_card(line):
+    # tokenise the line
+    surface_card = line.split()
+    # test if first item is an int
+    try:
+        int(surface_card[0])
+    except TypeError:
+        print (surface_card[0]," cannot be converted to float")
+        return False
+
+    # test if the second entry is an int
+    try:
+        int(surface_card[1])
+        # then we are type with a transform
+    except:
+        # otherwise we are a normal surface type
+        pass
+
+    return True
+
+# determine if surface has a transform or not
+def surface_has_transform(line):
+    # tokenise the line
+    tokens = line.split()
+    try:
+        # try turning the second token into a float
+        # since the line "1 2 PX" will convert
+        # but 1 PX will fail 
+        float(tokens[1])
+    except:
+        return False
+
+    return True
+
 class MCNPSurfaceCard(SurfaceCard):
 
     # TODO to add more surface definiitions, expand the list found
@@ -10,16 +46,21 @@ class MCNPSurfaceCard(SurfaceCard):
     
     # TODO add to this list to add more surface types
     __mcnp_surface_types = ["p","px","py","pz",
-                            "s","so","sx","sy","sz"]
+                            "s","so","sx","sy","sz",
+                            "cx","cy","cz","c/x","c/y","c/z"]
     # TODO add to this list to add more macrobody types
     __mcnp_macro_types = ["rpp"]
+
+    verbosity = False
     
     # constructor
-    def __init__(self,card_string):
+    def __init__(self,card_string, verbose = False):
         SurfaceCard.__init__(self,card_string)
+        self.classify()
 
     # determine if the surface is infinite or a macrobody
     def __mcnp_type(self,surface):
+
         if any(surface["type"] in s for s in self.__mcnp_surface_types):
             return "infinite"
         elif any(surface["type"] in s for s in self.__mcnp_macro_types):
@@ -93,7 +134,7 @@ class MCNPSurfaceCard(SurfaceCard):
         return
                           
     # classify spheres on x y or z axes
-    def __classify_xyz_spheres(self,surface):
+    def __classify_xyz_sphere(self,surface):
         coords = [0.]*4
         # identify sphere x
         if surface["type"] == "sx":
@@ -109,7 +150,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[0] = 0.
             coords[1] = float(surface["coefficients"][0])
             coords[2] = 0.
-            coords[4] = float(surface["coefficients"][1])
+            coords[3] = float(surface["coefficients"][1])
             self.set_type(surface["id"],
                           SurfaceCard.SurfaceType["SPHERE_GENERAL"],
                           coords)
@@ -121,6 +162,57 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[3] = float(surface["coefficients"][1])
             self.set_type(surface["id"],
                           SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                          coords)
+        return
+
+    # identify cylinder parallel
+    def __classify_cylinder_parallel(self, surface):
+        coords = [0.] * 3
+        if surface["type"] == "c/x":
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = float(surface["coefficients"][1])
+            coords[2] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_X"],
+                          coords)
+        if surface["type"] == "c/y":
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = float(surface["coefficients"][1])
+            coords[2] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_Y"],
+                          coords)
+        if surface["type"] == "c/z":
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = float(surface["coefficients"][1])
+            coords[2] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_Z"],
+                          coords)
+        return
+
+    def __classify_cylinder_on_axis(self, surface):
+        coords = [0.] * 3
+        if surface["type"] == "cx":
+            coords[0] = 0.
+            coords[1] = 0.
+            coords[2] = float(surface["coefficients"][0])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_X"],
+                          coords)
+        if surface["type"] == "cy":
+            coords[0] = 0.
+            coords[1] = 0.
+            coords[2] = float(surface["coefficients"][0])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_Y"],
+                          coords)
+        if surface["type"] == "cz":
+            coords[0] = 0.
+            coords[1] = 0.
+            coords[2] = float(surface["coefficients"][0])
+            self.set_type(surface["id"],
+                          SurfaceCard.SurfaceType["CYLINDER_Z"],
                           coords)
         return
 
@@ -141,7 +233,12 @@ class MCNPSurfaceCard(SurfaceCard):
         if "s" in surf_type and surf_type is "so":
             self.__classify_origin_sphere(surface)
         if "s" in surf_type and surf_type is not ("s" or "so"):
-            self.__classifu_xyz_sphere(surface)
+            self.__classify_xyz_sphere(surface)
+        if "c" in surf_type and "/" in surf_type:
+            self.__classify_cylinder_parallel(surface)
+        if "c" in surf_type and "/" not in surf_type:
+            self.__classify_cylinder_on_axis(surface)
+            
         # TODO add more logic one for each surface type        
         return
 
@@ -151,8 +248,14 @@ class MCNPSurfaceCard(SurfaceCard):
 
         surface = {}                
         surface["id"] = int(tokens[0])
-        surface["type"] = tokens[1]
-        surface["coefficients"] = tokens[2:]
+
+        if surface_has_transform(self.text_string):
+            surface["transform"] = tokens[1]
+            surface["type"] = tokens[2]
+            surface["coefficients"] = tokens[3:]
+        else:
+            surface["type"] = tokens[1]
+            surface["coefficients"] = tokens[2:]
 
         if self.__mcnp_type(surface) == "infinite":
             self.__classify_surface_types(surface)
@@ -170,7 +273,6 @@ class MCNPSurfaceCard(SurfaceCard):
         string += str(self.surface_coefficients[1]) + " "
         string += str(self.surface_coefficients[2]) + " "
         string += str(self.surface_coefficients[3]) + "\n"
-        print (string)
 
     # generic write method
     def write(self):

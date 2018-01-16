@@ -10,6 +10,7 @@ class CellCard(Card):
     implemented in its own CodeCellCard.py file
     """
 
+    cell_comment = ""
     cell_id = 0
     cell_density = 0
     cell_material_num = 0
@@ -29,6 +30,7 @@ class CellCard(Card):
     # print method
     def __str__(self):
         string = "Cell Card: \n"
-        string += "Cell ID " + int(self.cell_id) + "\n"
-        string += "Comment " + str(comment) + "\n"
+        string += "Cell ID " + str(self.cell_id) + "\n"
+        string += "Comment " + str(self.cell_comment) + "\n"
+        string += "Cell Description " + str(self.cell_interpreted) + "\n"
         return string

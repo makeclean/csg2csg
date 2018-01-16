@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-from MCNPSurfaceCard import MCNPSurfaceCard
+from MCNPSurfaceCard import MCNPSurfaceCard, surface_has_transform
 from SurfaceCard import SurfaceCard
 
 class TestMCNPSurfaceMethods(unittest.TestCase):
@@ -36,6 +36,13 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(card.surface_coefficients[1], 0.0)
         self.assertEqual(card.surface_coefficients[2], 1.0)
         self.assertEqual(card.surface_coefficients[3],15.0)
+
+
+    def test_surfacetransform_detect(self):
+        card = "1 2 px 3"
+        self.assertEqual(surface_has_transform(card),True)
+        card = "1 PX 3"
+        self.assertEqual(surface_has_transform(card),False)
         
 
 if __name__ == '__main__':
