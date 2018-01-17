@@ -13,7 +13,8 @@ def main(argv):
     parser = argparse.ArgumentParser(description='csg conversion tool.')
     parser.add_argument('-d','--debug', help = 'turn on debug logging',
                         action="store_true")
-
+    parser.add_argument('-f','--file', help = 'filename to read')
+    
     # parse the arguments
     args = parser.parse_args(argv)
       
@@ -23,8 +24,13 @@ def main(argv):
 
     logging.info("Started")
 
+    if args.file is None:
+        print('file not specified')
+        sys.exit(1)
+    else:
+        filename = args.file
     
-    input = MCNPInput("mcnp_tld.inp")
+    input = MCNPInput(filename)
     input.read()
     input.process()
     serpent = SerpentInput()

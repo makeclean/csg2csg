@@ -1,4 +1,5 @@
 from SurfaceCard import SurfaceCard
+from Vector import add,subtract,cross
 
 # function to determine if the card is a surface
 # card or not
@@ -70,20 +71,24 @@ class MCNPSurfaceCard(SurfaceCard):
         
     # classify planes along the xy or z axes
     def __classify_xyz_planes(self,surface):
-        coords = [0.]*3
+        coords = [0.]*4
         # identify plane x
         if surface["type"] == "px":
-            coords[0] = float(surface["coefficients"][0])
+            coords[0] = 1.
             coords[1] = 0.
             coords[2] = 0.
+            coords[3] = float(surface["coefficients"][0])
+
             self.set_type(surface["id"],
                           SurfaceCard.SurfaceType["PLANE_X"],
                           coords)
         # identify plane y
         if surface["type"] == "py":
             coords[0] = 0.
-            coords[1] = float(surface["coefficients"][0])
+            coords[1] = 1.
             coords[2] = 0.
+            coords[3] = float(surface["coefficients"][0])
+
             self.set_type(surface["id"],
                           SurfaceCard.SurfaceType["PLANE_Y"],
                           coords)
@@ -91,7 +96,9 @@ class MCNPSurfaceCard(SurfaceCard):
         if surface["type"] == "pz":
             coords[0] = 0.
             coords[1] = 0.
-            coords[2] = float(surface["coefficients"][0])
+            coords[2] = 1.
+            coords[3] = float(surface["coefficients"][0])
+
             self.set_type(surface["id"],
                           SurfaceCard.SurfaceType["PLANE_Z"],
                           coords)
@@ -100,10 +107,48 @@ class MCNPSurfaceCard(SurfaceCard):
     # classify general planes
     def __classify_general_planes(self,surface):
         coords = [0.]*4
-        coords[0] = float(surface["coefficients"][0])
-        coords[1] = float(surface["coefficients"][1])
-        coords[2] = float(surface["coefficients"][2])
-        coords[3] = float(surface["coefficients"][3])
+        if len(surface["coefficients"]) == 9:
+            a = [surface["coefficients"][0],
+                 surface["coefficients"][1],
+                 surface["coefficients"][2]]
+            b = [surface["coefficients"][3],
+                 surface["coefficients"][4],
+                 surface["coefficients"][5]]
+            c = [surface["coefficients"][6],
+                 surface["coefficients"][7],
+                 surface["coefficients"][8]]
+
+            # floatify
+            a = [float(i) for i in a]
+            b = [float(i) for i in b]
+            c = [float(i) for i in c]
+            # form basis vectors
+            v1 = subtract(a,b)
+            v2 = subtract(c,b)
+            # get normal
+            norm = cross(v1,v2)
+            # determine offset using point
+            d = 0
+            d += norm[0]*a[0]
+            d += norm[1]*a[1]
+            d += norm[2]*a[2]
+
+            # define the equation of plane
+            coords[0] = norm[0]
+            coords[1] = norm[1]
+            coords[2] = norm[2]
+            coords[3] = -d
+            
+            # determine plane by 3 sets of xyz coords
+        elif len(surface["coefficients"]) == 4:
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = float(surface["coefficients"][1])
+            coords[2] = float(surface["coefficients"][2])
+            coords[3] = float(surface["coefficients"][3])
+        else:
+             print("surface with id " + surface["id"] + " does not have \
+             enough coefficients")
+             sys.exit(1)     
         self.set_type(surface["id"],
                       SurfaceCard.SurfaceType["PLANE_GENERAL"],
                       coords)

@@ -1,6 +1,7 @@
 #/usr/env/python3
 
 from Input import InputDeck
+from SerpentSurfaceCard import SerpentSurfaceCard, write_serpent_surface
 
 class SerpentInput(InputDeck):
     """ SerpentInput class - does the actual processing
@@ -17,24 +18,22 @@ class SerpentInput(InputDeck):
         InputDeck.surfcace_list = InputDeckClass.surface_list
         return
 
-    # def write a serpent geometry file produced
-    # via a method 
-    def __write_serpent_from_flat(self, filename):
-        # given the a geometry file that has simply been read 
-        # into a an InputFile text buffer we can simply write
-        # the surface definitions by simple reformat 
+    # Write the Serpent Cell definitions
+    def __write_serpent_cells(self, filestream):
+
         return
     
-    # write a serpent geometry produced via
-    # a generic translation method
-    def __write_serpent_from_hierarchy(self, filename):
+    # write the serpent surface definitions 
+    def __write_serpent_surfaces(self, filestream):
+        filestream.write('% --- surface definitions --- %\n')
+        for surface in self.surface_list:
+            write_serpent_surface(filestream,surface)
         return
-
+    
     # main write serpent method, depending upon where the geometry
     # came from 
     def write_serpent(self, filename, flat = True):
-        if flat:
-            self.__write_serpent_from_flat(filename)
-        else:
-            self.__write_serpent_from_hierarchy(filename)
-    
+        f = open(filename,'w')   
+        self.__write_serpent_cells(f)
+        self.__write_serpent_surfaces(f)
+        f.close()
