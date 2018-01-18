@@ -58,7 +58,7 @@ class MCNPInput(InputDeck):
         
         mcnp_characters = "nvmptwfrdi" #first letters of mcnp keywords
 
-        material_string = ' '.join(tokens[1:])
+        material_string = ' '.join(tokens[1:]) + " "
         idx += 1
 
         while True:
@@ -70,11 +70,10 @@ class MCNPInput(InputDeck):
                 break
             else:
                 # turns everything into single line string
-                material_string += ' '.join(self.file_lines[idx].split())
+                material_string += ' '.join(self.file_lines[idx].split()) + " "
             idx += 1
 
         material = MCNPMaterialCard(mat_num, material_string)
-        print(material)
         self.material_list.append(material) 
 
         return
@@ -160,7 +159,10 @@ class MCNPInput(InputDeck):
         # the idx value should now be at the data block
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
-                
+
+        for i in self.material_list:
+            print (i)
+        
         return
 
 
