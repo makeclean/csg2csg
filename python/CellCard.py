@@ -13,7 +13,7 @@ class CellCard(Card):
     cell_comment = ""
     cell_id = 0
     cell_density = 0
-    cell_material_num = 0
+    cell_material_number = 0
     cell_comment = ""
     cell_text_description = ""
     cell_interpreted = ""

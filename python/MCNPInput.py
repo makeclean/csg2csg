@@ -3,8 +3,10 @@
 from Input import InputDeck
 from MCNPCellCard import MCNPCellCard, is_cell_card
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card
+from MCNPDataCard import MCNPTransformCard, MCNPMaterialCard
 
 import logging
+import sys
 
 class MCNPInput(InputDeck):
     """ MCNPInputDeck class - does the actuall processing 
@@ -15,6 +17,9 @@ class MCNPInput(InputDeck):
         InputDeck.__init__(self,filename)
 #        self.process()
 
+    # TODO - maybe make a function that aribitrarily extract text
+    # between one keyword until another keyword is found
+
     def __set_title(self):
         # set the title card
         if "message" in self.file_lines[0]:
@@ -24,6 +29,82 @@ class MCNPInput(InputDeck):
         else:
             self.title = self.file_lines[0]
             del self.file_lines[0]
+
+    # make a transform card from a string
+    def __make_transform_card(self,transform_line):
+        tr_card = MCNPTransformCard(transform_line)
+        self.transform_list[tr_card.id] = tr_card
+        return
+
+    # get the transform cards
+    def __get_transform_cards(self, start_line):
+        idx = start_line
+        while True:
+            if idx == len(self.file_lines):
+                break
+
+            if "tr" in self.file_lines[idx]:
+                self.__make_transform_card(self.file_lines[idx])
+            idx += 1
+        return
+
+    # extract a material card from the start line until
+    def __get_material_card(self, start_line):
+        # we already know that the start line has an M init
+        idx = start_line
+        tokens = self.file_lines[idx].split()
+        mat_num = tokens[0]
+        mat_num = mat_num.replace("m","")
+        
+        mcnp_characters = "nvmptwfrdi" #first letters of mcnp keywords
+
+        material_string = ' '.join(tokens[1:])
+        idx += 1
+
+        while True:
+            if idx == len(self.file_lines):
+                break
+            # if we find any character that belongs to a keyword, we are all done
+            # with reading a material card
+            if any(char in mcnp_characters for char in self.file_lines[idx]):
+                break
+            else:
+                # turns everything into single line string
+                material_string += ' '.join(self.file_lines[idx].split())
+            idx += 1
+
+        material = MCNPMaterialCard(mat_num, material_string)
+        print(material)
+        self.material_list.append(material) 
+
+        return
+
+    # get the material cards definitions
+    def __get_material_cards(self, start_line):
+        mcnp_keywords = ["mode","prdmp","rdum","idum"]
+
+        idx = start_line
+        while True:
+            if idx == len(self.file_lines):
+                break
+            # this crazy makes sure that we find an "m" in the line but that we dont
+            # find another keyword with an m in it like prdmp
+            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):            
+               self.__get_material_card(idx)
+            idx += 1
+        return
+
+    # get the material cards definitions
+    def __get_transform_cards(self, start_line):
+        print (self.file_lines[start_line])
+        idx = start_line
+        while True:
+            if idx == len(self.file_lines):
+                break
+            if "tr" in self.file_lines[idx]:
+                self.__make_transform_card(self.file_lines[idx])
+            idx += 1
+        return
 
     def process(self):
         self.__set_title()
@@ -73,22 +154,15 @@ class MCNPInput(InputDeck):
             # tr card associated with it in which case the first is a tr card
             # the 2nd is the surface id the third is surface type          
 
-
-        #for i in self.surface_list:
-        #    print (i,text_description)
-        # line by line insert into dictionary of cell descriptions
-        #for i in self.file_lines:
-        #    print (i)
+        # now we need to process the data cards like materials
+        # now the order of data cards is entirely arbitrary
+        # will need to step around all over idx
+        # the idx value should now be at the data block
+        self.__get_transform_cards(idx)
+        self.__get_material_cards(idx)
                 
         return
 
-#input = MCNPInput("mcnp_tld.inp")
-#input.read()
-#input.process()
-#for i in input.cell_list:
-#    print (i.text_string)
-#for i in input.surface_list:
-#    print (i.text_string)
 
 
 

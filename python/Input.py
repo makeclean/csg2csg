@@ -11,8 +11,11 @@ class InputDeck:
     total_num_lines = 0
 
     # if doing a direct tranlation store here
+    # TODO maybe these should be dictionaries by index
     cell_list = []
     surface_list = []
+    material_list = []
+    transform_list = {}
     
     # if doing a hierachy transform store here
     cell_card_collection = {}
