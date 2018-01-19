@@ -48,7 +48,8 @@ class MCNPSurfaceCard(SurfaceCard):
     # TODO add to this list to add more surface types
     __mcnp_surface_types = ["p","px","py","pz",
                             "s","so","sx","sy","sz",
-                            "cx","cy","cz","c/x","c/y","c/z"]
+                            "cx","cy","cz","c/x","c/y","c/z",
+                            "gq","sq"]
     # TODO add to this list to add more macrobody types
     __mcnp_macro_types = ["rpp"]
 
@@ -67,6 +68,7 @@ class MCNPSurfaceCard(SurfaceCard):
         elif any(surface["type"] in s for s in self.__mcnp_macro_types):
             return "macrobody"
         else:
+            print ("surface type ", surface["type"] , " unknown")
             return "unknown"
         
     # classify planes along the xy or z axes
@@ -261,6 +263,32 @@ class MCNPSurfaceCard(SurfaceCard):
                           coords)
         return
 
+    def __classify_gq(self, surface):
+        coords = [0.] * 10
+        if surface["type"] == "gq":
+            for i in range(10):
+                coords[i] = float(surface["coefficients"][i])
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
+                          coords)
+        elif surface["type"] == "sq":
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = float(surface["coefficients"][1])
+            coords[2] = float(surface["coefficients"][2])
+            coords[3] = 0.
+            coords[4] = 0.
+            coords[5] = 0.
+            coords[6] = 2*float(surface["coefficients"][3] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][7])
+            coords[7] = 2*float(surface["coefficients"][4] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][8])
+            coords[8] = 2*float(surface["coefficients"][5] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][9])
+            coords[9] = 2. # big long term
+
+            coords[i] = float(surface["coefficients"][i])
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
+                          coords)
+
+
                           
     # classify any inifinite surface
     def __classify_surface_types(self,surface):
@@ -283,6 +311,10 @@ class MCNPSurfaceCard(SurfaceCard):
             self.__classify_cylinder_parallel(surface)
         if "c" in surf_type and "/" not in surf_type:
             self.__classify_cylinder_on_axis(surface)
+        if "g" in surf_type and "q" in surf_type:
+            self.__classify_gq(surface)
+        if "s" in surf_type and "q" in surf_type:
+            self.__classify_gq(surface)
             
         # TODO add more logic one for each surface type        
         return
