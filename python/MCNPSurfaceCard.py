@@ -272,21 +272,41 @@ class MCNPSurfaceCard(SurfaceCard):
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
         elif surface["type"] == "sq":
-            coords[0] = float(surface["coefficients"][0])
-            coords[1] = float(surface["coefficients"][1])
-            coords[2] = float(surface["coefficients"][2])
+
+            a = float(surface["coefficients"][0])
+            b = float(surface["coeffiicents"][1])
+            c = float(surface["coefficients"][2])
+
+            x_bar = float(surface["coefficients"][7])
+            y_bar = float(surface["coefficients"][8])
+            z_bar = float(surface["coefficients"][9])
+
+            d = float(surface["coefficients"][3])
+            e = float(surface["coefficients"][4])
+            f = float(surface["coefficients"][5])
+
+            g = 2*d - 2*a*x_bar
+            h = 2*e - 2*b*y_bar
+            j = 2*f - 2*c*z_bar
+
+            h = a*x_bar**2 + b*y_bar**2 + c*z_bar**2 - 2*d*x_bar - 2*e*y_bar - 2*f*z_bar + float(surface["coefficients"][6])
+            
+            coords[0] = a
+            coords[1] = b
+            coords[2] = c
             coords[3] = 0.
             coords[4] = 0.
             coords[5] = 0.
-            coords[6] = 2*float(surface["coefficients"][3] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][7])
-            coords[7] = 2*float(surface["coefficients"][4] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][8])
-            coords[8] = 2*float(surface["coefficients"][5] - 2*float(surface["coefficents"][0])*float(surface["coefficients"][9])
-            coords[9] = 2. # big long term
-
-            coords[i] = float(surface["coefficients"][i])
+            coords[6] = g
+            coords[7] = h
+            coords[8] = j
+            coords[9] = h
+                        
             self.set_type(surface["id"],surface["transform"],
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
+            
+        return
 
 
                           

@@ -27,6 +27,7 @@ class SurfaceCard(Card):
         TORUS_X = auto()
         TORUS_Y = auto()
         TORUS_Z = auto()
+        GENERAL_QUADRATIC = auto()
     
     # constructor for building a surface card
     def __init__(self,card_string):
