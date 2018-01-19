@@ -105,6 +105,13 @@ class MCNPInput(InputDeck):
             idx += 1
         return
 
+    # apply transforms if needed
+    def __apply_surface_transformations(self):
+        for surf in self.surface_list:
+            if surf.surface_transform != 0:
+                #surface.transform()
+                print (surf)
+    
     def process(self):
         self.__set_title()
 
@@ -159,7 +166,9 @@ class MCNPInput(InputDeck):
         # the idx value should now be at the data block
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
-
+        self.__apply_surface_transformations()
+        
+        
         for i in self.material_list:
             print (i)
         

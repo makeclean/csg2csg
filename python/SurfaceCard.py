@@ -35,13 +35,15 @@ class SurfaceCard(Card):
     def __str__(self):
         string = "SurfaceCard: \n"
         string += "Surface ID " + str(self.surface_id)+"\n"
+        string += "Transform ID " + str(self.surface_transform) + "\n"
         string += "Surface Type " + str(self.surface_type)+"\n"
         string += "Surface Coefficients " + str(self.surface_coefficients)+"\n"
         string += "Comment: " + str(self.comment)+"\n"
         return string
         
-    def set_type(self, surf_id, surf_type, coords):
+    def set_type(self, surf_id, surf_transform, surf_type, coords):
         self.surface_id = surf_id
+        self.surface_transform = surf_transform
         self.surface_type = surf_type
         self.surface_coefficients = coords
         
