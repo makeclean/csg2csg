@@ -6,6 +6,7 @@ from Vector import add,subtract,cross
 def is_surface_card(line):
     # tokenise the line
     surface_card = line.split()
+    
     # test if first item is an int
     try:
         int(surface_card[0])
@@ -265,6 +266,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
     def __classify_gq(self, surface):
         coords = [0.] * 10
+
         if surface["type"] == "gq":
             for i in range(10):
                 coords[i] = float(surface["coefficients"][i])
@@ -274,7 +276,7 @@ class MCNPSurfaceCard(SurfaceCard):
         elif surface["type"] == "sq":
 
             a = float(surface["coefficients"][0])
-            b = float(surface["coeffiicents"][1])
+            b = float(surface["coefficients"][1])
             c = float(surface["coefficients"][2])
 
             x_bar = float(surface["coefficients"][7])

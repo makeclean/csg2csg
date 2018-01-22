@@ -32,6 +32,13 @@ class SerpentInput(InputDeck):
         for surface in self.surface_list:
             write_serpent_surface(filestream,surface)
         return
+
+    # write the material compositions
+    def __write_serpent_materials(self, filestream):
+        filestream.write("% --- material definitions --- %n")
+        for material in self.material_list:
+            write_serpent_material(filestream, material)
+        return
     
     # main write serpent method, depending upon where the geometry
     # came from 
@@ -39,4 +46,5 @@ class SerpentInput(InputDeck):
         f = open(filename,'w')   
         self.__write_serpent_surfaces(f)
         self.__write_serpent_cells(f)
+#        self.__write_serpent_materials(f)
         f.close()

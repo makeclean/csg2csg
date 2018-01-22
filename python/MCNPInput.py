@@ -95,7 +95,6 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_transform_cards(self, start_line):
-        print (self.file_lines[start_line])
         idx = start_line
         while True:
             if idx == len(self.file_lines):
@@ -121,6 +120,7 @@ class MCNPInput(InputDeck):
             if idx == len(self.file_lines):
                 break
             if self.file_lines[idx][0].lower() == "c":
+#                print (self.file_lines[idx])
                 del self.file_lines[idx]
             else:
                 idx += 1
@@ -148,7 +148,7 @@ class MCNPInput(InputDeck):
 
             # if we find the blank line
             if surface_card == "\n": break
-
+               
             if is_surface_card(surface_card):
                 surfacecard = MCNPSurfaceCard(surface_card)
                 logging.debug('%s',surfacecard)
@@ -167,10 +167,6 @@ class MCNPInput(InputDeck):
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()
-        
-        
-        for i in self.material_list:
-            print (i)
         
         return
 

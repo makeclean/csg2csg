@@ -24,11 +24,21 @@ def serpent_op_from_generic(Operation):
 # write the cell card for a serpent cell given a generic cell card
 def write_serpent_cell(filestream, CellCard):
     string = "cell " + str(CellCard.cell_id) + " 0 " # note the 1 refers to universe number
-    string += str(CellCard.cell_material_number) + " "
+    
+    # material 0 is void
+    if CellCard.cell_material_number == 0:
+        string += "void "
+    else:
+        string += str(CellCard.cell_material_number) + " "
+        
+    string += "( "
     
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += serpent_op_from_generic(item)
+
+    string += " ) " 
+
     string += "\n"
     
 

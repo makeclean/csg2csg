@@ -57,6 +57,14 @@ def serpent_sphere(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[3])
     string += "\n"
     return string
+
+# write a general quadratic
+def serpent_gq(SurfaceCard):
+    string = " quadratic " 
+    for coefficient in SurfaceCard.surface_coefficients:
+        string += " " + str(coefficient) + " " 
+    string += "\n"
+    return string
   
 
 # write the surface description to file
@@ -93,6 +101,9 @@ def write_serpent_surface(filestream, SurfaceCard):
         filestream.write(string)
     elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
         string += serpent_sphere(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
+        string += serpent_gq(SurfaceCard)
         filestream.write(string)
     else:
         filestream.write("surface not supported\n")
