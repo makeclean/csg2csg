@@ -33,4 +33,9 @@ class InputDeck:
         [x.encode('utf-8') for x in self.file_lines]
         self.total_num_lines = len(self.file_lines)
         
-
+    def from_input(self,InputDeckClass):
+        InputDeck.filename = InputDeckClass.filename
+        InputDeck.title = InputDeckClass.title
+        InputDeck.cell_list = InputDeckClass.cell_list
+        InputDeck.surfcace_list = InputDeckClass.surface_list
+        return

@@ -1,8 +1,8 @@
 #/usr/env/python3
 
 from Input import InputDeck
-from MCNPCellCard import MCNPCellCard, is_cell_card
-from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card
+from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
+from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from MCNPDataCard import MCNPTransformCard, MCNPMaterialCard
 
 import logging
@@ -13,7 +13,7 @@ class MCNPInput(InputDeck):
     """
 
     # constructor
-    def __init__(self,filename):
+    def __init__(self, filename =""):
         InputDeck.__init__(self,filename)
 #        self.process()
 
@@ -170,6 +170,27 @@ class MCNPInput(InputDeck):
         
         return
 
+
+    # write all surfaces to mcnp format
+    def __write_mcnp_surfaces(self, filestream):
+        filestream.write("C surface definitions\n")
+        for surface in self.surface_list:
+            write_mcnp_surface(filestream, surface)
+        filestream.write("\n") # blank line
+
+    # write all cells to mcnp format
+    def __write_mcnp_cells(self, filestream):
+        filestream.write("C cell definitions\n")
+        for cell in self.cell_list:
+            write_mcnp_cell(filestream, cell)
+        filestream.write("\n") # the important blank line
+
+    # main write MCNP method, depnds on where the geometry
+    # came from
+    def write_mcnp(self, filename, flat = True):
+        f = open(filename, 'w')
+        self.__write_mcnp_cells(f)
+        self.__write_mcnp_surfaces(f)
 
 
 

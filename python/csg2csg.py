@@ -35,7 +35,10 @@ def main(argv):
     input.process()
     serpent = SerpentInput()
     serpent.from_input(input)
-    serpent.write_serpent("file")
+    serpent.write_serpent("file.serp")
+    mcnp = MCNPInput()
+    mcnp.from_input(input)
+    mcnp.write_mcnp("file.mcnp")
 
     logging.info("Finshed")
 

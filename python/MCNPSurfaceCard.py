@@ -38,6 +38,112 @@ def surface_has_transform(line):
 
     return True
 
+
+# write the mcnp form of the general plane
+def mcnp_plane_string(SurfaceCard):
+    string = "p "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
+    return string
+
+# write the mcnp form of the x plane
+def mcnp_plane_x(SurfaceCard):
+    string = "px "
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
+    return string
+
+# write the mcnp form of the y plane
+def mcnp_plane_y(SurfaceCard):
+    string = "py "
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
+    return string
+
+# write the mcnp form of the z plane
+def mcnp_plane_z(SurfaceCard):
+    string = "pz "
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
+    return string
+
+# write the mcnp form of an cylinder aligned along the x axis
+def mcnp_cylinder_x(SurfaceCard):
+    string = "c/x "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n"
+    return string
+
+# write the mcnp form of an cylinder aligned along the x axis
+def mcnp_cylinder_y(SurfaceCard):
+    string = "c/y "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n"
+    return string
+
+# write the mcnp form of an cylinder aligned along the z axis
+def mcnp_cylinder_z(SurfaceCard):
+    string = "c/z "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n"
+    return string
+
+# write the mcnp form of an arbitrary sphere
+def mcnp_sphere(SurfaceCard):
+    string = "s "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
+    return string
+
+# write the mcnp form of an arbitrary sphere
+def mcnp_gq(SurfaceCard):
+    string = "gq "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[3]) + " "
+    string += str(SurfaceCard.surface_coefficients[4]) + " "
+    string += str(SurfaceCard.surface_coefficients[5]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[6]) + " "
+    string += str(SurfaceCard.surface_coefficients[7]) + " "
+    string += str(SurfaceCard.surface_coefficients[8]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[9]) + "\n"
+    return string
+
+# generic write method
+def write_mcnp_surface(filestream, SurfaceCard):
+    
+    string = str(SurfaceCard.surface_id) + " "
+    
+    if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
+        string += mcnp_plane_string(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_X"]:
+        string += mcnp_plane_x(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Y"]:
+        string += mcnp_plane_y(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Z"]:
+        string += mcnp_plane_z(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_X"]:
+        string += mcnp_cylinder_x(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_Y"]:
+        string += mcnp_cylinder_y(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_Z"]:
+        string += mcnp_cylinder_z(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
+        string += mcnp_sphere(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
+        string += mcnp_gq(SurfaceCard)
+    else:
+        string += "Unknown surface type"
+        
+    filestream.write(string)
+    
+    return
+
 class MCNPSurfaceCard(SurfaceCard):
 
     # TODO to add more surface definiitions, expand the list found
@@ -274,24 +380,24 @@ class MCNPSurfaceCard(SurfaceCard):
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
         elif surface["type"] == "sq":
-
+            print (surface["coefficients"])
             a = float(surface["coefficients"][0])
             b = float(surface["coefficients"][1])
             c = float(surface["coefficients"][2])
-
-            x_bar = float(surface["coefficients"][7])
-            y_bar = float(surface["coefficients"][8])
-            z_bar = float(surface["coefficients"][9])
 
             d = float(surface["coefficients"][3])
             e = float(surface["coefficients"][4])
             f = float(surface["coefficients"][5])
 
-            g = 2*d - 2*a*x_bar
-            h = 2*e - 2*b*y_bar
-            j = 2*f - 2*c*z_bar
+            x_bar = float(surface["coefficients"][7])
+            y_bar = float(surface["coefficients"][8])
+            z_bar = float(surface["coefficients"][9])
 
-            h = a*x_bar**2 + b*y_bar**2 + c*z_bar**2 - 2*d*x_bar - 2*e*y_bar - 2*f*z_bar + float(surface["coefficients"][6])
+            g = (2*d) - (2*a*x_bar)
+            h = (2*e) - (2*b*y_bar)
+            j = (2*f) - (2*c*z_bar)
+
+            h = (a*(x_bar**2)) + (b*(y_bar**2)) + (c*(z_bar**2)) - (2*d*x_bar) - (2*e*y_bar) - (2*f*z_bar) + float(surface["coefficients"][6])
             
             coords[0] = a
             coords[1] = b
@@ -304,6 +410,8 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[8] = j
             coords[9] = h
                         
+            print(coords)
+            
             self.set_type(surface["id"],surface["transform"],
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
@@ -364,18 +472,4 @@ class MCNPSurfaceCard(SurfaceCard):
         else:
             print("unknown type")
 
-    # write the mcnp form of the general plane
-    def __write_plane_general(self):
-        string = ""
-        string += str(self.surface_id) + " "
-        string += "p "
-        string += str(self.surface_coefficients[0]) + " "
-        string += str(self.surface_coefficients[1]) + " "
-        string += str(self.surface_coefficients[2]) + " "
-        string += str(self.surface_coefficients[3]) + "\n"
-
-    # generic write method
-    def write(self):
-        if self.surface_type == self.SurfaceType["PLANE_GENERAL"]:
-            self.__write_plane_general()
             

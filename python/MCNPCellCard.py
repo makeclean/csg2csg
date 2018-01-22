@@ -19,6 +19,43 @@ def is_cell_card(line):
         return True
     return False
 
+# turn the generic operation type into a mcnp relevant text string
+def mcnp_op_from_generic(Operation):
+    # if we are not of type operator - we are string do nowt
+    if not isinstance(Operation, CellCard.OperationType):
+        return Operation
+    else:
+        # otherwise we need to do something
+        if Operation is CellCard.OperationType["NOT"]:
+            string = "#"
+        elif Operation is CellCard.OperationType["AND"]:
+            string = " "
+        elif Operation is CellCard.OperationType["UNION"]:
+            string = ":"
+        else:
+            string = "unknown operation"
+    # return the operation
+    return string
+
+# write the cell card for a serpent cell given a generic cell card
+def write_mcnp_cell(filestream, CellCard):
+    string = str(CellCard.cell_id) + " "
+    
+    string += str(CellCard.cell_material_number) + " "
+    if CellCard.cell_material_number != 0:
+        string += str(CellCard.cell_density) + " "
+
+    string += "( "
+    
+    # build the cell description
+    for item in CellCard.cell_interpreted:
+        string += mcnp_op_from_generic(item)
+
+    string += " ) " 
+
+    string += "\n"   
+
+    filestream.write(string)
 
 class MCNPCellCard(CellCard):
     """ Class for the instanciation of generic cell cards

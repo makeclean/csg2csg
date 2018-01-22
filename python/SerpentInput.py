@@ -12,12 +12,12 @@ class SerpentInput(InputDeck):
     def __init__(self,filename = ""):
         InputDeck.__init__(self,filename)
         
-    def from_input(self,InputDeckClass):
-        InputDeck.filename = InputDeckClass.filename
-        InputDeck.title = InputDeckClass.title
-        InputDeck.cell_list = InputDeckClass.cell_list
-        InputDeck.surfcace_list = InputDeckClass.surface_list
-        return
+#    def from_input(self,InputDeckClass):
+#        InputDeck.filename = InputDeckClass.filename
+#        InputDeck.title = InputDeckClass.title
+#        InputDeck.cell_list = InputDeckClass.cell_list
+#        InputDeck.surfcace_list = InputDeckClass.surface_list
+#        return
 
     # Write the Serpent Cell definitions
     def __write_serpent_cells(self, filestream):
