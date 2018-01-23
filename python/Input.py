@@ -14,7 +14,7 @@ class InputDeck:
     # TODO maybe these should be dictionaries by index
     cell_list = []
     surface_list = []
-    material_list = []
+    material_list = {}
     transform_list = {}
     
     # if doing a hierachy transform store here
@@ -38,4 +38,5 @@ class InputDeck:
         InputDeck.title = InputDeckClass.title
         InputDeck.cell_list = InputDeckClass.cell_list
         InputDeck.surfcace_list = InputDeckClass.surface_list
+        InputDeck.material_list = InputDeckClass.material_list
         return

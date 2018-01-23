@@ -24,6 +24,9 @@ def main(argv):
     parser.add_argument('-d','--debug', help = 'turn on debug logging',
                         action="store_true")
     parser.add_argument('-f','--file', help = 'filename to read')
+    parser.add_argument('-p','--preserve', 
+                        help = 'preserve existing cross section id numbers on write',
+                        action="store_true")
     
     # parse the arguments
     args = parser.parse_args(argv)

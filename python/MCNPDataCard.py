@@ -62,37 +62,3 @@ class MCNPTransformCard(MCNPDataCard):
             sys.exit(1)
         return
 
-# Class to handle MCNP Material Card
-class MCNPMaterialCard(MCNPDataCard):
-    material_number = 0
-    composition_dictionary = {}
-
-    def __init__(self, material_number, card_string):
-        MCNPDataCard.__init__(self, card_string)
-        self.material_number = material_number
-        self.__process_string()
-
-    # print method
-    def __str__(self):
-        string =  "material " + self.material_number + "\n"
-        for item in self.composition_dictionary.keys():
-            string += item + " " + self.composition_dictionary[item] + "\n"
-        return string
-
-    # populate the MCNP Material Card
-    def __process_string(self):
-        tokens = self.text_string.split()
-        # need to reset the dictionary
-        # otherwise state seems to linger - weird
-        self.composition_dictionary = {}
-
-        if len(tokens)%2 != 0:
-            print ("Material string not correctly processed")
-            sys.exit(1)
-        while len(tokens) != 0:
-            nucid = tokens[0]
-            frac = tokens[1]
-            tokens.pop(0)
-            tokens.pop(0)
-            self.composition_dictionary[nucid] = frac
-        return

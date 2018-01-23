@@ -3,14 +3,19 @@
 from Input import InputDeck
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
-from MCNPDataCard import MCNPTransformCard, MCNPMaterialCard
+from MCNPDataCard import MCNPTransformCard
+from MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 
+from collections import Counter
+
+from copy import deepcopy
 import logging
 import sys
 
 class MCNPInput(InputDeck):
     """ MCNPInputDeck class - does the actuall processing 
     """
+    preserve_xsid = False
 
     # constructor
     def __init__(self, filename =""):
@@ -74,7 +79,7 @@ class MCNPInput(InputDeck):
             idx += 1
 
         material = MCNPMaterialCard(mat_num, material_string)
-        self.material_list.append(material) 
+        self.material_list[material.material_number] = material
 
         return
 
@@ -105,12 +110,76 @@ class MCNPInput(InputDeck):
         return
 
     # apply transforms if needed
+    # need to figure out how MCNP does its surface transforms
+    # this is not a widely supported feature amongst other
+    # monte carlo codes
     def __apply_surface_transformations(self):
         for surf in self.surface_list:
             if surf.surface_transform != 0:
                 #surface.transform()
                 print (surf)
-    
+
+    # find the next free material number 
+    def __next_free_int(self):
+        idx = 1
+        while True:
+            if idx in self.material_list.keys():
+                idx += 1
+            else:
+                break
+        return idx
+
+    # reorganise materials such that we get a new set of unique 
+    # material number/ density pairs
+    def __reorganise_materials(self):
+        material_density = {}
+        for cell in self.cell_list:
+            # if the material number already exists
+            if cell.cell_material_number in material_density:
+                # append another density if its unique
+                if not any(cell.cell_density == density for density in material_density[cell.cell_material_number]):
+                    material_density[cell.cell_material_number].append(cell.cell_density)
+            else:
+                material_density[cell.cell_material_number] = [cell.cell_density]
+        # remove density 0.0 and material 0
+        if '0' in material_density.keys(): del material_density['0']
+
+        # TODO -  this function needs to modify materials such that if
+        # there are materials with more than 1 density value, it is split
+        # into two materials - needs to be done such that cells that have 
+        # the updated material number should there be one created
+
+        print (self.material_list)
+
+        for mat in sorted(material_density.keys()):
+            num_densities = len(material_density[mat])
+            if num_densities > 1:
+                # the first density becomes the cannonical definition
+                for density in material_density[mat][1:]:
+                    material = deepcopy(self.material_list[str(mat)])
+                    material.density = density
+                    material.material_number = self.__next_free_int()
+                    self.material_list[str(material.material_number)] = material
+
+                    # go through cells and update the material numbers accordingly
+                    for cell in self.cell_list:
+#                    for idx in len(self.cell_list):
+                        cell = self.cell_list[idx]
+                        # if we match
+                        if cell.cell_material_number == mat and cell.cell_density == density:
+                            # update the cell material number - density is already correct
+                            print (cell.cell_id)
+                            cell.cell_material_number = material.material_number
+                    
+                    # now need to remove the density pair from the material_density map
+                    
+                    
+        print (material_density)
+
+        return
+
+    # process the mcnp input deck and read into a generic datastructure
+    # that we can translate to other formats
     def process(self):
         self.__set_title()
 
@@ -120,7 +189,6 @@ class MCNPInput(InputDeck):
             if idx == len(self.file_lines):
                 break
             if self.file_lines[idx][0].lower() == "c":
-#                print (self.file_lines[idx])
                 del self.file_lines[idx]
             else:
                 idx += 1
@@ -167,10 +235,17 @@ class MCNPInput(InputDeck):
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()
+
+        # materials in other codes are tie their composition
+        # and density together - need to make new material cards
+        # based on the mateiral number / density pairs
+        # and update cells accordingly.
+        self.__reorganise_materials()
         
         return
 
-
+    # perhaps these write functions should actually build strings 
+    # and then write at once?
     # write all surfaces to mcnp format
     def __write_mcnp_surfaces(self, filestream):
         filestream.write("C surface definitions\n")
@@ -185,13 +260,19 @@ class MCNPInput(InputDeck):
             write_mcnp_cell(filestream, cell)
         filestream.write("\n") # the important blank line
 
+    # write all cells to mcnp format
+    def __write_mcnp_materials(self, filestream):
+        filestream.write("C material definitions\n")
+        for material in sorted(self.material_list.keys()):
+            write_mcnp_material(filestream, self.material_list[material], self.preserve_xsid )
+
     # main write MCNP method, depnds on where the geometry
     # came from
     def write_mcnp(self, filename, flat = True):
         f = open(filename, 'w')
         self.__write_mcnp_cells(f)
         self.__write_mcnp_surfaces(f)
-
+        self.__write_mcnp_materials(f)
 
 
     
