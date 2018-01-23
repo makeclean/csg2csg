@@ -397,7 +397,7 @@ class MCNPSurfaceCard(SurfaceCard):
             h = (2*e) - (2*b*y_bar)
             j = (2*f) - (2*c*z_bar)
 
-            h = (a*(x_bar**2)) + (b*(y_bar**2)) + (c*(z_bar**2)) - (2*d*x_bar) - (2*e*y_bar) - (2*f*z_bar) + float(surface["coefficients"][6])
+            k = (a*(x_bar**2)) + (b*(y_bar**2)) + (c*(z_bar**2)) - (2*d*x_bar) - (2*e*y_bar) - (2*f*z_bar) + float(surface["coefficients"][6])
             
             coords[0] = a
             coords[1] = b
@@ -408,7 +408,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[6] = g
             coords[7] = h
             coords[8] = j
-            coords[9] = h
+            coords[9] = k
                         
             print(coords)
             
