@@ -2,6 +2,7 @@
 
 from MCNPInput import MCNPInput
 from SerpentInput import SerpentInput
+from OpenMCInput import OpenMCInput
 
 # for debug info
 import logging, sys 
@@ -39,7 +40,10 @@ def main(argv):
     mcnp = MCNPInput()
     mcnp.from_input(input)
     mcnp.write_mcnp("file.mcnp")
-
+    openmc = OpenMCInput()
+    openmc.from_input(input)
+    openmc.write_openmc("file.openmc")
+    
     logging.info("Finshed")
 
 if __name__ == "__main__":
