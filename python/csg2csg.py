@@ -7,6 +7,15 @@ from OpenMCInput import OpenMCInput
 # for debug info
 import logging, sys 
 import argparse
+import os
+
+# make a directory in which wthe output of csg2csg will
+# be stored
+def mkdir(directory):
+    try:
+        os.mkdir(directory)
+    except: 
+        pass
 
 # the main worker
 def main(argv):
@@ -34,15 +43,21 @@ def main(argv):
     input = MCNPInput(filename)
     input.read()
     input.process()
+
     serpent = SerpentInput()
     serpent.from_input(input)
-    serpent.write_serpent("file.serp")
+    mkdir("serpent")
+    serpent.write_serpent("serpent/file.serp")
+
     mcnp = MCNPInput()
     mcnp.from_input(input)
-    mcnp.write_mcnp("file.mcnp")
+    mkdir("mcnp")
+    mcnp.write_mcnp("mcnp/file.mcnp")
+
     openmc = OpenMCInput()
     openmc.from_input(input)
-    openmc.write_openmc("file.openmc")
+    mkdir("openmc")
+    openmc.write_openmc("openmc/file.openmc")
     
     logging.info("Finshed")
 
