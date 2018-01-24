@@ -85,7 +85,7 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = ["mode","prdmp","rdum","idum"]
+        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp"]
 
         idx = start_line
         while True:
@@ -94,7 +94,7 @@ class MCNPInput(InputDeck):
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
             if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):            
-               self.__get_material_card(idx)
+                self.__get_material_card(idx)
             idx += 1
         return
 
@@ -183,6 +183,8 @@ class MCNPInput(InputDeck):
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
+
+
         self.__set_title()
 
         # clear out the comment cards
@@ -212,6 +214,7 @@ class MCNPInput(InputDeck):
             idx += 1
 
         idx += 1
+
         # now process the surfaces
         while True:
             surface_card = self.file_lines[idx]
@@ -229,6 +232,7 @@ class MCNPInput(InputDeck):
             # and the 2nd should be text, its possible the surface has a 
             # tr card associated with it in which case the first is a tr card
             # the 2nd is the surface id the third is surface type          
+
 
         # now we need to process the data cards like materials
         # now the order of data cards is entirely arbitrary

@@ -9,15 +9,20 @@ def openmc_surface_info(SurfaceCard):
     #print (SurfaceCard.surface_id, surface_coefficients)
     if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
         type_string = "plane"
+        #coeff_string = " " + str(SurfaceCard.surface_coefficients[0])
+        #coeff_string += " " + str(SurfaceCard.surface_coefficients[1])
+        #coeff_string += " " + str(SurfaceCard.surface_coefficients[2])
+        #coeff_string += " " + str(-1.*SurfaceCard.surface_coefficients[3])
+        
         coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_X"]:
-        type_string = "plane-x"
+        type_string = "x-plane"
         coeff_string = str(SurfaceCard.surface_coefficients[3])
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Y"]:
-        type_string = "plane-y"
+        type_string = "y-plane"
         coeff_string = str(SurfaceCard.surface_coefficients[3])
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Z"]:
-        type_string = "plane-z"
+        type_string = "z-plane"
         coeff_string = str(SurfaceCard.surface_coefficients[3])
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_X"]:
         type_string = "x-cylinder"

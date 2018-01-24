@@ -75,6 +75,46 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(card.surface_coefficients[8], 1.0)
         self.assertEqual(card.surface_coefficients[9], 1.0)
 
+    def test_so(self):
+        card_string = "15000 so 2.5"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], 0.0)
+        self.assertEqual(card.surface_coefficients[1], 0.0)
+        self.assertEqual(card.surface_coefficients[2], 0.0)
+        self.assertEqual(card.surface_coefficients[3], 2.5)
+
+    def test_sx(self):
+        card_string = "15000 sx 3.0 2.5"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], 3.0)
+        self.assertEqual(card.surface_coefficients[1], 0.0)
+        self.assertEqual(card.surface_coefficients[2], 0.0)
+        self.assertEqual(card.surface_coefficients[3], 2.5)
+
+    def test_sy(self):
+        card_string = "15000 sy 3.0 2.5"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], 0.0)
+        self.assertEqual(card.surface_coefficients[1], 3.0)
+        self.assertEqual(card.surface_coefficients[2], 0.0)
+        self.assertEqual(card.surface_coefficients[3], 2.5)
+
+    def test_sx(self):
+        card_string = "15000 sz 3.0 2.5"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], 0.0)
+        self.assertEqual(card.surface_coefficients[1], 0.0)
+        self.assertEqual(card.surface_coefficients[2], 3.0)
+        self.assertEqual(card.surface_coefficients[3], 2.5)
+
         
     def test_surfacetransform_detect(self):
         card = "1 2 px 3"

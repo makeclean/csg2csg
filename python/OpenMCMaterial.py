@@ -18,7 +18,7 @@ def __write_mass_fraction(material, nuclide, mass_frac):
 def write_openmc_material(MaterialCard, material_tree):
     matid = str(MaterialCard.material_number)
     name = "Material " + str(matid)
-    density = str(MaterialCard.density)
+    density = str(abs(MaterialCard.density))
     if MaterialCard.density < 0:
         density_units = "g/cc"
     else:

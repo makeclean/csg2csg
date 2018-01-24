@@ -409,9 +409,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[7] = h
             coords[8] = j
             coords[9] = k
-                        
-            print(coords)
-            
+                                    
             self.set_type(surface["id"],surface["transform"],
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
@@ -429,22 +427,28 @@ class MCNPSurfaceCard(SurfaceCard):
         # classify surface types
         if "p" in surf_type and surf_type is "p":
             self.__classify_general_planes(surface)
-        if "p" in surf_type and surf_type is not "p":
+        elif "p" in surf_type and surf_type is not "p":
             self.__classify_xyz_planes(surface)
-        if "s" in surf_type and surf_type is "s":
-            self.__classify_general_sphere(surface)
-        if "s" in surf_type and surf_type is "so":
-            self.__classify_origin_sphere(surface)
-        if "s" in surf_type and surf_type is not ("s" or "so"):
-            self.__classify_xyz_sphere(surface)
-        if "c" in surf_type and "/" in surf_type:
+        elif "s" in surf_type:
+            if surf_type == "so":
+                self.__classify_origin_sphere(surface)
+            elif surf_type is not "s" and surf_type != "so":
+                self.__classify_xyz_sphere(surface)
+            elif surf_type is "s":
+                self.__classify_general_sphere(surface)
+            else:
+                print ("im a sphere that I dont understand")
+        elif "c" in surf_type and "/" in surf_type:
             self.__classify_cylinder_parallel(surface)
-        if "c" in surf_type and "/" not in surf_type:
+        elif "c" in surf_type and "/" not in surf_type:
             self.__classify_cylinder_on_axis(surface)
-        if "g" in surf_type and "q" in surf_type:
+        elif "g" in surf_type and "q" in surf_type:
             self.__classify_gq(surface)
-        if "s" in surf_type and "q" in surf_type:
+        elif "s" in surf_type and "q" in surf_type:
             self.__classify_gq(surface)
+        else:
+            print ("Could not classify surface")
+            sys.exit(1)
             
         # TODO add more logic one for each surface type        
         return

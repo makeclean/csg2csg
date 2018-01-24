@@ -30,7 +30,8 @@ class InputDeck:
             
         # sometimes truely monstrous people stuff weird
         # characters into textfiles
-        [x.encode('utf-8') for x in self.file_lines]
+        # self.file_lines = [x.encode('utf-8') for x in self.file_lines]
+        self.file_lines = [x.lower() for x in self.file_lines]
         self.total_num_lines = len(self.file_lines)
         
     def from_input(self,InputDeckClass):

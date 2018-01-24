@@ -83,9 +83,10 @@ class MCNPCellCard(CellCard):
     def generalise(self):
         cell_description = self.cell_text_description
         cell_description = list(cell_description)
-        idx = 1
+        idx = 0
         while True:
             s = cell_description[idx]
+
             if s is ":":
                 cell_description[idx] = CellCard.OperationType["UNION"]
                 idx += 1

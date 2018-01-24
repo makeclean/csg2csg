@@ -15,7 +15,7 @@ def openmc_op_from_generic(Operation):
         elif Operation is CellCard.OperationType["AND"]:
             string = " "
         elif Operation is CellCard.OperationType["UNION"]:
-            string = "/"
+            string = "|"
         else:
             string = "unknown operation"
     # return the operation

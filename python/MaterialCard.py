@@ -39,6 +39,9 @@ class MaterialCard(Card):
         for nuc in self.composition_dictionary:
             sum += float(self.composition_dictionary[nuc])
 
+        # dont divide by -ve number ! mass->atom
+        sum = abs(sum)
+
         for nuc in self.composition_dictionary:
             self.composition_dictionary[nuc] = float(self.composition_dictionary[nuc])/sum
 
