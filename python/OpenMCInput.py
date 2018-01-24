@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 
 from OpenMCSurface import write_openmc_surface
 from OpenMCCell import write_openmc_cell
-
+from OpenMCMaterial import write_openmc_material
 '''
 copy and paste from http://effbot.org/zone/element-lib.htm#prettyprint
 it basically walks your tree and adds spaces and newlines so the tree is
@@ -48,6 +48,11 @@ class OpenMCInput(InputDeck):
         for cell in self.cell_list:
             write_openmc_cell(cell, geometry_tree)
             
+    # write the collection of Material
+    def __write_openmc_materials(self, material_tree):
+        for mat in self.material_list:
+            write_openmc_material(self.material_list[mat], material_tree)
+
     # write the openmc geometry
     def write_openmc(self, filename, flat = True):
         geometry = ET.Element("geometry")
@@ -57,4 +62,11 @@ class OpenMCInput(InputDeck):
         
         tree = ET.ElementTree(geometry)
         indent(geometry)
-        tree.write(filename+".xml")
+        tree.write(filename+"/geometry.xml")
+
+        # write the materials
+        material_tree = ET.Element("materials")
+        tree = ET.ElementTree(material_tree)
+        self.__write_openmc_materials(material_tree)
+        indent(material_tree)
+        tree.write(filename+'/materials.xml')

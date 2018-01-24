@@ -3,6 +3,7 @@
 from Input import InputDeck
 from SerpentSurfaceCard import SerpentSurfaceCard, write_serpent_surface
 from SerpentCellCard import SerpentCellCard, write_serpent_cell
+from SerpentMaterialCard import SerpentMaterialCard, write_serpent_material
 
 class SerpentInput(InputDeck):
     """ SerpentInput class - does the actual processing
@@ -35,9 +36,9 @@ class SerpentInput(InputDeck):
 
     # write the material compositions
     def __write_serpent_materials(self, filestream):
-        filestream.write("% --- material definitions --- %n")
+        filestream.write("% --- material definitions --- %\n")
         for material in self.material_list:
-            write_serpent_material(filestream, material)
+            write_serpent_material(filestream, self.material_list[material])
         return
     
     # main write serpent method, depending upon where the geometry
@@ -46,5 +47,5 @@ class SerpentInput(InputDeck):
         f = open(filename,'w')   
         self.__write_serpent_surfaces(f)
         self.__write_serpent_cells(f)
-#        self.__write_serpent_materials(f)
+        self.__write_serpent_materials(f)
         f.close()

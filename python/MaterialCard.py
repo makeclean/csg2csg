@@ -23,12 +23,27 @@ class MaterialCard(Card):
         self.material_number = material_number
 
     def __str__(self):
-        string = "Material: " + material_name + "\n"
-        string += "Material num: " + str(material_number) + "\n"
-        string += "Density: " + str(density) + "\n"
+        string = "Material: " + self.material_name + "\n"
+        string += "Material num: " + str(self.material_number) + "\n"
+        string += "Density: " + str(self.density) + "\n"
         string += "Composition \n"
-        for item in composition_dictionary.keys():
-            string += item + " " + composition_dictionary[item] + "\n"
+        for item in self.composition_dictionary.keys():
+            string += item + " " + str(self.composition_dictionary[item]) + "\n"
 
         return string
+    
+    # normalise the material composition such that the sum is 1.0
+    def normalise(self):
+        sum = 0.
+        # get the sum
+        for nuc in self.composition_dictionary:
+            sum += float(self.composition_dictionary[nuc])
+
+        for nuc in self.composition_dictionary:
+            self.composition_dictionary[nuc] = float(self.composition_dictionary[nuc])/sum
+
+        # all done
+        return
+    
+        
     

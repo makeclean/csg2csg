@@ -60,7 +60,7 @@ def main(argv):
     openmc = OpenMCInput()
     openmc.from_input(input)
     mkdir("openmc")
-    openmc.write_openmc("openmc/file.openmc")
+    openmc.write_openmc("openmc")
     
     logging.info("Finshed")
 

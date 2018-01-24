@@ -123,11 +123,11 @@ class MCNPInput(InputDeck):
     def __next_free_int(self):
         idx = 1
         while True:
-            if idx in self.material_list.keys():
+            if str(idx) in self.material_list.keys():
                 idx += 1
             else:
                 break
-        return idx
+        return str(idx)
 
     # reorganise materials such that we get a new set of unique 
     # material number/ density pairs
@@ -142,39 +142,41 @@ class MCNPInput(InputDeck):
             else:
                 material_density[cell.cell_material_number] = [cell.cell_density]
         # remove density 0.0 and material 0
-        if '0' in material_density.keys(): del material_density['0']
+        if 0 in material_density.keys(): del material_density[0]
 
-        # TODO -  this function needs to modify materials such that if
-        # there are materials with more than 1 density value, it is split
-        # into two materials - needs to be done such that cells that have 
-        # the updated material number should there be one created
-
-        print (self.material_list)
-
+        # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):
             num_densities = len(material_density[mat])
             if num_densities > 1:
-                # the first density becomes the cannonical definition
+                # the first density is cannonical
+                self.material_list[str(mat)].density = material_density[mat][0]
+
+                # the the remaining materials/density pairs get new material
                 for density in material_density[mat][1:]:
                     material = deepcopy(self.material_list[str(mat)])
                     material.density = density
                     material.material_number = self.__next_free_int()
+                    material.material_name = "Copy of Material " + str(mat) + " with density "
+                    material.material_name += str(density)
+
                     self.material_list[str(material.material_number)] = material
 
                     # go through cells and update the material numbers accordingly
-                    for cell in self.cell_list:
-#                    for idx in len(self.cell_list):
+                    for idx in range(len(self.cell_list)):
                         cell = self.cell_list[idx]
                         # if we match
                         if cell.cell_material_number == mat and cell.cell_density == density:
                             # update the cell material number - density is already correct
-                            print (cell.cell_id)
                             cell.cell_material_number = material.material_number
-                    
-                    # now need to remove the density pair from the material_density map
-                    
-                    
-        print (material_density)
+            else:
+                # there is only one density for this material, assign it directly
+                self.material_list[str(mat)].density = material_density[mat][0]
+
+        # normalise the material dictionary
+        for mat in self.material_list:
+            material = self.material_list[mat]
+            material.normalise()
+            self.material_list[mat] = material
 
         return
 
