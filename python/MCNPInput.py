@@ -11,6 +11,7 @@ from collections import Counter
 from copy import deepcopy
 import logging
 import sys
+import re
 
 class MCNPInput(InputDeck):
     """ MCNPInputDeck class - does the actuall processing 
@@ -85,7 +86,7 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr"]
+        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr","fc"]
 
         idx = start_line
         while True:
@@ -93,7 +94,8 @@ class MCNPInput(InputDeck):
                 break
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
+            if re.match("^m[0-9]+",self.file_lines[idx]):
+#            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
             idx += 1
@@ -101,11 +103,12 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_transform_cards(self, start_line):
-        idx = start_line
+        idx = start_line     
+
         while True:
             if idx == len(self.file_lines):
                 break
-            if "tr" in self.file_lines[idx]:
+            if re.match("^\*?tr",self.file_lines[idx]):
                 self.__make_transform_card(self.file_lines[idx])
             idx += 1
         return
@@ -193,7 +196,7 @@ class MCNPInput(InputDeck):
         while True:
             if idx == len(self.file_lines):
                 break
-            if self.file_lines[idx][0].lower() == "c":
+            if self.file_lines[idx][0] == "c":
                 del self.file_lines[idx]
             else:
                 idx += 1
@@ -226,12 +229,13 @@ class MCNPInput(InputDeck):
                     cell_card = MCNPCellCard(cell_line)
                     self.cell_list.append(cell_card)
                 # until we discover a new valid cell line                    
-                while not is_cell_card(self.file_lines[jdx]):
-                    cell_line += self.file_lines[jdx]
-                    jdx += 1
-                cellcard = MCNPCellCard(cell_line)
-                self.cell_list.append(cellcard)
-            idx += 1
+                else:
+                    while not is_cell_card(self.file_lines[jdx]):
+                        cell_line += self.file_lines[jdx]
+                        jdx += 1
+                        cellcard = MCNPCellCard(cell_line)
+                        self.cell_list.append(cellcard)
+                idx += 1
         idx +=1 
         """
         while True:
