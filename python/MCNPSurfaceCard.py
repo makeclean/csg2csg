@@ -380,7 +380,6 @@ class MCNPSurfaceCard(SurfaceCard):
                           SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
                           coords)
         elif surface["type"] == "sq":
-            print (surface["coefficients"])
             a = float(surface["coefficients"][0])
             b = float(surface["coefficients"][1])
             c = float(surface["coefficients"][2])

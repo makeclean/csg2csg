@@ -2,6 +2,8 @@
 
 from MaterialCard import MaterialCard
 
+import sys
+
 # writes an mcnp material card given the generic description
 def write_mcnp_material(filestream, Material, preserve_xs):
     filestream.write("C Material " + str(Material.material_name) + "\n")

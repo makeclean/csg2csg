@@ -43,14 +43,14 @@ class MCNPInput(InputDeck):
 
     # get the transform cards
     def __get_transform_cards(self, start_line):
-        idx = start_line
+        line = start_line
         while True:
-            if idx == len(self.file_lines):
+            if line == len(self.file_lines):
                 break
 
-            if "tr" in self.file_lines[idx]:
-                self.__make_transform_card(self.file_lines[idx])
-            idx += 1
+            if "tr" in self.file_lines[line]:
+                self.__make_transform_card(self.file_lines[line])
+            line += 1
         return
 
     # extract a material card from the start line until
@@ -85,7 +85,7 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp"]
+        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr"]
 
         idx = start_line
         while True:
@@ -93,7 +93,8 @@ class MCNPInput(InputDeck):
                 break
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):            
+            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
+                logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
             idx += 1
         return
@@ -117,7 +118,8 @@ class MCNPInput(InputDeck):
         for surf in self.surface_list:
             if surf.surface_transform != 0:
                 #surface.transform()
-                print (surf)
+                #print (surf)
+                pass
 
     # find the next free material number 
     def __next_free_int(self):
@@ -184,7 +186,6 @@ class MCNPInput(InputDeck):
     # that we can translate to other formats
     def process(self):
 
-
         self.__set_title()
 
         # clear out the comment cards
@@ -197,31 +198,70 @@ class MCNPInput(InputDeck):
             else:
                 idx += 1
 
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            logging.debug("%s", "Input Echo")
+            for idx,line in enumerate(self.file_lines):
+                logging.debug("%i %s",idx,line)
+            
+
         # line by line insert into dictionary of cell descriptions
         # until we find a blank line
         idx = 0
+        while True:
+            cell_line = self.file_lines[idx]
+            if cell_line == "\n":
+                logging.debug('%s',"found end of cell cards at line " + str(idx))
+                idx += 1
+                break
+            # if we are a cell card
+            if is_cell_card(cell_line):
+                jdx = idx + 1
+                # if were are at the end of cell data
+                if self.file_lines[jdx] == "\n":
+                    cell_card = MCNPCellCard(cell_line)
+                    self.cell_list.append(cell_card)
+                    break
+                # if we immediately find another valid cell card
+                if is_cell_card(self.file_lines[jdx]):
+                    cell_card = MCNPCellCard(cell_line)
+                    self.cell_list.append(cell_card)
+                # until we discover a new valid cell line                    
+                while not is_cell_card(self.file_lines[jdx]):
+                    cell_line += self.file_lines[jdx]
+                    jdx += 1
+                cellcard = MCNPCellCard(cell_line)
+                self.cell_list.append(cellcard)
+            idx += 1
+        idx +=1 
+        """
         while True:
             cell_card = self.file_lines[idx]
             # its a cell card if the first 2 items are ints and the 
             # third is a float, or if the first 2 items are ints, and the
             # second int is a 0
             if cell_card == "\n": break
+
+            # the first instance of cell_card should start the string of a cell
+            # the next time we find a valid cell card, should start a new one
             
             if is_cell_card(cell_card):
                 cellcard = MCNPCellCard(cell_card)
                 logging.debug('%s',cellcard)
                 self.cell_list.append(cellcard)
             idx += 1
-
+        """
         idx += 1
-
+        # idx should have advanced file reading such that we are now at the first
+        # surface line
         # now process the surfaces
         while True:
             surface_card = self.file_lines[idx]
 
             # if we find the blank line
-            if surface_card == "\n": break
-               
+            if surface_card == "\n":
+                logging.debug('%s', "found end of surfaces at line " + str(idx))
+                break
+                           
             if is_surface_card(surface_card):
                 surfacecard = MCNPSurfaceCard(surface_card)
                 logging.debug('%s',surfacecard)

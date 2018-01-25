@@ -7,6 +7,11 @@ from enum import Enum
 # if the string is a cell card or not
 def is_cell_card(line):
     cell_card = line.split()
+    try:
+        int(cell_card[0])
+    except ValueError:
+        return False
+    
     cellid = int(cell_card[0])
     mat_num = int(cell_card[1])
     if cellid and mat_num == 0:
