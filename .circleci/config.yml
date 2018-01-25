@@ -24,7 +24,7 @@ jobs:
           name: run tests
           command: |
             cd python
-            cd tests
+            cd test
             ./run_tests
 
       - store_artifacts:
