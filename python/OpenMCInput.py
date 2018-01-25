@@ -6,28 +6,11 @@ import logging
 import sys
 import xml.etree.ElementTree as ET
 
+from XMLUtilities import indent
 from OpenMCSurface import write_openmc_surface
 from OpenMCCell import write_openmc_cell
 from OpenMCMaterial import write_openmc_material
-'''
-copy and paste from http://effbot.org/zone/element-lib.htm#prettyprint
-it basically walks your tree and adds spaces and newlines so the tree is
-printed in a nice way
-'''
-def indent(elem, level=0):
-    i = "\n" + level*"  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            indent(elem, level+1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+
 
 class OpenMCInput(InputDeck):
     """ OpenMCInputDeck intrastructure to write and OpenMC input deck

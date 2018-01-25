@@ -3,6 +3,7 @@
 from MCNPInput import MCNPInput
 from SerpentInput import SerpentInput
 from OpenMCInput import OpenMCInput
+from GDMLInput import GDMLInput
 
 # for debug info
 import logging, sys 
@@ -62,6 +63,11 @@ def main(argv):
     mkdir("openmc")
     openmc.write_openmc("openmc")
     
+    gdml = GDMLInput()
+    gdml.from_input(input)
+    mkdir("gdml")
+    gdml.write_gdml("gdml/file")
+
     logging.info("Finshed")
 
 if __name__ == "__main__":
