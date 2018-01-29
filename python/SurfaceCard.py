@@ -28,6 +28,9 @@ class SurfaceCard(Card):
         TORUS_Y = auto()
         TORUS_Z = auto()
         GENERAL_QUADRATIC = auto()
+        MACRO_RPP = auto()
+        MACRO_BOX = auto()
+        MACRO_RCC = auto()
     
     # constructor for building a surface card
     def __init__(self,card_string):
@@ -48,4 +51,12 @@ class SurfaceCard(Card):
         self.surface_type = surf_type
         self.surface_coefficients = coords
         
-        
+    # test if the current surface is a macrobody or not
+    def is_macrobody(self):
+        if self.surface_type == self.SurfaceType('MACRO_RPP'):
+            return True
+        if self.surface_type == self.SurfaceType('MACRO_BOX'):
+            return True
+        if self.surface_type == self.SurfaceType('MACRO_RCC'):
+            return True
+        return False

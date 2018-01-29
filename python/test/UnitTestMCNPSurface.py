@@ -115,6 +115,29 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(card.surface_coefficients[2], 3.0)
         self.assertEqual(card.surface_coefficients[3], 2.5)
 
+    def test_rpp(self):
+        card_string = "15000 rpp -1 1 -1 1 -1 1"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], -1.0)
+        self.assertEqual(card.surface_coefficients[1],  1.0)
+        self.assertEqual(card.surface_coefficients[2], -1.0)
+        self.assertEqual(card.surface_coefficients[3],  1.0)
+        self.assertEqual(card.surface_coefficients[4], -1.0)
+        self.assertEqual(card.surface_coefficients[5],  1.0)
+
+    def test_box(self):
+        card_string = "15000 box -1 -1 -1 2 0 0 0 2 0 0 0 2"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], -1.0)
+        self.assertEqual(card.surface_coefficients[1],  1.0)
+        self.assertEqual(card.surface_coefficients[2], -1.0)
+        self.assertEqual(card.surface_coefficients[3],  1.0)
+        self.assertEqual(card.surface_coefficients[4], -1.0)
+        self.assertEqual(card.surface_coefficients[5],  1.0)
         
     def test_surfacetransform_detect(self):
         card = "1 2 px 3"

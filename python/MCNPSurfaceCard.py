@@ -158,7 +158,7 @@ class MCNPSurfaceCard(SurfaceCard):
                             "cx","cy","cz","c/x","c/y","c/z",
                             "gq","sq"]
     # TODO add to this list to add more macrobody types
-    __mcnp_macro_types = ["rpp"]
+    __mcnp_macro_types = ["rpp","box","sph","rcc"]
 
     verbosity = False
     
@@ -415,7 +415,86 @@ class MCNPSurfaceCard(SurfaceCard):
             
         return
 
+    # classify as a box surface
+    def __classify_box(self,surface):
+        vx = float(surface["coefficients"][0])
+        vy = float(surface["coefficients"][1])
+        vz = float(surface["coefficients"][2])
 
+        a1x = float(surface["coefficients"][3])
+        a1y = float(surface["coefficients"][4])
+        a1z = float(surface["coefficients"][5])
+
+        a2x = float(surface["coefficients"][6])
+        a2y = float(surface["coefficients"][7])
+        a2z = float(surface["coefficients"][8])
+
+        a3x = float(surface["coefficients"][9])
+        a3y = float(surface["coefficients"][10])
+        a3z = float(surface["coefficients"][11])
+
+        # if this is true we can degenerate into a rpp type macrobody
+        if a1y == 0. and a1z == 0. and a2x == 0. and a2z == 0. and a3x == 0. and a3y == 0.:
+            coords = [0.]*6
+            coords[0] = vx
+            coords[1] = vx + a1x
+            coords[2] = vy
+            coords[3] = vy + a2y
+            coords[4] = vz
+            coords[5] = vz + a3z
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["MACRO_RPP"],
+                          coords)
+        # we cant, its aligned along some arbitrary axis
+        else:
+            coords[0] = vx
+            coords[1] = vy
+            coords[2] = vz
+            coords[3] = a1x
+            coords[4] = a1y
+            coords[5] = a1z
+            coords[6] = a2x
+            coords[7] = a2y
+            coords[8] = a2z          
+            coords[9] = a3x
+            coords[10] = a3y
+            coords[11] = a3z
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["MACRO_BOX"],
+                          coords)          
+        return
+
+    # classify macrobody  as a sphere
+    def __classify_sph(self,surface):
+        coords = [0.] * 4
+        coords[0] = float(surface["coefficients"][0])
+        coords[1] = float(surface["coefficients"][1])
+        coords[2] = float(surface["coefficients"][2])
+        coords[3] = float(surface["coefficients"][3])
+        self.set_type(surface["id"],surface["transform"],
+                      SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                      coords)
+        return
+
+    # classify macrobody as a rpp
+    def __classify_rpp(self,surface):
+        coords = [0.]*6
+        for i in range(6):
+            coords[i] = float(surface["coefficients"][i])
+        self.set_type(surface["id"],surface["transform"],
+                      SurfaceCard.SurfaceType["MACRO_RPP"],
+                      coords)
+        return
+
+    # classify macrobody as rcc
+    def __classify_rcc(self,surface):
+        coords = [0.] * 7
+        for i in range(7):
+            coords[i] = float(surface["coefficients"][i])
+        self.set_type(surface["id"],surface["transform"],
+                      SurfaceCard.SurfaceType["MACRO_RCC"],
+                      coords)
+        return
                           
     # classify any inifinite surface
     def __classify_surface_types(self,surface):
@@ -445,6 +524,32 @@ class MCNPSurfaceCard(SurfaceCard):
             self.__classify_gq(surface)
         elif "s" in surf_type and "q" in surf_type:
             self.__classify_gq(surface)
+        elif "box" in surf_type:
+            self.__classify_box(surface)
+        elif "rpp" in surf_type:
+            self.__classify_rpp(surface)
+        elif "sph" in surf_type:
+            self.__classify_sph(surface)
+        elif "rcc" in surf_type:
+            self.__classify_rcc(surface)
+        else:
+            print ("Could not classify surface")
+            sys.exit(1)
+
+    # classify any inifinite surface
+    def __classify_macrobody_types(self,surface):
+
+        surf_id = surface["id"]
+        surf_type = surface["type"]
+               
+        if "box" in surf_type:
+            self.__classify_box(surface)
+        elif "rpp" in surf_type:
+            self.__classify_rpp(surface)
+        elif "sph" in surf_type:
+            self.__classify_sph(surface)
+        elif "rcc" in surf_type:
+            self.__classify_rcc(surface)
         else:
             print ("Could not classify surface")
             sys.exit(1)
@@ -470,8 +575,8 @@ class MCNPSurfaceCard(SurfaceCard):
 
         if self.__mcnp_type(surface) == "infinite":
             self.__classify_surface_types(surface)
-        elif self.mcnp_type(surface) == "macrobody":
-            self.__classify_macrobody_type(surface)
+        elif self.__mcnp_type(surface) == "macrobody":
+            self.__classify_macrobody_types(surface)
         else:
             print("unknown type")
 

@@ -1,6 +1,7 @@
 #/usr/env/python3
 
 from Input import InputDeck
+from SurfaceCard import SurfaceCard
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from MCNPDataCard import MCNPTransformCard
@@ -12,6 +13,26 @@ from copy import deepcopy
 import logging
 import sys
 import re
+
+# explode a macrobody into surfaces
+def explode_macrobody(Surface):
+    new_surf_list = []
+    if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
+        id = int(Surface.surface_id)
+        surf = MCNPSurfaceCard("1 px " + str(Surface.surface_coefficients[0]))
+        new_surf_list.append(surf)
+        surf = MCNPSurfaceCard("2 px " + str(Surface.surface_coefficients[1]))
+        new_surf_list.append(surf)
+        surf = MCNPSurfaceCard("3 py " + str(Surface.surface_coefficients[2]))
+        new_surf_list.append(surf)
+        surf = MCNPSurfaceCard("4 py " + str(Surface.surface_coefficients[3]))
+        new_surf_list.append(surf)
+        surf = MCNPSurfaceCard("5 pz " + str(Surface.surface_coefficients[4]))
+        new_surf_list.append(surf)
+        surf = MCNPSurfaceCard("6 pz " + str(Surface.surface_coefficients[5]))
+        new_surf_list.append(surf)
+
+    return new_surf_list
 
 class MCNPInput(InputDeck):
     """ MCNPInputDeck class - does the actuall processing 
@@ -185,6 +206,16 @@ class MCNPInput(InputDeck):
 
         return
 
+    # if we find a macrobody in the surface list 
+    # explode it into a surface based definition
+    def __flatten_macrobodies(self):
+        # look through the list until we find
+        # a macrobody
+        for surf in self.surface_list():
+            if surf.is_macrobody():
+                new_surfaces = explode_macrobody(surf)
+        return
+
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
@@ -291,6 +322,9 @@ class MCNPInput(InputDeck):
         # based on the mateiral number / density pairs
         # and update cells accordingly.
         self.__reorganise_materials()
+
+        # we need to turn macrobodies into regular surface descriptions
+        self.__flatten_macrobodies()
         
         return
 
