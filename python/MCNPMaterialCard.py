@@ -38,7 +38,11 @@ class MCNPMaterialCard(MaterialCard):
         while len(tokens) != 0:
             nuclide = tokens[0].split(".")
             nucid = nuclide[0]
-            xsid = nuclide[1]
+            try:
+                xsid = nuclide[1]
+            except:
+                xsid = ""
+
             frac = tokens[1]
             tokens.pop(0)
             tokens.pop(0)

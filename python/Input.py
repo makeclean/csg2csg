@@ -14,6 +14,7 @@ class InputDeck:
     # TODO maybe these should be dictionaries by index
     cell_list = []
     surface_list = []
+    last_free_surface_index = 0
     material_list = {}
     transform_list = {}
     

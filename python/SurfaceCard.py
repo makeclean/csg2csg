@@ -53,10 +53,10 @@ class SurfaceCard(Card):
         
     # test if the current surface is a macrobody or not
     def is_macrobody(self):
-        if self.surface_type == self.SurfaceType('MACRO_RPP'):
+        if self.surface_type == self.SurfaceType['MACRO_RPP']:
             return True
-        if self.surface_type == self.SurfaceType('MACRO_BOX'):
+        if self.surface_type == self.SurfaceType['MACRO_BOX']:
             return True
-        if self.surface_type == self.SurfaceType('MACRO_RCC'):
+        if self.surface_type == self.SurfaceType['MACRO_RCC']:
             return True
         return False

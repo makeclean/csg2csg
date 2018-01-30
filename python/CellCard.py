@@ -31,6 +31,9 @@ class CellCard(Card):
     def __str__(self):
         string = "Cell Card: \n"
         string += "Cell ID " + str(self.cell_id) + "\n"
+        string += "Material Number " + str(self.cell_material_number) + "\n"
+        string += "Material Density " + str(self.cell_density) + "\n"
         string += "Comment " + str(self.cell_comment) + "\n"
+        string += "Text Description " + str(self.cell_text_description) + "\n"
         string += "Cell Description " + str(self.cell_interpreted) + "\n"
         return string

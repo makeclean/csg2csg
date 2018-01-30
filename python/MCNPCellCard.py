@@ -7,6 +7,8 @@ from enum import Enum
 # if the string is a cell card or not
 def is_cell_card(line):
     cell_card = line.split()
+    if len(cell_card) == 0:
+        return False
     try:
         int(cell_card[0])
     except ValueError:
@@ -144,3 +146,16 @@ class MCNPCellCard(CellCard):
         self.generalise()
         return
 
+    # update an existing cell description with 
+    def update(self,new_cell_description):
+        # take the new cell description and make a new 
+        # cell description
+        self.text_string = str(self.cell_id)
+        self.text_string += " " + str(self.cell_material_number)
+        if self.cell_material_number == 0:
+            self.text_string += " " + new_cell_description
+        else:
+            self.text_string += " " + str(self.cell_density)
+            self.text_string += " " + new_cell_description
+
+        self.__interpret()

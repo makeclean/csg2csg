@@ -14,26 +14,6 @@ import logging
 import sys
 import re
 
-# explode a macrobody into surfaces
-def explode_macrobody(Surface):
-    new_surf_list = []
-    if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
-        id = int(Surface.surface_id)
-        surf = MCNPSurfaceCard("1 px " + str(Surface.surface_coefficients[0]))
-        new_surf_list.append(surf)
-        surf = MCNPSurfaceCard("2 px " + str(Surface.surface_coefficients[1]))
-        new_surf_list.append(surf)
-        surf = MCNPSurfaceCard("3 py " + str(Surface.surface_coefficients[2]))
-        new_surf_list.append(surf)
-        surf = MCNPSurfaceCard("4 py " + str(Surface.surface_coefficients[3]))
-        new_surf_list.append(surf)
-        surf = MCNPSurfaceCard("5 pz " + str(Surface.surface_coefficients[4]))
-        new_surf_list.append(surf)
-        surf = MCNPSurfaceCard("6 pz " + str(Surface.surface_coefficients[5]))
-        new_surf_list.append(surf)
-
-    return new_surf_list
-
 class MCNPInput(InputDeck):
     """ MCNPInputDeck class - does the actuall processing 
     """
@@ -206,14 +186,85 @@ class MCNPInput(InputDeck):
 
         return
 
+    # explode a macrobody into surfaces
+    def explode_macrobody(self,Surface):
+        new_surf_list = []
+        if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
+            id = int(Surface.surface_id)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[0]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[1]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[2]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[3]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[4]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[5]))
+            new_surf_list.append(surf)
+            # appropriate cell description for inside the macrobody
+            cell_description_inside = "( " + str(new_surf_list[0].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[1].surface_id)
+            cell_description_inside += "  " + str(new_surf_list[2].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[3].surface_id)
+            cell_description_inside += "  " + str(new_surf_list[4].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[5].surface_id)
+            cell_description_inside += " )"
+            # appropriate cell descripiton for outside the macrobody
+            cell_description_outside = "(-" + str(new_surf_list[0].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[4].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[5].surface_id)
+            cell_description_outside += ")"
+
+            cell_description = [cell_description_inside,cell_description_outside]
+
+            return cell_description, new_surf_list
+
+
     # if we find a macrobody in the surface list 
     # explode it into a surface based definition
     def __flatten_macrobodies(self):
         # look through the list until we find
         # a macrobody
-        for surf in self.surface_list():
+        for surf in self.surface_list:
+            # if we are a macrobody
             if surf.is_macrobody():
-                new_surfaces = explode_macrobody(surf)
+                # explode into constituent surfaces
+                cell_description, new_surfaces = self.explode_macrobody(surf)
+                # insert the new surfaces into the surface_list
+                self.surface_list.extend(new_surfaces)
+                # remove the old surface
+                self.surface_list.remove(surf)
+                # update the cell definition
+                for jdx, cell in enumerate(self.cell_list):
+                    # for each part of the cell
+#                    for idx, item in enumerate(cell.cell_text_description):
+                    for idx, item in enumerate(cell.cell_text_description):
+                        # if we find a matching surface
+                        if item == str(surf.surface_id): # found the outside description
+                            cell.cell_text_description[idx] = cell_description[1]
+                            self.cell_list[jdx] = cell
+                            text_string = ' '.join(cell.cell_text_description)
+                            self.cell_list[jdx].update(text_string) 
+                        elif item == str(-1*surf.surface_id): # found the inside description
+                            cell.cell_text_description[idx] = cell_description[0]
+                            self.cell_list[jdx] = cell
+                            text_string = ' '.join(cell.cell_text_description)
+                            self.cell_list[jdx].update(text_string)
+                        else:
+                            pass
+                            
+                
         return
 
     # process the mcnp input deck and read into a generic datastructure
@@ -301,6 +352,9 @@ class MCNPInput(InputDeck):
                 surfacecard = MCNPSurfaceCard(surface_card)
                 logging.debug('%s',surfacecard)
                 self.surface_list.append(surfacecard)
+                # update the surface index counter
+                if surfacecard.surface_id > self.last_free_surface_index: 
+                    self.last_free_surface_index = surfacecard.surface_id
 
             idx += 1
             # if this is a surface card the first item should be an int
