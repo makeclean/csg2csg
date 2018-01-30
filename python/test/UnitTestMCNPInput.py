@@ -102,6 +102,76 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
         self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
         self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+
+    def test_flatten_macrobodies_with_multiple_macrobodies(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -3\n")
+        input_string.append("2 0 3 -4\n")
+        input_string.append("3 0 4 -5\n")
+        input_string.append("4 0 5\n")
+        input_string.append("\n")
+        input_string.append("3 rpp -5 5 -5 5 -5 5\n")
+        input_string.append("4 rpp -10 10 -10 10 -10 10\n")
+        input_string.append("5 rpp -15 15 -15 15 -15 15\n")
+        input_string.append("\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("    1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.surface_list = []
+        input.material_list = {}
+        input.transform_list = {}
+
+        self.assertEqual(len(input.cell_list),0)
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        
+        # cell card
+        cell1 = input.cell_list[0] 
+        cell2 = input.cell_list[1] 
+        cell3 = input.cell_list[2] 
+        cell4 = input.cell_list[3]
+        self.assertEqual(len(input.cell_list),4)
+
+        # are surfaces correctly processed
+        self.assertEqual(input.surface_list[0].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[1].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[2].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[3].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+
+        self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[7].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[8].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[9].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[10].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[11].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+
+        self.assertEqual(input.surface_list[12].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[13].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[14].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[15].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[16].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[17].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
+
+
+        # surface numbering should start at 6
+        self.assertEqual(cell1.text_string, "1 1 -1.0 ( 6 -7  8 -9  10 -11 )")
+        self.assertEqual(cell2.text_string, "2 0 ( -6 : 7 : -8 : 9 : -10 : 11 ) ( 12 -13  14 -15  16 -17 )")
+        self.assertEqual(cell3.text_string, "3 0 ( -12 : 13 : -14 : 15 : -16 : 17 ) ( 18 -19  20 -21  22 -23 )")
+
+        return
+
+        # surfaces should be numbered from 7 to 13 contiguously
+        for i in range(0,len(input.surface_list)):
+            self.assertEqual(input.surface_list[i].surface_id, 7 + i)
+            
+        # surface 7 should be a sphere
+        # 8-9 px 10-11 py 12-13 pz
         
 if __name__ == '__main__':
     unittest.main()

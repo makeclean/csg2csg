@@ -236,6 +236,7 @@ class MCNPInput(InputDeck):
     def __flatten_macrobodies(self):
         # look through the list until we find
         # a macrobody
+        to_remove = []
         for surf in self.surface_list:
             # if we are a macrobody
             if surf.is_macrobody():
@@ -244,7 +245,8 @@ class MCNPInput(InputDeck):
                 # insert the new surfaces into the surface_list
                 self.surface_list.extend(new_surfaces)
                 # remove the old surface
-                self.surface_list.remove(surf)
+                to_remove.append(surf)
+#                self.surface_list.remove(surf)
                 # update the cell definition
                 for jdx, cell in enumerate(self.cell_list):
                     # for each part of the cell
@@ -264,7 +266,9 @@ class MCNPInput(InputDeck):
                         else:
                             pass
                             
-                
+        # clear up removed surfaces
+        for surf in to_remove:
+            self.surface_list.remove(surf)
         return
 
     # process the mcnp input deck and read into a generic datastructure
