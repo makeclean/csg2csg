@@ -87,15 +87,16 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr","fc"]
+        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr","fc","*","print"]
 
         idx = start_line
         while True:
             if idx == len(self.file_lines):
                 break
+
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if re.match("^m[0-9]+",self.file_lines[idx]):
+            if re.match(" *m[0-9]/*",self.file_lines[idx]):
 #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
@@ -271,6 +272,27 @@ class MCNPInput(InputDeck):
             self.surface_list.remove(surf)
         return
 
+    # generate bounding coordinates 
+    def __generate_bounding_coordinates(self):
+        # loop through the surfaces and generate the bounding coordinates
+        # condisder only manifold or simple infinite surfaces, like planes
+        for surf in self.surface_list:
+            box = surf.bounding_box()
+            if box[0] < self.bounding_coordinates[0]:
+                self.bounding_coordinates[0] = box[0]
+            if box[1] > self.bounding_coordinates[1]:
+                self.bounding_coordinates[1] = box[1]
+            if box[2] < self.bounding_coordinates[2]:
+                self.bounding_coordinates[2] = box[2]
+            if box[3] > self.bounding_coordinates[3]:
+                self.bounding_coordinates[3] = box[3]
+            if box[4] < self.bounding_coordinates[4]:
+                self.bounding_coordinates[4] = box[4]
+            if box[5] > self.bounding_coordinates[5]:
+                self.bounding_coordinates[5] = box[5]
+        logging.debug("%s 6%e", "bounding box of geometry is ", self.bounding_coordinates[0],self.bounding_coordinates[1],
+                      self.bounding_coordinates[2],self.bounding_coordinates[3],self.bounding_coordinates[4],self.bounding_coordinates[5])
+
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
@@ -336,20 +358,22 @@ class MCNPInput(InputDeck):
             
             if is_cell_card(cell_card):
                 cellcard = MCNPCellCard(cell_card)
-                logging.debug('%s',cellcard)
                 self.cell_list.append(cellcard)
             idx += 1
         """
         idx += 1
+        print (idx,self.file_lines[idx])
         # idx should have advanced file reading such that we are now at the first
         # surface line
         # now process the surfaces
         while True:
             surface_card = self.file_lines[idx]
-
+            logging.debug('%s','surface cards start at line '+ str(idx))
+            
             # if we find the blank line
-            if surface_card == "\n":
+            if surface_card == "\n" or surface_card.isspace():
                 logging.debug('%s', "found end of surfaces at line " + str(idx))
+                idx += 1
                 break
                            
             if is_surface_card(surface_card):
@@ -383,6 +407,7 @@ class MCNPInput(InputDeck):
 
         # we need to turn macrobodies into regular surface descriptions
         self.__flatten_macrobodies()
+        self.__generate_bounding_coordinates()
         
         return
 

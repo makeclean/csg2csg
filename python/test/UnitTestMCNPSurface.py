@@ -144,7 +144,32 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(surface_has_transform(card),True)
         card = "1 PX 3"
         self.assertEqual(surface_has_transform(card),False)
-        
+
+
+    def test_bounding_box_px(self):
+        card_string = "1 px 3"
+        card = MCNPSurfaceCard(card_string)
+        box = card.bounding_box()
+        self.assertEqual(box[0],3)
+        self.assertEqual(box[1],3)
+        self.assertEqual(box[2],0)
+        self.assertEqual(box[3],0)
+        self.assertEqual(box[4],0)
+        self.assertEqual(box[5],0)
+
+    # generate a bounding box for py
+    """
+    def test_bounding_box_py(self):
+        card_string = "1 py 3"
+        card = MCNPSurfaceCard(card_string)
+        box = card.bounding_box()
+        self.assertEqual(box[0],0)
+        self.assertEqual(box[1],0)
+        self.assertEqual(box[2],3)
+        self.assertEqual(box[3],3)
+        self.assertEqual(box[4],0)
+        self.assertEqual(box[5],0)
+        """
 
 if __name__ == '__main__':
     unittest.main()
