@@ -105,15 +105,14 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(card.surface_coefficients[2], 0.0)
         self.assertEqual(card.surface_coefficients[3], 2.5)
 
-    def test_sx(self):
-        card_string = "15000 sz 3.0 2.5"
+    def test_cz(self):
+        card_string = "15000 cz 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["CYLINDER_Z"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
-        self.assertEqual(card.surface_coefficients[2], 3.0)
-        self.assertEqual(card.surface_coefficients[3], 2.5)
+        self.assertEqual(card.surface_coefficients[2], 2.5)
 
     def test_rpp(self):
         card_string = "15000 rpp -1 1 -1 1 -1 1"

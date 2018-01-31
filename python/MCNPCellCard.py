@@ -126,6 +126,10 @@ class MCNPCellCard(CellCard):
         string = string.replace("(", " ( ")
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
+        if '$' in string:
+            pos = string.find('$')
+            self.cell_comment = string[pos:]
+            string = string[:pos]
         #tokens = self.text_string.split()
         tokens = string.split()
 

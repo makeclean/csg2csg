@@ -38,6 +38,8 @@ class MCNPMaterialCard(MaterialCard):
         while len(tokens) != 0:
             nuclide = tokens[0].split(".")
             nucid = nuclide[0]
+            if "$" in nuclide or "$" in nucid:
+                return
             try:
                 xsid = nuclide[1]
             except:
