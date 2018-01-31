@@ -18,12 +18,18 @@ class InputDeck:
     material_list = {}
     transform_list = {}
     
+    # this calculates coordinates that bound the placement of
+    # surfaces we do this by checking the manifold surfaces
+    # for the their value and adding to the list
+    bounding_coordinates = [0,0,0,0,0,0]
+    
     # if doing a hierachy transform store here
     cell_card_collection = {}
     surface_card_collection = {}
     
     def __init__(self, filename):
         self.filename = filename
+
 
     def read(self):
         with open(self.filename, 'r', errors="replace") as f:

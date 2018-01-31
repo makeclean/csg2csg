@@ -1,12 +1,16 @@
 from SurfaceCard import SurfaceCard
 from Vector import add,subtract,cross
 
+# NOTES: Right now Cones are stored in the MCNP form - x y z R2
+
 # function to determine if the card is a surface
 # card or not
 def is_surface_card(line):
     # tokenise the line
     surface_card = line.split()
-    
+    if len(surface_card) == 0 or surface_card[0] == "\n":
+        return False
+    print(surface_card)
     # test if first item is an int
     try:
         int(surface_card[0])
@@ -90,6 +94,36 @@ def mcnp_cylinder_z(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[2]) + "\n"
     return string
 
+# write the mcnp form of an cone aligned along the x axis
+def mcnp_cone_x(SurfaceCard):
+    string = "k/x "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
+    string += str(SurfaceCard.surface_coefficients[3]) + " " 
+    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    return string
+
+# write the mcnp form of an cone aligned along the y axis
+def mcnp_cone_y(SurfaceCard):
+    string = "k/y "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
+    string += str(SurfaceCard.surface_coefficients[3]) + " " 
+    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    return string
+
+# write the mcnp form of an cone aligned along the z axis
+def mcnp_cone_z(SurfaceCard):
+    string = "k/z "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
+    string += str(SurfaceCard.surface_coefficients[3]) + " "
+    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    return string
+
 # write the mcnp form of an arbitrary sphere
 def mcnp_sphere(SurfaceCard):
     string = "s "
@@ -133,6 +167,12 @@ def write_mcnp_surface(filestream, SurfaceCard):
         string += mcnp_cylinder_y(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_Z"]:
         string += mcnp_cylinder_z(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
+        string += mcnp_cone_x(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
+        string += mcnp_cone_y(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
+        string += mcnp_cone_z(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
         string += mcnp_sphere(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
@@ -156,6 +196,7 @@ class MCNPSurfaceCard(SurfaceCard):
     __mcnp_surface_types = ["p","px","py","pz",
                             "s","so","sx","sy","sz",
                             "cx","cy","cz","c/x","c/y","c/z",
+                            "kx","ky","kz","k/x","k/y","k/z",
                             "gq","sq"]
     # TODO add to this list to add more macrobody types
     __mcnp_macro_types = ["rpp","box","sph","rcc"]
@@ -345,6 +386,7 @@ class MCNPSurfaceCard(SurfaceCard):
                           coords)
         return
 
+    # classify as cylinder lying on an axis
     def __classify_cylinder_on_axis(self, surface):
         coords = [0.] * 3
         if surface["type"] == "cx":
@@ -367,6 +409,69 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = float(surface["coefficients"][0])
             self.set_type(surface["id"],surface["transform"],
                           SurfaceCard.SurfaceType["CYLINDER_Z"],
+                          coords)
+        return
+
+    # classify cylinder off axis
+    def __classify_cone_parallel(self, surface):
+        coords = [0.] * 5
+        coords[0] = float(surface["coefficients"][0])
+        coords[1] = float(surface["coefficients"][1])
+        coords[2] = float(surface["coefficients"][2])
+        coords[3] = float(surface["coefficients"][3])
+        # this picks up if we have a -1 specified or not
+        if len(surface["coefficients"]) == 5:
+            coords[4] = float(surface["coefficients"][4])
+
+        if surface["type"] == "k/x":
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_X"],
+                          coords)
+        if surface["type"] == "k/y":
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_Y"],
+                          coords)
+        if surface["type"] == "k/z":
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_Z"],
+                          coords)
+        return
+
+    # classify surface as a cone
+    def __classify_cone_on_axis(self, surface):
+        coords = [0.] * 5
+        if surface["type"] == "kx":
+            coords[0] = float(surface["coefficients"][0])
+            coords[1] = 0.
+            coords[2] = 0.
+            coords[3] = float(surface["coefficients"][1])
+            # this picks up if we have a -1 specified or not
+            if len(surface["coefficients"]) == 3:
+                coords[4] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_X"],
+                          coords)
+        if surface["type"] == "ky":
+            coords[0] = 0.
+            coords[1] = float(surface["coefficients"][0])
+            coords[2] = 0.
+            coords[3] = float(surface["coefficients"][1])
+            # this picks up if we have a -1 specified or not
+            if len(surface["coefficients"]) == 3:
+                coords[4] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_Y"],
+                          coords)
+        if surface["type"] == "kz":
+            coords[0] = 0.
+            coords[1] = 0.
+            coords[2] = float(surface["coefficients"][0])
+            coords[3] = float(surface["coefficients"][1])
+            # this picks up if we have a -1 specified or not
+            if len(surface["coefficients"]) == 3:
+                coords[4] = float(surface["coefficients"][2])
+            self.set_type(surface["id"],surface["transform"],
+                          SurfaceCard.SurfaceType["CONE_Z"],
                           coords)
         return
 
@@ -510,8 +615,10 @@ class MCNPSurfaceCard(SurfaceCard):
         elif "s" in surf_type:
             if surf_type == "so":
                 self.__classify_origin_sphere(surface)
-            elif surf_type is not "s" and surf_type != "so":
+            elif any(char in surf_type for char in ['x','y','z']):
                 self.__classify_xyz_sphere(surface)
+            elif "q" in surf_type:
+                self.__classify_gq(surface) # this is intentional
             elif surf_type is "s":
                 self.__classify_general_sphere(surface)
             else:
@@ -520,9 +627,11 @@ class MCNPSurfaceCard(SurfaceCard):
             self.__classify_cylinder_parallel(surface)
         elif "c" in surf_type and "/" not in surf_type:
             self.__classify_cylinder_on_axis(surface)
+        elif "k" in surf_type and "/" in surf_type:
+            self.__classify_cone_parallel(surface)
+        elif "k" in surf_type and "/" not in surf_type:
+            self.__classify_cone_on_axis(surface)
         elif "g" in surf_type and "q" in surf_type:
-            self.__classify_gq(surface)
-        elif "s" in surf_type and "q" in surf_type:
             self.__classify_gq(surface)
         elif "box" in surf_type:
             self.__classify_box(surface)
@@ -563,6 +672,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
         surface = {}                
         surface["id"] = int(tokens[0])
+        print (surface["id"])
 
         if surface_has_transform(self.text_string):
             surface["transform"] = tokens[1]

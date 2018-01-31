@@ -33,6 +33,8 @@ def get_openmc_cell_info(cell):
     # make the string to define the cell    
     operation = ''.join(openmc_op_from_generic(e) for e in cell.cell_interpreted)
     operation = ''.join(str(e) for e in operation)
+    # pad parenthesis with spaces
+    operation = operation.replace(")(",") (")
     return (cell_id, material_number, operation)
     
     
