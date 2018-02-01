@@ -10,7 +10,11 @@ def is_cell_card(line):
     if len(cell_card) == 0:
         return False
     try:
-        int(cell_card[0])
+        if any(s == cell_card[0][0] for s in ['(',':',')','#']):
+            return False
+        else:
+            if int(cell_card[0]):
+                return True
     except ValueError:
         return False
     

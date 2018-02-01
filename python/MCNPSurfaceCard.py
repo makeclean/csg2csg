@@ -10,7 +10,6 @@ def is_surface_card(line):
     surface_card = line.split()
     if len(surface_card) == 0 or surface_card[0] == "\n":
         return False
-    print(surface_card)
     # test if first item is an int
     try:
         int(surface_card[0])
@@ -672,7 +671,6 @@ class MCNPSurfaceCard(SurfaceCard):
 
         surface = {}                
         surface["id"] = int(tokens[0])
-        print (surface["id"])
 
         if surface_has_transform(self.text_string):
             surface["transform"] = tokens[1]

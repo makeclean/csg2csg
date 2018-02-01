@@ -1,6 +1,7 @@
 #!/usr/env/python3
 
 from SurfaceCard import SurfaceCard
+from math import sqrt
 
 # write the general form of a plane
 def serpent_plane_string(SurfaceCard):
@@ -65,7 +66,138 @@ def serpent_gq(SurfaceCard):
         string += " " + str(coefficient) + " " 
     string += "\n"
     return string
+
+# its not clear how we deal with +-1 cones for serpent
+# write a cone along x
+def serpent_cone_x(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    r = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r)
+    return string
+
+# serpent a cone along y
+def serpent_cone_y(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    r = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r)
+    return string
+
+# serpent a cone along z
+def serpent_cone_z(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    r = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r)
+    return string
+
+"""
+# write a conex
+def serpent_cone_x(SurfaceCard):
+    
+        mcnp xyz r2 -1 +1
+        *
+        ||
+        | \
+        |  \
+        |   \
+        |    \
+        |     \
+        *------*
+        
+    From the bounding coodinate appropriate in 
+    this case - if pointing down need the lowest value
+        
+    
+    # cone points down from xyz
+    if SurfaceCard.surface_coefficients[4] == -1:
+        h = abs(SurfaceCard.b_box[0])
+        x = SurfaceCard.b_box[0]
+    # cone point up from xyz
+    if SurfaceCard.surface_coefficients[4] == 1:
+        h = abs(SurfaceCard.b_box[1])
+        x = SurfaceCard.b_box[1]
+
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    r = h*sqrt(SurfaceCard.surface_coefficients[3])
+
+    string = ' {} {:f} {:f} {:f} {:f} {:f}'.format("conx",x,y,z,r,h)
   
+    return string
+
+# write a cone y
+def serpent_cone_y(SurfaceCard):
+    
+        mcnp xyz r2 -1 +1
+        *
+        ||
+        | \
+        |  \
+        |   \
+        |    \
+        |     \
+        *------*
+        
+    From the bounding coodinate appropriate in 
+    this case - if pointing down need the lowest value
+        
+    
+    # cone points down from xyz
+    if SurfaceCard.surface_coefficients[4] == -1:
+        h = abs(SurfaceCard.b_box[2])
+        y = SurfaceCard.b_box[2]
+    # cone point up from xyz
+    if SurfaceCard.surface_coefficients[4] == 1:
+        h = abs(SurfaceCard.b_box[3])
+        y = SurfaceCard.b_box[3]
+
+    x = SurfaceCard.surface_coefficients[0]
+    z = SurfaceCard.surface_coefficients[2]
+    r = h*sqrt(SurfaceCard.surface_coefficients[3])
+
+    string = ' {} {:f} {:f} {:f} {:f} {:f}'.format("cony",x,y,z,r,h)
+  
+    return string
+
+# write a cone z
+def serpent_cone_z(SurfaceCard):
+    
+        mcnp xyz r2 -1 +1
+        *
+        ||
+        | \
+        |  \
+        |   \
+        |    \
+        |     \
+        *------*
+        
+    From the bounding coodinate appropriate in 
+    this case - if pointing down need the lowest value
+        
+    
+    # cone points down from xyz
+    if SurfaceCard.surface_coefficients[4] == -1:
+        h = abs(SurfaceCard.b_box[5])
+        z = SurfaceCard.b_box[5]
+    # cone point up from xyz
+    if SurfaceCard.surface_coefficients[4] == 1:
+        h = abs(SurfaceCard.b_box[6])
+        z = SurfaceCard.b_box[6]
+
+    x = SurfaceCard.surface_coefficients[0]
+   y = SurfaceCard.surface_coefficients[1]
+    r = h*sqrt(SurfaceCard.surface_coefficients[3])
+
+  
+    return string
+
+"""
 
 # write the surface description to file
 def write_serpent_surface(filestream, SurfaceCard):
@@ -101,6 +233,15 @@ def write_serpent_surface(filestream, SurfaceCard):
         filestream.write(string)
     elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
         string += serpent_sphere(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_X"]:
+        string += serpent_cone_x(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Y"]:
+        string += serpent_cone_y(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Z"]:
+        string += serpent_cone_z(SurfaceCard)
         filestream.write(string)
     elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
         string += serpent_gq(SurfaceCard)

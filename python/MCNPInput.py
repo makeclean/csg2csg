@@ -290,8 +290,30 @@ class MCNPInput(InputDeck):
                 self.bounding_coordinates[4] = box[4]
             if box[5] > self.bounding_coordinates[5]:
                 self.bounding_coordinates[5] = box[5]
-        logging.debug("%s 6%e", "bounding box of geometry is ", self.bounding_coordinates[0],self.bounding_coordinates[1],
-                      self.bounding_coordinates[2],self.bounding_coordinates[3],self.bounding_coordinates[4],self.bounding_coordinates[5])
+        logging.debug("%s ", "bounding box of geometry is " + str(self.bounding_coordinates[0]) + " " + 
+                      str(self.bounding_coordinates[1]) + " " +
+                      str(self.bounding_coordinates[2]) + " " + 
+                      str(self.bounding_coordinates[3]) + " " + 
+                      str(self.bounding_coordinates[4]) + " " + 
+                      str(self.bounding_coordinates[5]) + "\n")
+    # update surfaces that need their bounding coordinates updated
+    def __update_surfaces(self):
+        for surf in self.surface_list:
+            if surf.surface_type in [SurfaceCard.SurfaceType["CONE_X"],
+                                     SurfaceCard.SurfaceType["CONE_Y"],
+                                     SurfaceCard.SurfaceType["CONE_Z"]]:
+                if surf.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
+                    surf.b_box[0] = self.bounding_coordinates[0]
+                    surf.b_box[1] = self.bounding_coordinates[1]
+                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
+                    surf.b_box[2] = self.bounding_coordinates[2]
+                    surf.b_box[3] = self.bounding_coordinates[3]
+                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
+                    surf.b_box[4] = self.bounding_coordinates[4]
+                    surf.b_box[5] = self.bounding_coordinates[5]
+                else:
+                    pass
+        return
 
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
@@ -325,6 +347,7 @@ class MCNPInput(InputDeck):
                 idx += 1
                 break
             # if we are a cell card
+            print(cell_line,is_cell_card(cell_line))
             if is_cell_card(cell_line):
                 jdx = idx + 1
                 # if were are at the end of cell data
@@ -362,7 +385,7 @@ class MCNPInput(InputDeck):
             idx += 1
         """
         idx += 1
-        print (idx,self.file_lines[idx])
+
         # idx should have advanced file reading such that we are now at the first
         # surface line
         # now process the surfaces
@@ -408,6 +431,9 @@ class MCNPInput(InputDeck):
         # we need to turn macrobodies into regular surface descriptions
         self.__flatten_macrobodies()
         self.__generate_bounding_coordinates()
+        # update the bounding coordinates of surfaces that need it
+        # cones for example
+        self.__update_surfaces()
         
         return
 
