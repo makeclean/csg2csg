@@ -69,35 +69,35 @@ class SurfaceCard(Card):
         # bounding box return value
         bounding_box = [0,0,0,0,0,0]
         print (self.surface_id,self.surface_coefficients,self.surface_type)
-        if self.SurfaceType['PLANE_X']:
+        if self.surface_type == self.SurfaceType['PLANE_X']:
             bounding_box[0] = self.surface_coefficients[3]
             bounding_box[1] = self.surface_coefficients[3]
-        elif self.SurfaceType['PLANE_Y']:
+        elif self.surface_type == self.SurfaceType['PLANE_Y']:
             bounding_box[2] = self.surface_coefficients[3]
             bounding_box[3] = self.surface_coefficients[3]
-        elif self.SurfaceType['PLANE_Z']:
+        elif self.surface_type == self.SurfaceType['PLANE_Z']:
             bounding_box[4] = self.surface_coefficients[3]
             bounding_box[5] = self.surface_coefficients[3]
-        elif self.SurfaceType['CYLINDER_X']:
-            bounding_box[2] = self.surface_coefficients[0] - self.surface-coefficients[2]
-            bounding_box[3] = self.surface_coefficients[0] + self.surface-coefficients[2]
-            bounding_box[4] = self.surface_coefficients[1] - self.surface-coefficients[2]
-            bounding_box[5] = self.surface_coefficients[1] + self.surface-coefficients[2]
-        elif self.SurfaceType['CYLINDER_Y']:
-            bounding_box[0] = self.surface_coefficients[0] - self.surface-coefficients[2]
-            bounding_box[1] = self.surface_coefficients[0] + self.surface-coefficients[2]
-            bounding_box[4] = self.surface_coefficients[1] - self.surface-coefficients[2]
-            bounding_box[5] = self.surface_coefficients[1] + self.surface-coefficients[2]
-        elif self.SurfaceType['CYLINDER_Z']:
-            bounding_box[0] = self.surface_coefficients[0] - self.surface-coefficients[2]
-            bounding_box[1] = self.surface_coefficients[0] + self.surface-coefficients[2]
-            bounding_box[2] = self.surface_coefficients[1] - self.surface-coefficients[2]
-            bounding_box[3] = self.surface_coefficients[1] + self.surface-coefficients[2]
-        elif self.SurfaceType['SPHERE_GENERAL']:
-            bounding_box[0] = self.surface_coefficients[0] - self.surface-coefficients[3]
-            bounding_box[1] = self.surface_coefficients[0] + self.surface-coefficients[3]
-            bounding_box[2] = self.surface_coefficients[1] - self.surface-coefficients[3]
-            bounding_box[3] = self.surface_coefficients[1] + self.surface-coefficients[3]
-            bounding_box[4] = self.surface_coefficients[2] - self.surface-coefficients[3]
-            bounding_box[5] = self.surface_coefficients[2] + self.surface-coefficients[3]
+        elif self.surface_type == self.SurfaceType['CYLINDER_X']:
+            bounding_box[2] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            bounding_box[3] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            bounding_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            bounding_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['CYLINDER_Y']:
+            bounding_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            bounding_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            bounding_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            bounding_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['CYLINDER_Z']:
+            bounding_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            bounding_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            bounding_box[2] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            bounding_box[3] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
+            bounding_box[0] = self.surface_coefficients[0] - self.surface_coefficients[3]
+            bounding_box[1] = self.surface_coefficients[0] + self.surface_coefficients[3]
+            bounding_box[2] = self.surface_coefficients[1] - self.surface_coefficients[3]
+            bounding_box[3] = self.surface_coefficients[1] + self.surface_coefficients[3]
+            bounding_box[4] = self.surface_coefficients[2] - self.surface_coefficients[3]
+            bounding_box[5] = self.surface_coefficients[2] + self.surface_coefficients[3]
         return bounding_box
