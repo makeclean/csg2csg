@@ -14,7 +14,7 @@ class SurfaceCard(Card):
     surface_transform = 0
     surface_coefficients = []
     comment = ""
-    b_box = [0,0,0,0,0,0] # bounding_box 
+    b_box = [0,0,0,0,0,0] # b 
     
     class SurfaceType(Enum):
         PLANE_GENERAL = auto()

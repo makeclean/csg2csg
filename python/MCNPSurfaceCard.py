@@ -146,6 +146,37 @@ def mcnp_gq(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[8]) + "\n      "
     string += str(SurfaceCard.surface_coefficients[9]) + "\n"
     return string
+# write the mcnp form of an arbitrary sphere
+
+def mcnp_tx(SurfaceCard):
+    string = "tx "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[3]) + " "
+    string += str(SurfaceCard.surface_coefficients[4]) + " "
+    string += str(SurfaceCard.surface_coefficients[5]) + "\n"
+    return string
+
+def mcnp_ty(SurfaceCard):
+    string = "tx "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[3]) + " "
+    string += str(SurfaceCard.surface_coefficients[4]) + " "
+    string += str(SurfaceCard.surface_coefficients[5]) + "\n"
+    return string
+
+def mcnp_tz(SurfaceCard):
+    string = "tx "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[3]) + " "
+    string += str(SurfaceCard.surface_coefficients[4]) + " "
+    string += str(SurfaceCard.surface_coefficients[5]) + "\n"
+    return string
 
 # generic write method
 def write_mcnp_surface(filestream, SurfaceCard):
@@ -176,6 +207,12 @@ def write_mcnp_surface(filestream, SurfaceCard):
         string += mcnp_sphere(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
         string += mcnp_gq(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_X"]:
+        string += mcnp_tx(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Y"]:
+        string += mcnp_ty(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Z"]:
+        string += mcnp_tz(SurfaceCard)
     else:
         string += "Unknown surface type"
         
@@ -196,6 +233,7 @@ class MCNPSurfaceCard(SurfaceCard):
                             "s","so","sx","sy","sz",
                             "cx","cy","cz","c/x","c/y","c/z",
                             "kx","ky","kz","k/x","k/y","k/z",
+                            "tx","ty","tz",
                             "gq","sq"]
     # TODO add to this list to add more macrobody types
     __mcnp_macro_types = ["rpp","box","sph","rcc"]
@@ -519,6 +557,25 @@ class MCNPSurfaceCard(SurfaceCard):
             
         return
 
+    # classify as torus
+    def __classify_torus(self,surface):
+        coords = [0.] * 6
+        for i in range(6):
+            coords[i] = float(surface["coefficients"][i])
+        if surface["type"] == "tx":
+            self.set_type(surface["id"], surface["transform"],
+                          SurfaceCard.SurfaceType["TORUS_X"],
+                          coords)
+        if surface["type"] == "ty":
+            self.set_type(surface["id"], surface["transform"],
+                          SurfaceCard.SurfaceType["TORUS_Y"],
+                          coords)
+        if surface["type"] == "tz":
+            self.set_type(surface["id"], surface["transform"],
+                          SurfaceCard.SurfaceType["TORUS_Z"],
+                          coords)
+        return
+
     # classify as a box surface
     def __classify_box(self,surface):
         vx = float(surface["coefficients"][0])
@@ -632,6 +689,8 @@ class MCNPSurfaceCard(SurfaceCard):
             self.__classify_cone_on_axis(surface)
         elif "g" in surf_type and "q" in surf_type:
             self.__classify_gq(surface)
+        elif "t" in surf_type and any(s in surf_type for s in ["x","y","z"]):
+            self.__classify_torus(surface)
         elif "box" in surf_type:
             self.__classify_box(surface)
         elif "rpp" in surf_type:
@@ -667,10 +726,18 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # classify the surface type
     def classify(self):
+        # first extract $ comment
+        if "$" in self.text_string:
+            pos = self.text_string.find("$")
+            self.comment = self.text_string[pos:]
+            self.text_string = self.text_string[0:pos]          
+        
         tokens = self.text_string.split()
 
         surface = {}                
         surface["id"] = int(tokens[0])
+
+        
 
         if surface_has_transform(self.text_string):
             surface["transform"] = tokens[1]

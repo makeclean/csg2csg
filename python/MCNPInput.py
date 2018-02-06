@@ -296,6 +296,7 @@ class MCNPInput(InputDeck):
                       str(self.bounding_coordinates[3]) + " " + 
                       str(self.bounding_coordinates[4]) + " " + 
                       str(self.bounding_coordinates[5]) + "\n")
+
     # update surfaces that need their bounding coordinates updated
     def __update_surfaces(self):
         for surf in self.surface_list:
@@ -314,6 +315,64 @@ class MCNPInput(InputDeck):
                 else:
                     pass
         return
+
+    # extract all the cell cards
+    def __get_cell_cards(self):
+        # line by line insert into dictionary of cell descriptions
+        # until we find a blank line
+        idx = 0
+        while True:
+            cell_line = self.file_lines[idx]
+            if cell_line == "\n":
+                logging.debug('%s',"found end of cell cards at line " + str(idx))
+                idx += 1
+                break
+
+            card_line = cell_line
+            jdx = idx + 1
+            # scan until we are all done
+            while True:
+                cell_line = self.file_lines[jdx]
+                # mcnp continue line is indicated by 5 spaces
+                if cell_line[0:5] == "     ":
+                    card_line += cell_line
+                else: # else we have found a new cell card
+                    cellcard = MCNPCellCard(card_line)
+                    self.cell_list.append(cellcard)
+                    break 
+                jdx += 1
+            idx = jdx                   
+        idx += 1
+        return idx
+
+    # extract all the surface cards from the input deck
+    def __get_surface_cards(self,idx):
+        while True:
+            surf_line = self.file_lines[idx]
+            if surf_line == "\n":
+                logging.debug('%s',"found end of cell cards at line " + str(idx))
+                idx += 1
+                break
+
+            surf_card = surf_line
+            jdx = idx + 1
+            # scan until we are all done
+            while True:
+                surf_line = self.file_lines[jdx]
+                # mcnp continue line is indicated by 5 spaces
+                if surf_line[0:5] == "     ":
+                    surf_card += surf_line
+                else: # else we have found a new surf card
+                    surfacecard = MCNPSurfaceCard(surf_card)
+                    self.surface_list.append(surfacecard)
+                    # update the surface index counter
+                    if surfacecard.surface_id > self.last_free_surface_index: 
+                        self.last_free_surface_index = surfacecard.surface_id
+                    break 
+                jdx += 1
+            idx = jdx                  
+        idx += 1
+        return idx
 
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
@@ -337,82 +396,14 @@ class MCNPInput(InputDeck):
                 logging.debug("%i %s",idx,line)
             
 
-        # line by line insert into dictionary of cell descriptions
-        # until we find a blank line
-        idx = 0
-        while True:
-            cell_line = self.file_lines[idx]
-            if cell_line == "\n":
-                logging.debug('%s',"found end of cell cards at line " + str(idx))
-                idx += 1
-                break
-            # if we are a cell card
-            print(cell_line,is_cell_card(cell_line))
-            if is_cell_card(cell_line):
-                jdx = idx + 1
-                # if were are at the end of cell data
-                if self.file_lines[jdx] == "\n":
-                    cell_card = MCNPCellCard(cell_line)
-                    self.cell_list.append(cell_card)
-                    break
-                # if we immediately find another valid cell card
-                if is_cell_card(self.file_lines[jdx]):
-                    cell_card = MCNPCellCard(cell_line)
-                    self.cell_list.append(cell_card)
-                # until we discover a new valid cell line                    
-                else:
-                    while not is_cell_card(self.file_lines[jdx]):
-                        cell_line += self.file_lines[jdx]
-                        jdx += 1
-                        cellcard = MCNPCellCard(cell_line)
-                        self.cell_list.append(cellcard)
-                idx += 1
-        idx +=1 
-        """
-        while True:
-            cell_card = self.file_lines[idx]
-            # its a cell card if the first 2 items are ints and the 
-            # third is a float, or if the first 2 items are ints, and the
-            # second int is a 0
-            if cell_card == "\n": break
-
-            # the first instance of cell_card should start the string of a cell
-            # the next time we find a valid cell card, should start a new one
-            
-            if is_cell_card(cell_card):
-                cellcard = MCNPCellCard(cell_card)
-                self.cell_list.append(cellcard)
-            idx += 1
-        """
-        idx += 1
+        # get the cell cards
+        idx = self.__get_cell_cards()
 
         # idx should have advanced file reading such that we are now at the first
-        # surface line
-        # now process the surfaces
-        while True:
-            surface_card = self.file_lines[idx]
-            logging.debug('%s','surface cards start at line '+ str(idx))
-            
-            # if we find the blank line
-            if surface_card == "\n" or surface_card.isspace():
-                logging.debug('%s', "found end of surfaces at line " + str(idx))
-                idx += 1
-                break
-                           
-            if is_surface_card(surface_card):
-                surfacecard = MCNPSurfaceCard(surface_card)
-                logging.debug('%s',surfacecard)
-                self.surface_list.append(surfacecard)
-                # update the surface index counter
-                if surfacecard.surface_id > self.last_free_surface_index: 
-                    self.last_free_surface_index = surfacecard.surface_id
-
-            idx += 1
-            # if this is a surface card the first item should be an int
-            # and the 2nd should be text, its possible the surface has a 
-            # tr card associated with it in which case the first is a tr card
-            # the 2nd is the surface id the third is surface type          
-
+        # surface line and now process the surfaces
+        # line by line insert into dictionary of cell descriptions
+        # until we find a blank line
+        idx = self.__get_surface_cards(idx)
 
         # now we need to process the data cards like materials
         # now the order of data cards is entirely arbitrary
