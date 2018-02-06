@@ -14,6 +14,7 @@ class SurfaceCard(Card):
     surface_transform = 0
     surface_coefficients = []
     comment = ""
+    b_box = [0,0,0,0,0,0] # b 
     
     class SurfaceType(Enum):
         PLANE_GENERAL = auto()
@@ -24,10 +25,16 @@ class SurfaceCard(Card):
         CYLINDER_Y = auto()
         CYLINDER_Z = auto()
         SPHERE_GENERAL = auto()
+        CONE_X = auto()
+        CONE_Y = auto()
+        CONE_Z = auto()
         TORUS_X = auto()
         TORUS_Y = auto()
         TORUS_Z = auto()
         GENERAL_QUADRATIC = auto()
+        MACRO_RPP = auto()
+        MACRO_BOX = auto()
+        MACRO_RCC = auto()
     
     # constructor for building a surface card
     def __init__(self,card_string):
@@ -48,4 +55,50 @@ class SurfaceCard(Card):
         self.surface_type = surf_type
         self.surface_coefficients = coords
         
-        
+    # test if the current surface is a macrobody or not
+    def is_macrobody(self):
+        if self.surface_type == self.SurfaceType['MACRO_RPP']:
+            return True
+        if self.surface_type == self.SurfaceType['MACRO_BOX']:
+            return True
+        if self.surface_type == self.SurfaceType['MACRO_RCC']:
+            return True
+        return False
+    
+    # get the bounding box 
+    def bounding_box(self):
+        # bounding box return value
+        b_box = [0,0,0,0,0,0]
+
+        if self.surface_type == self.SurfaceType['PLANE_X']:
+            b_box[0] = self.surface_coefficients[3]
+            b_box[1] = self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType['PLANE_Y']:
+            b_box[2] = self.surface_coefficients[3]
+            b_box[3] = self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType['PLANE_Z']:
+            b_box[4] = self.surface_coefficients[3]
+            b_box[5] = self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType['CYLINDER_X']:
+            b_box[2] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            b_box[3] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['CYLINDER_Y']:
+            b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['CYLINDER_Z']:
+            b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
+            b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
+            b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[2]
+            b_box[3] = self.surface_coefficients[1] + self.surface_coefficients[2]
+        elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
+            b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[3]
+            b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[3]
+            b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[3]
+            b_box[3] = self.surface_coefficients[1] + self.surface_coefficients[3]
+            b_box[4] = self.surface_coefficients[2] - self.surface_coefficients[3]
+            b_box[5] = self.surface_coefficients[2] + self.surface_coefficients[3]
+        return b_box

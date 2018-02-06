@@ -105,23 +105,70 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         self.assertEqual(card.surface_coefficients[2], 0.0)
         self.assertEqual(card.surface_coefficients[3], 2.5)
 
-    def test_sx(self):
-        card_string = "15000 sz 3.0 2.5"
+    def test_cz(self):
+        card_string = "15000 cz 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["CYLINDER_Z"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
-        self.assertEqual(card.surface_coefficients[2], 3.0)
-        self.assertEqual(card.surface_coefficients[3], 2.5)
+        self.assertEqual(card.surface_coefficients[2], 2.5)
 
+    def test_rpp(self):
+        card_string = "15000 rpp -1 1 -1 1 -1 1"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], -1.0)
+        self.assertEqual(card.surface_coefficients[1],  1.0)
+        self.assertEqual(card.surface_coefficients[2], -1.0)
+        self.assertEqual(card.surface_coefficients[3],  1.0)
+        self.assertEqual(card.surface_coefficients[4], -1.0)
+        self.assertEqual(card.surface_coefficients[5],  1.0)
+
+    def test_box(self):
+        card_string = "15000 box -1 -1 -1 2 0 0 0 2 0 0 0 2"
+        card = MCNPSurfaceCard(card_string)
+        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_id, 15000)
+        self.assertEqual(card.surface_coefficients[0], -1.0)
+        self.assertEqual(card.surface_coefficients[1],  1.0)
+        self.assertEqual(card.surface_coefficients[2], -1.0)
+        self.assertEqual(card.surface_coefficients[3],  1.0)
+        self.assertEqual(card.surface_coefficients[4], -1.0)
+        self.assertEqual(card.surface_coefficients[5],  1.0)
         
     def test_surfacetransform_detect(self):
         card = "1 2 px 3"
         self.assertEqual(surface_has_transform(card),True)
         card = "1 PX 3"
         self.assertEqual(surface_has_transform(card),False)
-        
+
+
+    def test_bounding_box_px(self):
+        card_string = "1 px 3"
+        card = MCNPSurfaceCard(card_string)
+        box = card.bounding_box()
+        self.assertEqual(box[0],3)
+        self.assertEqual(box[1],3)
+        self.assertEqual(box[2],0)
+        self.assertEqual(box[3],0)
+        self.assertEqual(box[4],0)
+        self.assertEqual(box[5],0)
+
+    # generate a bounding box for py
+    """
+    def test_bounding_box_py(self):
+        card_string = "1 py 3"
+        card = MCNPSurfaceCard(card_string)
+        box = card.bounding_box()
+        self.assertEqual(box[0],0)
+        self.assertEqual(box[1],0)
+        self.assertEqual(box[2],3)
+        self.assertEqual(box[3],3)
+        self.assertEqual(box[4],0)
+        self.assertEqual(box[5],0)
+        """
 
 if __name__ == '__main__':
     unittest.main()

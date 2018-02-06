@@ -1,6 +1,7 @@
 #/usr/env/python3
 
 from Input import InputDeck
+from SurfaceCard import SurfaceCard
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from MCNPDataCard import MCNPTransformCard
@@ -86,15 +87,16 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_material_cards(self, start_line):
-        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr","fc"]
+        mcnp_keywords = ["mode","prdmp","rdum","idum","sdef","si","sp","wwe","fm","vol","tr","fc","*","print"]
 
         idx = start_line
         while True:
             if idx == len(self.file_lines):
                 break
+
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if re.match("^m[0-9]+",self.file_lines[idx]):
+            if re.match(" *m[0-9]/*",self.file_lines[idx]):
 #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
@@ -185,6 +187,191 @@ class MCNPInput(InputDeck):
 
         return
 
+    # explode a macrobody into surfaces
+    def explode_macrobody(self,Surface):
+        new_surf_list = []
+        if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
+            id = int(Surface.surface_id)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[0]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[1]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[2]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[3]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[4]))
+            new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[5]))
+            new_surf_list.append(surf)
+            # appropriate cell description for inside the macrobody
+            cell_description_inside = "( " + str(new_surf_list[0].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[1].surface_id)
+            cell_description_inside += "  " + str(new_surf_list[2].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[3].surface_id)
+            cell_description_inside += "  " + str(new_surf_list[4].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[5].surface_id)
+            cell_description_inside += " )"
+            # appropriate cell descripiton for outside the macrobody
+            cell_description_outside = "(-" + str(new_surf_list[0].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[4].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[5].surface_id)
+            cell_description_outside += ")"
+
+            cell_description = [cell_description_inside,cell_description_outside]
+
+            return cell_description, new_surf_list
+
+
+    # if we find a macrobody in the surface list 
+    # explode it into a surface based definition
+    def __flatten_macrobodies(self):
+        # look through the list until we find
+        # a macrobody
+        to_remove = []
+        for surf in self.surface_list:
+            # if we are a macrobody
+            if surf.is_macrobody():
+                # explode into constituent surfaces
+                cell_description, new_surfaces = self.explode_macrobody(surf)
+                # insert the new surfaces into the surface_list
+                self.surface_list.extend(new_surfaces)
+                # remove the old surface
+                to_remove.append(surf)
+#                self.surface_list.remove(surf)
+                # update the cell definition
+                for jdx, cell in enumerate(self.cell_list):
+                    # for each part of the cell
+#                    for idx, item in enumerate(cell.cell_text_description):
+                    for idx, item in enumerate(cell.cell_text_description):
+                        # if we find a matching surface
+                        if item == str(surf.surface_id): # found the outside description
+                            cell.cell_text_description[idx] = cell_description[1]
+                            self.cell_list[jdx] = cell
+                            text_string = ' '.join(cell.cell_text_description)
+                            self.cell_list[jdx].update(text_string) 
+                        elif item == str(-1*surf.surface_id): # found the inside description
+                            cell.cell_text_description[idx] = cell_description[0]
+                            self.cell_list[jdx] = cell
+                            text_string = ' '.join(cell.cell_text_description)
+                            self.cell_list[jdx].update(text_string)
+                        else:
+                            pass
+                            
+        # clear up removed surfaces
+        for surf in to_remove:
+            self.surface_list.remove(surf)
+        return
+
+    # generate bounding coordinates 
+    def __generate_bounding_coordinates(self):
+        # loop through the surfaces and generate the bounding coordinates
+        # condisder only manifold or simple infinite surfaces, like planes
+        for surf in self.surface_list:
+            box = surf.bounding_box()
+            if box[0] < self.bounding_coordinates[0]:
+                self.bounding_coordinates[0] = box[0]
+            if box[1] > self.bounding_coordinates[1]:
+                self.bounding_coordinates[1] = box[1]
+            if box[2] < self.bounding_coordinates[2]:
+                self.bounding_coordinates[2] = box[2]
+            if box[3] > self.bounding_coordinates[3]:
+                self.bounding_coordinates[3] = box[3]
+            if box[4] < self.bounding_coordinates[4]:
+                self.bounding_coordinates[4] = box[4]
+            if box[5] > self.bounding_coordinates[5]:
+                self.bounding_coordinates[5] = box[5]
+        logging.debug("%s ", "bounding box of geometry is " + str(self.bounding_coordinates[0]) + " " + 
+                      str(self.bounding_coordinates[1]) + " " +
+                      str(self.bounding_coordinates[2]) + " " + 
+                      str(self.bounding_coordinates[3]) + " " + 
+                      str(self.bounding_coordinates[4]) + " " + 
+                      str(self.bounding_coordinates[5]) + "\n")
+
+    # update surfaces that need their bounding coordinates updated
+    def __update_surfaces(self):
+        for surf in self.surface_list:
+            if surf.surface_type in [SurfaceCard.SurfaceType["CONE_X"],
+                                     SurfaceCard.SurfaceType["CONE_Y"],
+                                     SurfaceCard.SurfaceType["CONE_Z"]]:
+                if surf.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
+                    surf.b_box[0] = self.bounding_coordinates[0]
+                    surf.b_box[1] = self.bounding_coordinates[1]
+                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
+                    surf.b_box[2] = self.bounding_coordinates[2]
+                    surf.b_box[3] = self.bounding_coordinates[3]
+                elif surf.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
+                    surf.b_box[4] = self.bounding_coordinates[4]
+                    surf.b_box[5] = self.bounding_coordinates[5]
+                else:
+                    pass
+        return
+
+    # extract all the cell cards
+    def __get_cell_cards(self):
+        # line by line insert into dictionary of cell descriptions
+        # until we find a blank line
+        idx = 0
+        while True:
+            cell_line = self.file_lines[idx]
+            if cell_line == "\n":
+                logging.debug('%s',"found end of cell cards at line " + str(idx))
+                idx += 1
+                break
+
+            card_line = cell_line
+            jdx = idx + 1
+            # scan until we are all done
+            while True:
+                cell_line = self.file_lines[jdx]
+                # mcnp continue line is indicated by 5 spaces
+                if cell_line[0:5] == "     ":
+                    card_line += cell_line
+                else: # else we have found a new cell card
+                    cellcard = MCNPCellCard(card_line)
+                    self.cell_list.append(cellcard)
+                    break 
+                jdx += 1
+            idx = jdx                   
+        return idx
+
+    # extract all the surface cards from the input deck
+    def __get_surface_cards(self,idx):
+        while True:
+            surf_line = self.file_lines[idx]
+            if surf_line == "\n":
+                logging.debug('%s',"found end of cell cards at line " + str(idx))
+                idx += 1
+                break
+
+            surf_card = surf_line
+            jdx = idx + 1
+            # scan until we are all done
+            while True:
+                surf_line = self.file_lines[jdx]
+                # mcnp continue line is indicated by 5 spaces
+                if surf_line[0:5] == "     ":
+                    surf_card += surf_line
+                else: # else we have found a new surf card
+                    surfacecard = MCNPSurfaceCard(surf_card)
+                    self.surface_list.append(surfacecard)
+                    # update the surface index counter
+                    if surfacecard.surface_id > self.last_free_surface_index: 
+                        self.last_free_surface_index = surfacecard.surface_id
+                    break 
+                jdx += 1
+            idx = jdx                  
+        return idx
+
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
@@ -207,76 +394,14 @@ class MCNPInput(InputDeck):
                 logging.debug("%i %s",idx,line)
             
 
+        # get the cell cards
+        idx = self.__get_cell_cards()
+
+        # idx should have advanced file reading such that we are now at the first
+        # surface line and now process the surfaces
         # line by line insert into dictionary of cell descriptions
         # until we find a blank line
-        idx = 0
-        while True:
-            cell_line = self.file_lines[idx]
-            if cell_line == "\n":
-                logging.debug('%s',"found end of cell cards at line " + str(idx))
-                idx += 1
-                break
-            # if we are a cell card
-            if is_cell_card(cell_line):
-                jdx = idx + 1
-                # if were are at the end of cell data
-                if self.file_lines[jdx] == "\n":
-                    cell_card = MCNPCellCard(cell_line)
-                    self.cell_list.append(cell_card)
-                    break
-                # if we immediately find another valid cell card
-                if is_cell_card(self.file_lines[jdx]):
-                    cell_card = MCNPCellCard(cell_line)
-                    self.cell_list.append(cell_card)
-                # until we discover a new valid cell line                    
-                else:
-                    while not is_cell_card(self.file_lines[jdx]):
-                        cell_line += self.file_lines[jdx]
-                        jdx += 1
-                        cellcard = MCNPCellCard(cell_line)
-                        self.cell_list.append(cellcard)
-                idx += 1
-        idx +=1 
-        """
-        while True:
-            cell_card = self.file_lines[idx]
-            # its a cell card if the first 2 items are ints and the 
-            # third is a float, or if the first 2 items are ints, and the
-            # second int is a 0
-            if cell_card == "\n": break
-
-            # the first instance of cell_card should start the string of a cell
-            # the next time we find a valid cell card, should start a new one
-            
-            if is_cell_card(cell_card):
-                cellcard = MCNPCellCard(cell_card)
-                logging.debug('%s',cellcard)
-                self.cell_list.append(cellcard)
-            idx += 1
-        """
-        idx += 1
-        # idx should have advanced file reading such that we are now at the first
-        # surface line
-        # now process the surfaces
-        while True:
-            surface_card = self.file_lines[idx]
-
-            # if we find the blank line
-            if surface_card == "\n":
-                logging.debug('%s', "found end of surfaces at line " + str(idx))
-                break
-                           
-            if is_surface_card(surface_card):
-                surfacecard = MCNPSurfaceCard(surface_card)
-                logging.debug('%s',surfacecard)
-                self.surface_list.append(surfacecard)
-
-            idx += 1
-            # if this is a surface card the first item should be an int
-            # and the 2nd should be text, its possible the surface has a 
-            # tr card associated with it in which case the first is a tr card
-            # the 2nd is the surface id the third is surface type          
-
+        idx = self.__get_surface_cards(idx)
 
         # now we need to process the data cards like materials
         # now the order of data cards is entirely arbitrary
@@ -291,6 +416,13 @@ class MCNPInput(InputDeck):
         # based on the mateiral number / density pairs
         # and update cells accordingly.
         self.__reorganise_materials()
+
+        # we need to turn macrobodies into regular surface descriptions
+        self.__flatten_macrobodies()
+        self.__generate_bounding_coordinates()
+        # update the bounding coordinates of surfaces that need it
+        # cones for example
+        self.__update_surfaces()
         
         return
 
@@ -323,6 +455,6 @@ class MCNPInput(InputDeck):
         self.__write_mcnp_cells(f)
         self.__write_mcnp_surfaces(f)
         self.__write_mcnp_materials(f)
-
-
+        f.close()
+        
     

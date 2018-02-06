@@ -7,8 +7,14 @@ from enum import Enum
 # if the string is a cell card or not
 def is_cell_card(line):
     cell_card = line.split()
+    if len(cell_card) == 0:
+        return False
     try:
-        int(cell_card[0])
+        if any(s == cell_card[0][0] for s in ['(',':',')','#']):
+            return False
+        else:
+            if int(cell_card[0]):
+                return True
     except ValueError:
         return False
     
@@ -124,6 +130,10 @@ class MCNPCellCard(CellCard):
         string = string.replace("(", " ( ")
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
+        if '$' in string:
+            pos = string.find('$')
+            self.cell_comment = string[pos:]
+            string = string[:pos]
         #tokens = self.text_string.split()
         tokens = string.split()
 
@@ -144,3 +154,16 @@ class MCNPCellCard(CellCard):
         self.generalise()
         return
 
+    # update an existing cell description with 
+    def update(self,new_cell_description):
+        # take the new cell description and make a new 
+        # cell description
+        self.text_string = str(self.cell_id)
+        self.text_string += " " + str(self.cell_material_number)
+        if self.cell_material_number == 0:
+            self.text_string += " " + new_cell_description
+        else:
+            self.text_string += " " + str(self.cell_density)
+            self.text_string += " " + new_cell_description
+
+        self.__interpret()
