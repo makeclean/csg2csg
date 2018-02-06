@@ -67,7 +67,7 @@ def serpent_gq(SurfaceCard):
     string += "\n"
     return string
 
-# its not clear how we deal with +-1 cones for serpent
+# its not clear how we deal with +-1 cones for serpent}
 # write a cone along x
 def serpent_cone_x(SurfaceCard):
     x = SurfaceCard.surface_coefficients[0]

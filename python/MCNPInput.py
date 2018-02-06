@@ -342,7 +342,6 @@ class MCNPInput(InputDeck):
                     break 
                 jdx += 1
             idx = jdx                   
-        idx += 1
         return idx
 
     # extract all the surface cards from the input deck
@@ -371,7 +370,6 @@ class MCNPInput(InputDeck):
                     break 
                 jdx += 1
             idx = jdx                  
-        idx += 1
         return idx
 
     # process the mcnp input deck and read into a generic datastructure
@@ -457,6 +455,6 @@ class MCNPInput(InputDeck):
         self.__write_mcnp_cells(f)
         self.__write_mcnp_surfaces(f)
         self.__write_mcnp_materials(f)
-
-
+        f.close()
+        
     

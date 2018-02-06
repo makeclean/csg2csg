@@ -64,7 +64,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("7 so 10\n")
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
-        input_string.append("    1002 1.0\n")
+        input_string.append("      1002 1.0\n")
 
         # setup input
         input = MCNPInput()
@@ -115,7 +115,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("5 rpp -15 15 -15 15 -15 15\n")
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
-        input_string.append("    1002 1.0\n")
+        input_string.append("     1002 1.0\n")
 
         # setup input
         input = MCNPInput()
@@ -128,7 +128,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input.file_lines = input_string
         input.total_num_lines = len(input_string)       
         input.process()
-        
+       
         # cell card
         cell1 = input.cell_list[0] 
         cell2 = input.cell_list[1] 
