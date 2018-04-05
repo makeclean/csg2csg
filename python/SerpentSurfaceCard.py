@@ -95,6 +95,39 @@ def serpent_cone_z(SurfaceCard):
     string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r)
     return string
 
+# serpent a torus x
+def serpent_torus_x(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    a = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[3]
+    c = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torx",x,y,z,a,b,c)
+    return string
+
+# serpent a torus y
+def serpent_torus_y(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    a = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[3]
+    c = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("tory",x,y,z,a,b,c)
+    return string
+
+# serpent a torus z
+def serpent_torus_z(SurfaceCard):
+    x = SurfaceCard.surface_coefficients[0]
+    y = SurfaceCard.surface_coefficients[1]
+    z = SurfaceCard.surface_coefficients[2]
+    a = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[3]
+    c = SurfaceCard.surface_coefficients[3]
+    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torz",x,y,z,a,b,c)
+    return string
+
 """
 # write a conex
 def serpent_cone_x(SurfaceCard):
@@ -242,6 +275,15 @@ def write_serpent_surface(filestream, SurfaceCard):
         filestream.write(string)
     elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Z"]:
         string += serpent_cone_z(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_X"]:
+        string += serpent_torus_x(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Y"]:
+        string += serpent_torus_y(SurfaceCard)
+        filestream.write(string)
+    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Z"]:
+        string += serpent_torus_z(SurfaceCard)
         filestream.write(string)
     elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
         string += serpent_gq(SurfaceCard)

@@ -27,19 +27,27 @@ class MCNPMaterialCard(MaterialCard):
 
     # populate the MCNP Material Card
     def __process_string(self):
-        tokens = self.text_string.split()
         # need to reset the dictionary
         # otherwise state seems to linger - weird
         self.composition_dictionary = {}
 
+        mat_string = self.text_string
+        mat_string = mat_string.replace("\n","")
+        print ('string',mat_string)
+        # look for $
+#        if '$' in self.text_string:
+#            pos_d = self.text_string.find('$')
+#            mat_string = self.text_string[:pos_d]
+        
+        # split string
+        tokens = mat_string.split()
+#        print (tokens)
         if len(tokens)%2 != 0:
             print ("Material string not correctly processed")
             sys.exit(1)
         while len(tokens) != 0:
             nuclide = tokens[0].split(".")
             nucid = nuclide[0]
-            if "$" in nuclide or "$" in nucid:
-                return
             try:
                 xsid = nuclide[1]
             except:

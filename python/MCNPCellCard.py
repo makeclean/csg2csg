@@ -62,6 +62,8 @@ def write_mcnp_cell(filestream, CellCard):
     for item in CellCard.cell_interpreted:
         string += mcnp_op_from_generic(item)
 
+    # make string no longer than 60 chars
+    
     string += " ) " 
 
     string += "\n"   

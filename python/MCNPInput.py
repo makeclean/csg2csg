@@ -62,23 +62,33 @@ class MCNPInput(InputDeck):
         tokens = self.file_lines[idx].split()
         mat_num = tokens[0]
         mat_num = mat_num.replace("m","")
+        # set the material number
         
-        mcnp_characters = "nvmptwfrdi" #first letters of mcnp keywords
-
-        material_string = ' '.join(tokens[1:]) + " "
+        # rebuild the first mat string
+        material_string = ' '.join(tokens[1:]) + " " 
+        if '$' in material_string:
+            pos = material_string.find('$')
+            material_string = material_string[:pos]
         idx += 1
 
         while True:
+            # if at the end of the file
             if idx == len(self.file_lines):
                 break
-            # if we find any character that belongs to a keyword, we are all done
-            # with reading a material card
-            if any(char in mcnp_characters for char in self.file_lines[idx]):
-                break
-            else:
-                # turns everything into single line string
-                material_string += ' '.join(self.file_lines[idx].split()) + " "
-            idx += 1
+
+            while True:
+                line = self.file_lines[idx]
+                # mcnp continue line is indicated by 5 spaces
+                if line[0:5] == "     ":
+                    if '$' in line:
+                        pos = line.find('$')
+                        line = line[:pos]
+                    material_string += line
+                else: # else we have found a new cell card
+                    break 
+                # increment the line that we are looking at
+                idx += 1
+            break
 
         material = MCNPMaterialCard(mat_num, material_string)
         self.material_list[material.material_number] = material
