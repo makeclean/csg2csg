@@ -14,6 +14,7 @@ class CellCard(Card):
     cell_id = 0
     cell_density = 0
     cell_material_number = 0
+    cell_importance = 1 # note any importance - we assume everything else is 0
     cell_comment = ""
     cell_text_description = ""
     cell_interpreted = ""
@@ -33,6 +34,7 @@ class CellCard(Card):
         string += "Cell ID " + str(self.cell_id) + "\n"
         string += "Material Number " + str(self.cell_material_number) + "\n"
         string += "Material Density " + str(self.cell_density) + "\n"
+        string += "Importance " + str(self.cell_importance) + "\n"
         string += "Comment " + str(self.cell_comment) + "\n"
         string += "Text Description " + str(self.cell_text_description) + "\n"
         string += "Cell Description " + str(self.cell_interpreted) + "\n"

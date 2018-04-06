@@ -3,6 +3,7 @@
 from CellCard import CellCard
 from enum import Enum
 
+import re
 
 # if the string is a cell card or not
 def is_cell_card(line):
@@ -34,15 +35,20 @@ def is_cell_card(line):
 def mcnp_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
-        return Operation
+        if Operation is "(":
+            return " "+Operation+" "
+        elif Operation is ")":
+            return " "+Operation+" "
+        else:
+            return Operation
     else:
         # otherwise we need to do something
         if Operation is CellCard.OperationType["NOT"]:
-            string = "#"
+            string = " #"
         elif Operation is CellCard.OperationType["AND"]:
-            string = " "
+            string = "  "
         elif Operation is CellCard.OperationType["UNION"]:
-            string = ":"
+            string = " : "
         else:
             string = "unknown operation"
     # return the operation
@@ -56,17 +62,17 @@ def write_mcnp_cell(filestream, CellCard):
     if CellCard.cell_material_number != 0:
         string += str(CellCard.cell_density) + " "
 
-    string += "( "
+    string += " ( "
     
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += mcnp_op_from_generic(item)
 
-    # make string no longer than 60 chars
-    
+    # TODO make string no longer than 60 chars    
     string += " ) " 
-
-    string += "\n"   
+    string += "\n"
+    
+    string = re.sub(" +"," ",string)
 
     filestream.write(string)
 
@@ -127,15 +133,30 @@ class MCNPCellCard(CellCard):
     # consituent parts
     def __interpret(self):
 
-        # expand the string first
         string = self.text_string
+
+        # this is to detect the presence of any importance
+        # values only need one - used to indentify the
+        # graveyard
+        if 'imp:' in string:
+            pos  = string.find('imp:')
+            string = string[:pos] # truncate to this point
+            pos2 = string.find(' ',pos)
+            pos = string.find('=')
+            pos = pos + 1
+            self.cell_importance = string[pos:pos2]
+
+        # expand the string first
         string = string.replace("(", " ( ")
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
+
+        # remove the comment card
         if '$' in string:
             pos = string.find('$')
             self.cell_comment = string[pos:]
             string = string[:pos]
+        
         #tokens = self.text_string.split()
         tokens = string.split()
 

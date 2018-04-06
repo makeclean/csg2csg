@@ -2,12 +2,18 @@
 
 from CellCard import CellCard
 from enum import Enum
+import re
 
 # turn the generic operation type into a serpent relevant text string
 def serpent_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
-        return Operation
+        if Operation is "(":
+            return " "+Operation+" "
+        elif Operation is ")":
+            return " "+Operation+" "
+        else:
+            return Operation
     else:
         # otherwise we need to do something
         if Operation is CellCard.OperationType["NOT"]:
@@ -23,7 +29,10 @@ def serpent_op_from_generic(Operation):
 
 # write the cell card for a serpent cell given a generic cell card
 def write_serpent_cell(filestream, CellCard):
-    string = "cell " + str(CellCard.cell_id) + " 0 " # note the 1 refers to universe number
+
+#    print (CellCard)
+    
+    string = "cell " + str(CellCard.cell_id) + " 0 " # note the 0 refers to universe number
     
     # material 0 is void
     if CellCard.cell_material_number == 0:
@@ -38,9 +47,10 @@ def write_serpent_cell(filestream, CellCard):
         string += serpent_op_from_generic(item)
 
     string += " ) " 
-
     string += "\n"
-    
+
+    # removes any multiple spaces
+    string = re.sub(" +"," ",string)
 
     filestream.write(string)
 

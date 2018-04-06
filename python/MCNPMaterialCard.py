@@ -33,15 +33,10 @@ class MCNPMaterialCard(MaterialCard):
 
         mat_string = self.text_string
         mat_string = mat_string.replace("\n","")
-        print ('string',mat_string)
-        # look for $
-#        if '$' in self.text_string:
-#            pos_d = self.text_string.find('$')
-#            mat_string = self.text_string[:pos_d]
         
         # split string
         tokens = mat_string.split()
-#        print (tokens)
+
         if len(tokens)%2 != 0:
             print ("Material string not correctly processed")
             sys.exit(1)
