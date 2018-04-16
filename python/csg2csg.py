@@ -61,6 +61,10 @@ def main(argv):
     openmc.from_input(input)
     mkdir("openmc")
     openmc.write_openmc("openmc")
+
+    fluka = FLUKAInput()
+    fluka.from_input(input)
+    fluka.write_mcnp("fluka/fluka.inp")
     
     logging.info("Finshed")
 
