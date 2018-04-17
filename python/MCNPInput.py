@@ -282,6 +282,47 @@ class MCNPInput(InputDeck):
             self.surface_list.remove(surf)
         return
 
+    # loop through the cells and insert
+    # cell definititons where needed
+    # assuming that we have nots of the form #33 #44 and
+    # not #(33 44)
+    def __explode_nots(self):
+        for cell in self.cell_list:
+            # if the cell has a not in it
+            position_not = []
+            count = 0
+            
+            # loop over the constituents of the cell
+            # we have to do this rookie looking stuff
+            # because cell.OperationType is not interable
+            for i in cell.cell_interpreted:
+                # if its not an operation 
+                if not isinstance(i,cell.OperationType):
+                    if "#" in  i:
+                        position_not.append(count)
+                count = count + 1
+            # now we know the position of the # arguments in the
+            # interpreted list
+
+            # for each not insert the full interpreted definition
+            for pos in position_not:
+                cell_id = re.findall("#(\d+)",cell.cell_interpreted[pos])
+                cell_id = cell_id[0]
+
+                # get the cell for the not
+                cell_text = self.find_cell(cell_id)
+                cell_text = cell_text.cell_interpreted
+                # build the cell into the interpreted form
+                cell_text = [cell.OperationType(2)] + ["("] + cell_text
+                cell_text = cell_text + [")"]
+
+                # remove the #cell and insert the full new form
+                cell_part = cell.cell_interpreted[0:pos-1]
+                cell_part.extend(cell_text)
+                cell_part2 = cell.cell_interpreted[pos+1:]
+                cell_part.extend(cell_part2)
+                cell.cell_interpreted = cell_part
+
     # generate bounding coordinates 
     def __generate_bounding_coordinates(self):
         # loop through the surfaces and generate the bounding coordinates
@@ -428,6 +469,7 @@ class MCNPInput(InputDeck):
         self.__reorganise_materials()
 
         # we need to turn macrobodies into regular surface descriptions
+        self.__explode_nots()
         self.__flatten_macrobodies()
         self.__generate_bounding_coordinates()
         # update the bounding coordinates of surfaces that need it

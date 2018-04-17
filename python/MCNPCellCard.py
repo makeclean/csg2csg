@@ -127,6 +127,8 @@ class MCNPCellCard(CellCard):
     # generally spaceify the text so that between each item
     # there is only one space i.e (7:8) becomes ( 7 : 8 )
     def __sanitise(self):
+        text = self.cell_text_description
+#        print(text)
         return
     
     # populute the part CellCard into its

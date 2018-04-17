@@ -30,6 +30,14 @@ class InputDeck:
     def __init__(self, filename):
         self.filename = filename
 
+    # find the cell with a given id
+    def find_cell(self, cell_id):
+        for cell in self.cell_list:
+            print (cell.cell_id, cell_id)
+            if str(cell.cell_id) == str(cell_id):
+                return cell
+        return None
+        
 
     def read(self):
         with open(self.filename, 'r', errors="replace") as f:
