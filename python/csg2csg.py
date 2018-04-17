@@ -3,6 +3,7 @@
 from MCNPInput import MCNPInput
 from SerpentInput import SerpentInput
 from OpenMCInput import OpenMCInput
+from FLUKAInput import FLUKAInput
 
 # for debug info
 import logging, sys 
@@ -64,7 +65,8 @@ def main(argv):
 
     fluka = FLUKAInput()
     fluka.from_input(input)
-    fluka.write_mcnp("fluka/fluka.inp")
+    mkdir("fluka")
+    fluka.write_fluka("fluka/fluka.inp")
     
     logging.info("Finshed")
 

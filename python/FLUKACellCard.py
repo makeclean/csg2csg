@@ -9,19 +9,24 @@ def fluka_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
         if Operation is "(":
-            return " "+Operation+" "
+            return " +"+Operation+" "
         elif Operation is ")":
             return " "+Operation+" "
+        elif int(Operation) < 0:
+            return " +S" + str(abs(int(Operation)))
+        elif int(Operation) > 0:
+            return " -S" + str(int(Operation))            
         else:
+            print (Operation,(int(Operation)<0))
             return Operation
     else:
         # otherwise we need to do something
         if Operation is CellCard.OperationType["NOT"]:
-            string = "-"
+            string = " -"
         elif Operation is CellCard.OperationType["AND"]:
-            string = " "
+            string = "  "
         elif Operation is CellCard.OperationType["UNION"]:
-            string = "|"
+            string = " | "
         else:
             string = "unknown operation"
     # return the operation

@@ -14,28 +14,35 @@ def fluka_plane_string(SurfaceCard):
     y_p = b*(a*0. + b*0. + c*0. + d) / mag
     z_p = c*(a*0. + b*0. + c*0. + d) / mag
         
-    string = " PLA S" + str(SurfaceCard.surface_id) + " "
+    string = "PLA S" + str(SurfaceCard.surface_id) + " "
+    string += str(a) + " "
+    string += str(b) + " "
+    string += str(c) + " "
+    string += str(x_p) + " "
+    string += str(y_p) + " "
+    string += str(z_p) + " "
     string +=  "\n"
+    
     return string
 
 # write the specific x form of the plane
 def fluka_plane_x_string(SurfaceCard):
-    string = " YZP S" + str(SurfaceCard.surface_id) + str(SurfaceCard.surface_coefficients[3]) + "\n"
+    string = "YZP S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write the specific y form of the plane
 def fluka_plane_y_string(SurfaceCard):
-    string = " XZP S" + str(SurfaceCard.surface_id) + str(SurfaceCard.surface_coefficients[3]) + "\n"
+    string = "XZP S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write the specific z form of the plane
 def fluka_plane_z_string(SurfaceCard):
-    string = " XYP S" + str(SurfaceCard.surface_id) + str(SurfaceCard.surface_coefficients[3]) + "\n"
+    string = "XYP S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write a cylinder_x
 def fluka_cylinder_x(SurfaceCard):
-    string = " XCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
+    string = "XCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += "\n"
@@ -43,7 +50,7 @@ def fluka_cylinder_x(SurfaceCard):
 
 # write a cylinder_y
 def fluka_cylinder_y(SurfaceCard):
-    string = " YCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
+    string = "YCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += "\n"
@@ -51,7 +58,7 @@ def fluka_cylinder_y(SurfaceCard):
 
 # write a cylinder_z
 def fluka_cylinder_z(SurfaceCard):
-    string = " ZCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
+    string = "ZCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += "\n"
@@ -59,7 +66,7 @@ def fluka_cylinder_z(SurfaceCard):
 
 # write a sphere
 def fluka_sphere(SurfaceCard):
-    string = " SPH " + str(SurfaceCard.surface_id) + " " +  str(SurfaceCard.surface_coefficients[0]) + " "
+    string = "SPH S" + str(SurfaceCard.surface_id) + " " +  str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += str(SurfaceCard.surface_coefficients[3])
@@ -68,7 +75,7 @@ def fluka_sphere(SurfaceCard):
 
 # write a general quadratic
 def fluka_gq(SurfaceCard):
-    string = " QUA S" + str(SurfaceCard.surface_id) 
+    string = "QUA S" + str(SurfaceCard.surface_id) 
     for coefficient in SurfaceCard.surface_coefficients:
         string += " " + str(coefficient) + " " 
     string += "\n"
@@ -77,7 +84,7 @@ def fluka_gq(SurfaceCard):
 # its not clear how we deal with +-1 cones for fluka}
 # write a cone along x
 def fluka_cone_x(SurfaceCard):
-   """
+    """
         mcnp xyz r2 -1 +1
         *
         ||
@@ -92,8 +99,8 @@ def fluka_cone_x(SurfaceCard):
     this case - if pointing down need the lowest value
     """    
 
-   # maybe use QUA instead? - meets the requirement of being
-   # infinite surfaces allows for -1/+1/0
+    # maybe use QUA instead? - meets the requirement of being
+    # infinite surfaces allows for -1/+1/0
    
     # cone points down from xyz
     if SurfaceCard.surface_coefficients[4] == -1:
@@ -109,8 +116,8 @@ def fluka_cone_x(SurfaceCard):
     r = h*sqrt(SurfaceCard.surface_coefficients[3])
 
     # maybe change to use proper formatting statements
-    string = " TRC S"+ str(SurfaceCard.surface_id) + " " + &
-             str(x) + " " + str(y) + " " + str(z) + " " + &
+    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+             str(x) + " " + str(y) + " " + str(z) + " " + \
              "0. 0. " + str(h) + " " + str(r) + " 0.0" 
 
     return string
@@ -146,8 +153,8 @@ def fluka_cone_y(SurfaceCard):
     r = h*sqrt(SurfaceCard.surface_coefficients[3])
 
     # maybe change to use proper formatting statements
-    string = " TRC S"+ str(SurfaceCard.surface_id) + " " + &
-             str(x) + " " + str(y) + " " + str(z) + " " + &
+    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+             str(x) + " " + str(y) + " " + str(z) + " " + \
              "0. 0. " + str(h) + " " + str(r) + " 0.0" 
     
     return string
@@ -169,8 +176,8 @@ def fluka_cone_z(SurfaceCard):
     r = h*sqrt(SurfaceCard.surface_coefficients[3])
 
     # maybe change to use proper formatting statements
-    string = " TRC S"+ str(SurfaceCard.surface_id) + " " + &
-              str(x) + " " + str(y) + " " + str(z) + " " + &
+    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+              str(x) + " " + str(y) + " " + str(z) + " " + \
               "0. 0. " + str(h) + " " + str(r) + " 0.0" 
 
     return string
@@ -206,7 +213,7 @@ def write_fluka_surface(filestream, SurfaceCard):
    #     }.get(SurfaceCard.surface_type,"surface not supported")
 
     #string = "surf " + str(SurfaceCard.surface_id)
-
+    string = "" 
     if SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_GENERAL"]:
         string += fluka_plane_string(SurfaceCard)
         filestream.write(string)
@@ -256,9 +263,8 @@ def write_fluka_surface(filestream, SurfaceCard):
         filestream.write("surface not supported\n")
     return
 
-
+# Surface Card Class
 class FLUKASurfaceCard(SurfaceCard):
-
     def __init__(self, card_string):
         SurfaceCard.__init__(self, card_string)
 
