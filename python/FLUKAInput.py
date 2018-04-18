@@ -3,7 +3,13 @@
 from Input import InputDeck
 from FLUKASurfaceCard import FLUKASurfaceCard, write_fluka_surface
 from FLUKACellCard import FLUKACellCard, write_fluka_cell
-#from FLUKAMaterialCard import FLUKAMaterialCard, write_fluka_material
+from FLUKAMaterialCard import FLUKAMaterialCard, write_fluka_material, write_fluka_material_element, write_fluka_compound
+
+fluka_special_mats = ["HYDROGEN","HELIUM","BERYLLIU","CARBON","NITROGEN",
+                      "OXYGEN","MAGNESIU","ALUMINUM","IRON","COPPER",
+                      "SILVER","SILICON","GOLD","MERCURY","LEAD",
+                      "TANTALUM","SODIUM","ARGON","CALCIUM","TIN",
+                      "TUNGSTEN","TITANIUM","NICKEL"]
 
 zz_to_remove = [34000,37000,39000,44000,45000,59000,61000,63000,
                 66000,67000,68000,69000,70000,76000,81000,84000,
@@ -130,7 +136,19 @@ class FLUKAInput(InputDeck):
         self.__write_ruler(filestream)
         for cell in self.cell_list:
             # needs to be 10 chars
-            filestream.write("ASSIGNMA C" + str(cell.cell_id) + " M" + str(cell.cell_material_number+ "\n")
+            region = "C" + str(cell.cell_id)
+            if cell.cell_material_number != 0:
+                mat = "M" + str(cell.cell_material_number)
+            elif cell.cell_material_number == 0 and cell.cell_importance == 0:
+                mat = "BLCKHOLE"
+            else:
+                mat = "VACUUM"
+
+            string = '{:<10}'.format("ASSIGNMA")
+            string = string + '{:>10}'.format(mat)
+            string = string + '{:>10}'.format(region)
+            string = string + "\n"
+            filestream.write(string)
         return
 
     # write the material compositions
@@ -140,11 +158,56 @@ class FLUKAInput(InputDeck):
 
         # first loop through the materials and build the unqiue list
         # of fluka based materials
+        nuclide_set = set()
+        for material in self.material_list.keys():
+            for nuclide in self.material_list[material].composition_dictionary:
+                nuclide_set.add(nuclide)
 
+        collapsed_map = {}
+        # nuclide set is the map of zaid to Fluka name
+        for nuc in nuclide_set:
+            if nuc in zz_to_remove:
+                print ("nuclide ", nuc, " is purged")
+                nuclide_set.remove(nuc)
+            if int(nuc) in zz_to_fluka.keys():
+                collapsed_map[nuc] = zz_to_fluka[int(nuc)]
+            else:
+                collapsed_map[nuc] = zz_to_fluka[int(float(nuc)/1000)*1000]
+
+        written = set()
+        # keep track of those already written so we dont call them out multiple times
+        for nuc in collapsed_map.keys():
+            if collapsed_map[nuc] not in fluka_special_mats and collapsed_map[nuc] not in written:
+                write_fluka_material_element(filestream, nuc, collapsed_map[nuc])
+                written.add(collapsed_map[nuc])
+                
+        print (collapsed_map)
+                
+        # operate on the list of materials present and update the composition maps
+        # to have fluka names instead of zaid 
+        for material in self.material_list.keys():
+            mat_dict = self.material_list[material].composition_dictionary
+            name_dict = {}
+
+            # loop over the collpased map
+            for nuc in collapsed_map.keys():
+                if nuc in mat_dict.keys():
+                    # get the fluka name
+                    fluka_name = collapsed_map[nuc]
+                    if fluka_name in name_dict.keys():
+                        name_dict[fluka_name] += mat_dict[nuc]
+                    else:
+                        name_dict[fluka_name] = mat_dict[nuc]
+                    # if name doesnt exist add it, otherwise
+                    # add to it
+            self.material_list[material].composition_dictionary = name_dict
+                    
+        # collapsed map now has the zaid - fluka name map 
+        # for each material not in the special list - call it out
         for material in self.material_list:
             write_fluka_material(filestream, self.material_list[material])
             write_fluka_compound(filestream, self.material_list[material])
-            write_fluka_lowmat(filestream, self.material_list[material])
+#            write_fluka_lowmat(filestream, self.material_list[material])
         return
 
     # main write serpent method, depending upon where the geometry
@@ -158,7 +221,8 @@ class FLUKAInput(InputDeck):
         self.__write_ruler(f)
         self.__write_fluka_cells(f)
         self.__write_ruler(f)
-#        self.__write_fluka_materials(f)
+        self.__write_fluka_assignmats(f)
+        self.__write_fluka_materials(f)
         self.__write_ruler(f)
         f.write("STOP\n")
         f.close()
