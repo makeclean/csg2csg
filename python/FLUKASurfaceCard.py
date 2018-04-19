@@ -75,9 +75,37 @@ def fluka_sphere(SurfaceCard):
 
 # write a general quadratic
 def fluka_gq(SurfaceCard):
-    string = "QUA S" + str(SurfaceCard.surface_id) 
-    for coefficient in SurfaceCard.surface_coefficients:
-        string += " " + str(coefficient) + " " 
+    string = "QUA S" + str(SurfaceCard.surface_id)
+    ax2 = SurfaceCard.surface_coefficients[0]
+    by2 = SurfaceCard.surface_coefficients[1]
+    cz2 = SurfaceCard.surface_coefficients[2]
+    
+    dxy = SurfaceCard.surface_coefficients[3]
+    eyz = SurfaceCard.surface_coefficients[4]
+    fzx = SurfaceCard.surface_coefficients[5]
+
+    gx = SurfaceCard.surface_coefficients[6]
+    hy = SurfaceCard.surface_coefficients[7]
+    jz = SurfaceCard.surface_coefficients[8]
+
+    k = SurfaceCard.surface_coefficients[9]
+
+    string += " " + str(ax2) + " "
+    string += " " + str(by2) + " "
+    string += " " + str(cz2) + " "
+
+    # fluka wants dxy fzx eyz 
+
+    string += " " + str(dxy) + " "
+    string += " " + str(fzx) + " "
+    string += " " + str(eyz) + " "
+
+    string += " " + str(gx) + " "
+    string += " " + str(hy) + " "
+    string += " " + str(jz) + " "
+
+    string += " " + str(k) + " "
+    
     string += "\n"
     return string
 
@@ -104,58 +132,43 @@ def fluka_cone_x(SurfaceCard):
    
     # cone points down from xyz
     if SurfaceCard.surface_coefficients[4] == -1:
-        h = abs(SurfaceCard.b_box[0])
         x = SurfaceCard.b_box[0]
+        h = abs(SurfaceCard.b_box[0]) + SurfaceCard.surface_coefficients[0]
     # cone points up from xyz
     if SurfaceCard.surface_coefficients[4] == 1:
-        h = abs(SurfaceCard.b_box[1])
         x = SurfaceCard.b_box[1]
+        h = -1.*(SurfaceCard.b_box[1] - SurfaceCard.surface_coefficients[0])
 
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
-    r = h*sqrt(SurfaceCard.surface_coefficients[3])
+    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
 
     # maybe change to use proper formatting statements
     string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
              str(x) + " " + str(y) + " " + str(z) + " " + \
-             "0. 0. " + str(h) + " " + str(r) + " 0.0" 
+             + str(h) + " 0. 0. " + str(r) + " 0.0\n" 
 
     return string
 
 # fluka a cone along y
 def fluka_cone_y(SurfaceCard):
-    """
-    mcnp xyz r2 -1 +1
-        *
-        ||
-        | \
-        |  \
-        |   \
-        |    \
-        |     \
-        *------*
-        
-    From the bounding coodinate appropriate in 
-    this case - if pointing down need the lowest value
-    """    
-    
     # cone points down from xyz
     if SurfaceCard.surface_coefficients[4] == -1:
-        h = abs(SurfaceCard.b_box[2])
         y = SurfaceCard.b_box[2]
+        h = abs(SurfaceCard.b_box[2]) + SurfaceCard.surface_coefficients[1]
     # cone point up from xyz
     if SurfaceCard.surface_coefficients[4] == 1:
-        h = abs(SurfaceCard.b_box[3])
         y = SurfaceCard.b_box[3]
+        h = -1.*(SurfaceCard.b_box[3] - SurfaceCard.surface_coefficients[1])
 
     x = SurfaceCard.surface_coefficients[0]
     z = SurfaceCard.surface_coefficients[2]
-    r = h*sqrt(SurfaceCard.surface_coefficients[3])
-
+    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
+    
     # maybe change to use proper formatting statements
     string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
              str(x) + " " + str(y) + " " + str(z) + " " + \
-             "0. 0. " + str(h) + " " + str(r) + " 0.0" 
+             "0. " + str(h) + " 0. " + str(r) + " 0.0\n" 
     
     return string
 
@@ -164,21 +177,21 @@ def fluka_cone_z(SurfaceCard):
     
     # cone points down from xyz
     if SurfaceCard.surface_coefficients[4] == -1:
-        h = abs(SurfaceCard.b_box[5])
-        z = SurfaceCard.b_box[5]
+        z = SurfaceCard.b_box[5] 
+        h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2])
     # cone point up from xyz
     if SurfaceCard.surface_coefficients[4] == 1:
-        h = abs(SurfaceCard.b_box[6])
         z = SurfaceCard.b_box[6]
+        h = -1.*(SurfaceCard.b_box[6] - SurfaceCard.surface_coefficients[2])
 
     x = SurfaceCard.surface_coefficients[0]
     y = SurfaceCard.surface_coefficients[1]
-    r = h*sqrt(SurfaceCard.surface_coefficients[3])
+    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
 
     # maybe change to use proper formatting statements
     string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
               str(x) + " " + str(y) + " " + str(z) + " " + \
-              "0. 0. " + str(h) + " " + str(r) + " 0.0" 
+              "0. 0. " + str(h) + " " + str(r) + " 0.0\n" 
 
     return string
 
