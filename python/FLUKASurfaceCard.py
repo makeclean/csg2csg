@@ -112,10 +112,12 @@ def fluka_gq(SurfaceCard):
 # its not clear how we deal with +-1 cones for fluka}
 # write a cone along x
 def fluka_cone_x(SurfaceCard):
-
+        
     # if the cone direction is specified
-    if SurfaceCard.surface_coefficients != 0:   
+    if SurfaceCard.surface_coefficients[4] != 0.0:
         # cone points down from xyz
+        h = 0
+        x = 0
         if SurfaceCard.surface_coefficients[4] == -1:
             x = SurfaceCard.b_box[0]
             h = abs(SurfaceCard.b_box[0]) + SurfaceCard.surface_coefficients[0]
@@ -133,7 +135,7 @@ def fluka_cone_x(SurfaceCard):
                  str(x) + " " + str(y) + " " + str(z) + " " + \
                  + str(h) + " 0. 0. " + str(r) + " 0.0\n"
     else:
-        coefficients = [0.*10]
+        coefficients = [0.]*10
         t = SurfaceCard.surface_coefficients[3]
         x_bar = SurfaceCard.surface_coefficients[0]
         y_bar = SurfaceCard.surface_coefficients[1]
@@ -157,7 +159,7 @@ def fluka_cone_x(SurfaceCard):
 def fluka_cone_y(SurfaceCard):
     string = ""
     # if the cone direction is specified
-    if SurfaceCard.surface_coefficients != 0:  
+    if SurfaceCard.surface_coefficients[4] != 0.0:  
         # cone points down from xyz
         if SurfaceCard.surface_coefficients[4] == -1:
             y = SurfaceCard.b_box[2]
@@ -178,7 +180,7 @@ def fluka_cone_y(SurfaceCard):
     # otherwise well change the surface to a GQ and call the correct
     # function
     else:
-        coefficients = [0.*10]
+        coefficients = [0.]*10
         t = SurfaceCard.surface_coefficients[3]
         x_bar = SurfaceCard.surface_coefficients[0]
         y_bar = SurfaceCard.surface_coefficients[1]
@@ -202,11 +204,11 @@ def fluka_cone_y(SurfaceCard):
 def fluka_cone_z(SurfaceCard):
     string = ""
     # if the cone direction is specified
-    if SurfaceCard.surface_coefficients != 0:
+    if SurfaceCard.surface_coefficients[4] != 0.0:
         # cone points down from xyz
         if SurfaceCard.surface_coefficients[4] == -1:
             z = SurfaceCard.b_box[5] 
-            h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2])
+            h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2]
         # cone point up from xyz
         elif SurfaceCard.surface_coefficients[4] == 1:
             z = SurfaceCard.b_box[6]
@@ -223,7 +225,7 @@ def fluka_cone_z(SurfaceCard):
     # otherwise well change the surface to a GQ and call the correct
     # function
     else:
-        coefficients = [0.*10]
+        coefficients = [0.]*10
         t = SurfaceCard.surface_coefficients[3]
         x_bar = SurfaceCard.surface_coefficients[0]
         y_bar = SurfaceCard.surface_coefficients[1]

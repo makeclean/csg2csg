@@ -1,5 +1,5 @@
 #!/usr/env/python3
-
+import sys
 from Card import Card
 from Vector import cross
 
@@ -59,6 +59,6 @@ class MCNPTransformCard(MCNPDataCard):
             self.v3 = cross(self.v1,self.v2)
         else:
             print('Unknown transform definition')
-            sys.exit(1)
+          #  sys.exit(1)
         return
 

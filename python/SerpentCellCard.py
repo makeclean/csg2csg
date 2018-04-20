@@ -17,7 +17,7 @@ def serpent_op_from_generic(Operation):
     else:
         # otherwise we need to do something
         if Operation is CellCard.OperationType["NOT"]:
-            string = "#"
+            string = " #"
         elif Operation is CellCard.OperationType["AND"]:
             string = " "
         elif Operation is CellCard.OperationType["UNION"]:
