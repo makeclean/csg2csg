@@ -112,87 +112,134 @@ def fluka_gq(SurfaceCard):
 # its not clear how we deal with +-1 cones for fluka}
 # write a cone along x
 def fluka_cone_x(SurfaceCard):
-    """
-        mcnp xyz r2 -1 +1
-        *
-        ||
-        | \
-        |  \
-        |   \
-        |    \
-        |     \
-        *------*
-        
-    From the bounding coodinate appropriate in 
-    this case - if pointing down need the lowest value
-    """    
 
-    # maybe use QUA instead? - meets the requirement of being
-    # infinite surfaces allows for -1/+1/0
-   
-    # cone points down from xyz
-    if SurfaceCard.surface_coefficients[4] == -1:
-        x = SurfaceCard.b_box[0]
-        h = abs(SurfaceCard.b_box[0]) + SurfaceCard.surface_coefficients[0]
-    # cone points up from xyz
-    if SurfaceCard.surface_coefficients[4] == 1:
-        x = SurfaceCard.b_box[1]
-        h = -1.*(SurfaceCard.b_box[1] - SurfaceCard.surface_coefficients[0])
+    # if the cone direction is specified
+    if SurfaceCard.surface_coefficients != 0:   
+        # cone points down from xyz
+        if SurfaceCard.surface_coefficients[4] == -1:
+            x = SurfaceCard.b_box[0]
+            h = abs(SurfaceCard.b_box[0]) + SurfaceCard.surface_coefficients[0]
+        # cone points up from xyz
+        elif SurfaceCard.surface_coefficients[4] == 1:
+            x = SurfaceCard.b_box[1]
+            h = -1.*(SurfaceCard.b_box[1] - SurfaceCard.surface_coefficients[0])
+            
+        y = SurfaceCard.surface_coefficients[1]
+        z = SurfaceCard.surface_coefficients[2]
+        r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
 
-    y = SurfaceCard.surface_coefficients[1]
-    z = SurfaceCard.surface_coefficients[2]
-    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
-
-    # maybe change to use proper formatting statements
-    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
-             str(x) + " " + str(y) + " " + str(z) + " " + \
-             + str(h) + " 0. 0. " + str(r) + " 0.0\n" 
-
+        # maybe change to use proper formatting statements
+        string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+                 str(x) + " " + str(y) + " " + str(z) + " " + \
+                 + str(h) + " 0. 0. " + str(r) + " 0.0\n"
+    else:
+        coefficients = [0.*10]
+        t = SurfaceCard.surface_coefficients[3]
+        x_bar = SurfaceCard.surface_coefficients[0]
+        y_bar = SurfaceCard.surface_coefficients[1]
+        z_bar = SurfaceCard.surface_coefficients[2]
+        coefficients[0] = t
+        coefficients[1] = 1.
+        coefficients[2] = 1.
+        coefficients[3] = 0.
+        coefficients[4] = 0.
+        coefficients[5] = 0.
+        coefficients[6] = -2.*t*x_bar
+        coefficients[7] = -2.*y_bar
+        coefficients[8] = -2.*z_bar
+        coefficients[9] = (t*x_bar**2) + y_bar**2 + z_bar**2
+        SurfaceCard.surface_coefficients = coefficients
+        string = fluka_gq(SurfaceCard)
+    
     return string
 
 # fluka a cone along y
 def fluka_cone_y(SurfaceCard):
-    # cone points down from xyz
-    if SurfaceCard.surface_coefficients[4] == -1:
-        y = SurfaceCard.b_box[2]
-        h = abs(SurfaceCard.b_box[2]) + SurfaceCard.surface_coefficients[1]
-    # cone point up from xyz
-    if SurfaceCard.surface_coefficients[4] == 1:
-        y = SurfaceCard.b_box[3]
-        h = -1.*(SurfaceCard.b_box[3] - SurfaceCard.surface_coefficients[1])
+    string = ""
+    # if the cone direction is specified
+    if SurfaceCard.surface_coefficients != 0:  
+        # cone points down from xyz
+        if SurfaceCard.surface_coefficients[4] == -1:
+            y = SurfaceCard.b_box[2]
+            h = abs(SurfaceCard.b_box[2]) + SurfaceCard.surface_coefficients[1]
+        # cone point up from xyz
+        elif SurfaceCard.surface_coefficients[4] == 1:
+            y = SurfaceCard.b_box[3]
+            h = -1.*(SurfaceCard.b_box[3] - SurfaceCard.surface_coefficients[1])
 
-    x = SurfaceCard.surface_coefficients[0]
-    z = SurfaceCard.surface_coefficients[2]
-    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
+        x = SurfaceCard.surface_coefficients[0]
+        z = SurfaceCard.surface_coefficients[2]
+        r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
     
-    # maybe change to use proper formatting statements
-    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
-             str(x) + " " + str(y) + " " + str(z) + " " + \
-             "0. " + str(h) + " 0. " + str(r) + " 0.0\n" 
-    
+        # maybe change to use proper formatting statements
+        string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+                 str(x) + " " + str(y) + " " + str(z) + " " + \
+                 "0. " + str(h) + " 0. " + str(r) + " 0.0\n" 
+    # otherwise well change the surface to a GQ and call the correct
+    # function
+    else:
+        coefficients = [0.*10]
+        t = SurfaceCard.surface_coefficients[3]
+        x_bar = SurfaceCard.surface_coefficients[0]
+        y_bar = SurfaceCard.surface_coefficients[1]
+        z_bar = SurfaceCard.surface_coefficients[2]
+        coefficients[0] = 1.
+        coefficients[1] = t
+        coefficients[2] = 1.
+        coefficients[3] = 0.
+        coefficients[4] = 0.
+        coefficients[5] = 0.
+        coefficients[6] = -2.*x_bar
+        coefficients[7] = -2.*t*y_bar
+        coefficients[8] = -2.*z_bar
+        coefficients[9] = x_bar**2 + (t*y_bar**2) + z_bar**2
+        SurfaceCard.surface_coefficients = coefficients
+        string = fluka_gq(SurfaceCard)
+   
     return string
 
 # fluka a cone along z
 def fluka_cone_z(SurfaceCard):
-    
-    # cone points down from xyz
-    if SurfaceCard.surface_coefficients[4] == -1:
-        z = SurfaceCard.b_box[5] 
-        h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2])
-    # cone point up from xyz
-    if SurfaceCard.surface_coefficients[4] == 1:
-        z = SurfaceCard.b_box[6]
-        h = -1.*(SurfaceCard.b_box[6] - SurfaceCard.surface_coefficients[2])
+    string = ""
+    # if the cone direction is specified
+    if SurfaceCard.surface_coefficients != 0:
+        # cone points down from xyz
+        if SurfaceCard.surface_coefficients[4] == -1:
+            z = SurfaceCard.b_box[5] 
+            h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2])
+        # cone point up from xyz
+        elif SurfaceCard.surface_coefficients[4] == 1:
+            z = SurfaceCard.b_box[6]
+            h = -1.*(SurfaceCard.b_box[6] - SurfaceCard.surface_coefficients[2])
 
-    x = SurfaceCard.surface_coefficients[0]
-    y = SurfaceCard.surface_coefficients[1]
-    r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
+        x = SurfaceCard.surface_coefficients[0]
+        y = SurfaceCard.surface_coefficients[1]
+        r = abs(h)*sqrt(SurfaceCard.surface_coefficients[3])
 
-    # maybe change to use proper formatting statements
-    string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
-              str(x) + " " + str(y) + " " + str(z) + " " + \
-              "0. 0. " + str(h) + " " + str(r) + " 0.0\n" 
-
+        # maybe change to use proper formatting statements
+        string = "TRC S"+ str(SurfaceCard.surface_id) + " " + \
+                 str(x) + " " + str(y) + " " + str(z) + " " + \
+                 "0. 0. " + str(h) + " " + str(r) + " 0.0\n"
+    # otherwise well change the surface to a GQ and call the correct
+    # function
+    else:
+        coefficients = [0.*10]
+        t = SurfaceCard.surface_coefficients[3]
+        x_bar = SurfaceCard.surface_coefficients[0]
+        y_bar = SurfaceCard.surface_coefficients[1]
+        z_bar = SurfaceCard.surface_coefficients[2]
+        coefficients[0] = 1.
+        coefficients[1] = 1.
+        coefficients[2] = t
+        coefficients[3] = 0.
+        coefficients[4] = 0.
+        coefficients[5] = 0.
+        coefficients[6] = -2.*x_bar
+        coefficients[7] = -2.*y_bar
+        coefficients[8] = -2.*t*z_bar
+        coefficients[9] = x_bar**2 + y_bar**2 + (t*z_bar**2)
+        SurfaceCard.surface_coefficients = coefficients
+        string = fluka_gq(SurfaceCard)
     return string
 
 # maybe add auto expand torus to cones?
