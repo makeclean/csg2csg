@@ -102,3 +102,7 @@ class SurfaceCard(Card):
             b_box[4] = self.surface_coefficients[2] - self.surface_coefficients[3]
             b_box[5] = self.surface_coefficients[2] + self.surface_coefficients[3]
         return b_box
+
+    # apply and generate a the transform to the surface card definition
+    def transform(self):
+        return
