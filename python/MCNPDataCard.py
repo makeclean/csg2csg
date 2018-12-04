@@ -26,6 +26,7 @@ class MCNPTransformCard(MCNPDataCard):
     # process the string into a transformation card
     def __process_string(self):
         tokens = self.text_string.split()
+        print(self.text_string)
         # is the angle specificed in rads or degrees
         if "*" in tokens[0]:
             self.angle_form = 1
@@ -39,7 +40,7 @@ class MCNPTransformCard(MCNPDataCard):
                       float(tokens[2]),
                       float(tokens[3])]
 
-        if len(tokens) == 13: # fully defined transform
+        if len(tokens) == 13 or len(tokens) == 12: # fully defined transform
             self.v1 = [float(tokens[4]),
                        float(tokens[5]),
                        float(tokens[6])]

@@ -45,6 +45,7 @@ class MCNPInput(InputDeck):
 
     # get the transform cards
     def __get_transform_cards(self, start_line):
+
         line = start_line
         while True:
             if line == len(self.file_lines):
@@ -116,7 +117,25 @@ class MCNPInput(InputDeck):
     # get the material cards definitions
     def __get_transform_cards(self, start_line):
         idx = start_line     
+        while True:
+            #cell_line = self.file_lines[jdx]
+            if idx == len(self.file_lines):
+                return
 
+            if re.match("^\*?tr",self.file_lines[idx]):
+                logging.debug("%s", "trn card found on line " + str(idx))
+                card_line = self.file_lines[idx]
+                idx += 1 # only check one more line ahead
+                # mcnp continue line is indicated by 5 spaces
+                if self.file_lines[idx][0:5] == "     ":
+                    logging.debug("%s", "trn card has continue line " + str(idx))
+                    card_line += self.file_lines[idx]
+                self.__make_transform_card(card_line)
+                card_line = ""
+            idx += 1
+        return
+
+        
         while True:
             if idx == len(self.file_lines):
                 break
@@ -147,7 +166,8 @@ class MCNPInput(InputDeck):
         return str(idx)
 
     # reorganise materials such that we get a new set of unique 
-    # material number/ density pairs
+    # material number/ density pairs - this to avoid mcnp's
+    # overloadable materials
     def __reorganise_materials(self):
         material_density = {}
         for cell in self.cell_list:
@@ -236,10 +256,48 @@ class MCNPInput(InputDeck):
             cell_description_outside += ":-" + str(new_surf_list[4].surface_id)
             cell_description_outside += ":" + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
-
+            
             cell_description = [cell_description_inside,cell_description_outside]
+            
+        elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
+            id = int(Surface.surface_id)
+            if Surface.surface_coefficients[3] == 0. and Surface.surface_coefficients[4] == 0.:
+                # if coefficients 4 & 5 are zero then its a cz with planes at 
+                surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[2]))
+                self.last_free_surface_index += 1
+                new_surf_list.append(surf)
+                surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[5]))
+                self.last_free_surface_index += 1
+                new_surf_list.append(surf)
+                surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " c/z " +
+                                       str(Surface.surface_coefficients[0]) + " " +
+                                       str(Surface.surface_coefficients[1]) + " " +
+                                       str(Surface.surface_coefficients[6]))
+                self.last_free_surface_index += 1
+                new_surf_list.append(surf)
+                cell_description_inside = "("
+                cell_description_inside += str(new_surf_list[0].surface_id)
+                cell_description_inside += " -" + str(new_surf_list[1].surface_id)
+                cell_description_inside += " " + str(new_surf_list[2].surface_id)
+                cell_description_inside += ")"
 
-            return cell_description, new_surf_list
+                cell_description_outside = "("
+                cell_description_outside += " -" +str(new_surf_list[0].surface_id)
+                cell_description_outside += "  " + str(new_surf_list[1].surface_id)
+                cell_description_outside += " -" + str(new_surf_list[2].surface_id)
+                cell_description_outside += ")"
+
+                cell_description = [cell_description_inside,cell_description_outside]
+                        
+            else:
+                print ("Need to implement the other RCC explode kinds")
+                cell_description = ["",""]
+        else:
+            print ("Need to implement the other macro body types")
+            cell_description = ["",""]
+        
+    
+        return cell_description, new_surf_list
 
 
     # if we find a macrobody in the surface list 
@@ -252,6 +310,7 @@ class MCNPInput(InputDeck):
             # if we are a macrobody
             if surf.is_macrobody():
                 # explode into constituent surfaces
+                print(surf)
                 cell_description, new_surfaces = self.explode_macrobody(surf)
                 # insert the new surfaces into the surface_list
                 self.surface_list.extend(new_surfaces)

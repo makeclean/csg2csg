@@ -102,6 +102,7 @@ class MCNPCellCard(CellCard):
     def generalise(self):
         cell_description = self.cell_text_description
         cell_description = list(cell_description)
+        print(self.cell_id,cell_description)
         idx = 0
         while True:
             s = cell_description[idx]
@@ -153,13 +154,20 @@ class MCNPCellCard(CellCard):
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
 
-        # remove the comment card
-        if '$' in string:
+        # there can be mulitple comments per cell you sick people
+        # why? is there any need?
+        while '$' in string:
             pos = string.find('$')
-            self.cell_comment = string[pos:]
-            string = string[:pos]
-        
-        #tokens = self.text_string.split()
+            nl = string.find('\n',pos)
+            string = string[:pos] + string[nl:]
+            self.cell_comment += string[pos:nl]
+            #print (pos,nl,string)
+        #if '$' in string: 
+        #    pos = string.find('$')
+        #    self.cell_comment = string[pos:]
+        #    string = string[:pos]
+        tokens = self.text_string.split()
+
         tokens = string.split()
 
         self.cell_id = int(tokens[0])
