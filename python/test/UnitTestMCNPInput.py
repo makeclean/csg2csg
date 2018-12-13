@@ -2,6 +2,8 @@
 
 import unittest
 import sys
+import logging
+
 sys.path.append("..")
 from MCNPInput import MCNPInput #, explode_macrobody
 from MCNPSurfaceCard import MCNPSurfaceCard
@@ -61,13 +63,14 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("3 0 7\n")
         input_string.append("\n")
         input_string.append("3 rpp -1 1 -1 1 -1 1\n")
-        input_string.append("7 so 10\n")
+        input_string.append("7 so 10.\n")
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
         input_string.append("      1002 1.0\n")
 
         # setup input
         input = MCNPInput()
+        
         input.cell_list = []
         input.surface_list = []
         input.material_list = {}
@@ -103,6 +106,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
         self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
 
+
     def test_flatten_macrobodies_with_multiple_macrobodies(self):
         input_string = ["this is a title\n"]
         input_string.append("1 1 -1.0 -3\n")
@@ -116,6 +120,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
         input_string.append("     1002 1.0\n")
+        input_string.append("\n")
 
         # setup input
         input = MCNPInput()

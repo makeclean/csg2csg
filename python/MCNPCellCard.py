@@ -5,6 +5,10 @@ from enum import Enum
 
 import re
 
+# to support more keywords for cells add them here
+mcnp_cell_keywords = ["imp","u","fill","vol"]
+#keywords = ["imp","u","fill","vol"]
+
 # if the string is a cell card or not
 def is_cell_card(line):
     cell_card = line.split()
@@ -102,7 +106,7 @@ class MCNPCellCard(CellCard):
     def generalise(self):
         cell_description = self.cell_text_description
         cell_description = list(cell_description)
-        print(self.cell_id,cell_description)
+        
         idx = 0
         while True:
             s = cell_description[idx]
@@ -129,8 +133,68 @@ class MCNPCellCard(CellCard):
     # there is only one space i.e (7:8) becomes ( 7 : 8 )
     def __sanitise(self):
         text = self.cell_text_description
-#        print(text)
         return
+
+    # given a valid keyword and string return the value of the
+    # keyword
+    def __get_keyword_value(self,keyword,string):
+        offset = len(keyword) + 3 
+        end = string.find(" ",offset)
+        return string[offset:end]  
+
+    # look through the string for the keywords 
+    def __detect_keywords(self, keywords, string):
+        
+        # loop over the keywords and test
+        found_keyword = False
+        for word in keywords:
+            if word in string:
+                found_keyword = True
+                break
+        if not found_keyword:
+            return string
+
+        posd = string.find('$')
+        if posd != -1:
+            string = string[:posd]
+            
+        # otherwise loop through and find
+        # u= , fill= and imp:
+        posu = string.find("u")
+        posf = string.find("fill")
+        posi = string.find("imp")
+        posv = string.find("vol")
+
+        # find the posititon of the first match
+        positions = [posu,posf,posi,posv]
+        if posu != -1 or posf != -1 or posi != -1 or posv != -1:
+            m = min(i for i in positions if i > 0)
+        else:
+            return string
+
+        # from the point m to the end of the string, spacify between = signs
+        # remove multiple whitespace such that we have "keyword = value"
+        end_of_string = string[m:].replace("="," =")
+        end_of_string = end_of_string.replace("=","= ")
+        end_of_string = end_of_string.replace("  "," ")
+
+        if posu == -1:
+            self.cell_universe = 0
+        else:
+            self.cell_universe = self.__get_keyword_value('u',end_of_string)
+            
+        if posf == -1:
+            self.cell_fill = 0
+        else:
+            self.cell_fill = self.__get_keyword_value('fill',end_of_string)
+ 
+        if posi == -1:
+            self.cell_importance = 0
+        else:
+            self.cell_importance = self.__get_keyword_value('imp',end_of_string)
+
+        # return the string upto the posisiotn of the first detected keyword          
+        return string[:m]
     
     # populute the part CellCard into its
     # consituent parts
@@ -138,16 +202,12 @@ class MCNPCellCard(CellCard):
 
         string = self.text_string
 
+        # look for mcnp cell specific keywords
+        string = self.__detect_keywords(mcnp_cell_keywords,string)
+        
         # this is to detect the presence of any importance
         # values only need one - used to indentify the
         # graveyard
-        if 'imp:' in string:
-            pos  = string.find('imp:')
-            string = string[:pos] # truncate to this point
-            pos2 = string.find(' ',pos)
-            pos = string.find('=')
-            pos = pos + 1
-            self.cell_importance = string[pos:pos2]
 
         # expand the string first
         string = string.replace("(", " ( ")
@@ -161,11 +221,6 @@ class MCNPCellCard(CellCard):
             nl = string.find('\n',pos)
             string = string[:pos] + string[nl:]
             self.cell_comment += string[pos:nl]
-            #print (pos,nl,string)
-        #if '$' in string: 
-        #    pos = string.find('$')
-        #    self.cell_comment = string[pos:]
-        #    string = string[:pos]
         tokens = self.text_string.split()
 
         tokens = string.split()

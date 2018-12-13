@@ -47,7 +47,7 @@ def openmc_surface_info(SurfaceCard):
         coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
         type_string = "z-cone"
-        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
+        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients[:-1])
     else:
         type_string = "error"
         coeff_string = "error"

@@ -18,6 +18,8 @@ class CellCard(Card):
     cell_comment = ""
     cell_text_description = ""
     cell_interpreted = ""
+    cell_fill = 0
+    cell_universe = 0
 
     class OperationType(Enum):
         NOT = 2

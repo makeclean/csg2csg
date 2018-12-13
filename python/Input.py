@@ -33,7 +33,6 @@ class InputDeck:
     # find the cell with a given id
     def find_cell(self, cell_id):
         for cell in self.cell_list:
-            print (cell.cell_id, cell_id)
             if str(cell.cell_id) == str(cell_id):
                 return cell
         return None

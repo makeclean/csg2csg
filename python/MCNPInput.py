@@ -78,6 +78,10 @@ class MCNPInput(InputDeck):
                 break
 
             while True:
+                # its possible that we will have advanced to the end of the
+                # file
+                if (idx == len(self.file_lines)):
+                    break
                 line = self.file_lines[idx]
                 # mcnp continue line is indicated by 5 spaces
                 if line[0:5] == "     ":
@@ -263,17 +267,17 @@ class MCNPInput(InputDeck):
             id = int(Surface.surface_id)
             if Surface.surface_coefficients[3] == 0. and Surface.surface_coefficients[4] == 0.:
                 # if coefficients 4 & 5 are zero then its a cz with planes at 
+                self.last_free_surface_index += 1
                 surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[2]))
-                self.last_free_surface_index += 1
                 new_surf_list.append(surf)
+                self.last_free_surface_index += 1
                 surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[5]))
-                self.last_free_surface_index += 1
                 new_surf_list.append(surf)
+                self.last_free_surface_index += 1
                 surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " c/z " +
                                        str(Surface.surface_coefficients[0]) + " " +
                                        str(Surface.surface_coefficients[1]) + " " +
                                        str(Surface.surface_coefficients[6]))
-                self.last_free_surface_index += 1
                 new_surf_list.append(surf)
                 cell_description_inside = "("
                 cell_description_inside += str(new_surf_list[0].surface_id)
@@ -310,7 +314,6 @@ class MCNPInput(InputDeck):
             # if we are a macrobody
             if surf.is_macrobody():
                 # explode into constituent surfaces
-                print(surf)
                 cell_description, new_surfaces = self.explode_macrobody(surf)
                 # insert the new surfaces into the surface_list
                 self.surface_list.extend(new_surfaces)
@@ -343,7 +346,6 @@ class MCNPInput(InputDeck):
 
     # any more nots to process
     def __nots_remaining(self, cell):
-        print (cell.cell_id , cell.cell_interpreted)
         for i in cell.cell_interpreted:
             if not isinstance(i,cell.OperationType):
                 if re.findall("#(\d+)",i):
@@ -535,6 +537,8 @@ class MCNPInput(InputDeck):
         # now the order of data cards is entirely arbitrary
         # will need to step around all over idx
         # the idx value should now be at the data block
+        # also idx will never be advanced from this point
+
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()

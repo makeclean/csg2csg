@@ -207,12 +207,12 @@ def fluka_cone_z(SurfaceCard):
     if SurfaceCard.surface_coefficients[4] != 0.0:
         # cone points down from xyz
         if SurfaceCard.surface_coefficients[4] == -1:
-            z = SurfaceCard.b_box[5] 
-            h = abs(SurfaceCard.b_box[5]) + SurfaceCard.surface_coefficients[2]
+            z = SurfaceCard.b_box[4] 
+            h = abs(SurfaceCard.b_box[4]) + SurfaceCard.surface_coefficients[2]
         # cone point up from xyz
         elif SurfaceCard.surface_coefficients[4] == 1:
-            z = SurfaceCard.b_box[6]
-            h = -1.*(SurfaceCard.b_box[6] - SurfaceCard.surface_coefficients[2])
+            z = SurfaceCard.b_box[5]
+            h = -1.*(SurfaceCard.b_box[5] - SurfaceCard.surface_coefficients[2])
 
         x = SurfaceCard.surface_coefficients[0]
         y = SurfaceCard.surface_coefficients[1]

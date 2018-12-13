@@ -37,16 +37,22 @@ def get_openmc_cell_info(cell):
 #    operation = operation.replace(")(",") (")
     operation = operation.replace("("," ( ")
     operation = operation.replace(")"," ) ")
-    return (cell_id, material_number, operation)
+    universe = cell.cell_universe
+    fill = cell.cell_fill
+    return (cell_id, material_number, operation,universe,fill)
     
     
 def write_openmc_cell(cell, geometry_tree):
 
-    (cell_id, material_number, description) = get_openmc_cell_info(cell)
+    (cell_id, material_number, description,
+    universe,fill) = get_openmc_cell_info(cell)
     
     ET.SubElement(geometry_tree, "cell", id = str(cell_id),
                   material=str(material_number),
-                  region = str(description))
+                  region = str(description),
+                  universe = str(universe),
+                  fill = str(fill)
+                  )
     
 #
 class OpenMCCell(CellCard):

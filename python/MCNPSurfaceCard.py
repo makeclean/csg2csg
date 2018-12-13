@@ -578,7 +578,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # classify as a box surface
     def __classify_box(self,surface):
-        print(surface["coefficients"])
+        
         vx = float(surface["coefficients"][0])
         vy = float(surface["coefficients"][1])
         vz = float(surface["coefficients"][2])
@@ -710,7 +710,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
         surf_id = surface["id"]
         surf_type = surface["type"]
-        print(surf_id,surf_type)
+        
         if "box" in surf_type:
             self.__classify_box(surface)
         elif "rpp" in surf_type:

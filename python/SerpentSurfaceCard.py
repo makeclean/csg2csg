@@ -68,13 +68,20 @@ def serpent_gq(SurfaceCard):
     return string
 
 # its not clear how we deal with +-1 cones for serpent}
-# write a cone along x
+# write a cone along x - jaakko has implemented a special
+# version for mcnp comparisons - ckx/y/z
 def serpent_cone_x(SurfaceCard):
     x = SurfaceCard.surface_coefficients[0]
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
-    string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r)
+
+    if (len(SurfaceCard.surface_coefficients) > 4):
+        side = SurfaceCard.surface_coefficients[4] 
+        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r,side)
+    else:
+        string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r)
+
     return string
 
 # serpent a cone along y
@@ -83,7 +90,13 @@ def serpent_cone_y(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
-    string = ' {} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r)
+
+    if (len(SurfaceCard.surface_coefficients) > 4):
+        side = SurfaceCard.surface_coefficients[4] 
+        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r,side)
+    else:
+        string = ' {} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r)
+
     return string
 
 # serpent a cone along z
@@ -92,17 +105,23 @@ def serpent_cone_z(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
-    string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r)
-    return string
+    
+    if (len(SurfaceCard.surface_coefficients) > 4):
+        side = SurfaceCard.surface_coefficients[4] 
+        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r,side)
+    else:
+        string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r)
 
+    return string
+    
 # serpent a torus x
 def serpent_torus_x(SurfaceCard):
     x = SurfaceCard.surface_coefficients[0]
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     a = SurfaceCard.surface_coefficients[3]
-    b = SurfaceCard.surface_coefficients[3]
-    c = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[4]
+    c = SurfaceCard.surface_coefficients[5]
     string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torx",x,y,z,a,b,c)
     return string
 
@@ -112,8 +131,8 @@ def serpent_torus_y(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     a = SurfaceCard.surface_coefficients[3]
-    b = SurfaceCard.surface_coefficients[3]
-    c = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[4]
+    c = SurfaceCard.surface_coefficients[5]
     string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("tory",x,y,z,a,b,c)
     return string
 
@@ -123,8 +142,8 @@ def serpent_torus_z(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     a = SurfaceCard.surface_coefficients[3]
-    b = SurfaceCard.surface_coefficients[3]
-    c = SurfaceCard.surface_coefficients[3]
+    b = SurfaceCard.surface_coefficients[4]
+    c = SurfaceCard.surface_coefficients[5]
     string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torz",x,y,z,a,b,c)
     return string
 
