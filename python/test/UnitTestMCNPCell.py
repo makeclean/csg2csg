@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-from MCNPCellCard import MCNPCellCard
+from MCNPCellCard import MCNPCellCard, mcnp_line_formatter
 from CellCard import CellCard
 
 class TestMCNPCellMethods(unittest.TestCase):
@@ -25,6 +25,48 @@ class TestMCNPCellMethods(unittest.TestCase):
         self.assertEqual(card.cell_id, 2)
         self.assertEqual(card.cell_material_number, 3)
         self.assertEqual(card.cell_density, -14.0)
-        
+
+    def test_mcnp_detect_keywords_all(self):
+        string = "2 3 -14.0 1 imp:n=1 imp:p=1 u=3 fill=12 vol=150"
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['imp','u','fill','vol'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
+
+    def test_mcnp_detect_keywords_imp(self):
+        string = "2 3 -14.0 1 imp:n=1 imp:p=1 "
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['imp'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
+
+    def test_mcnp_detect_keywords_uni(self):
+        string = "2 3 -14.0 1 u=1 "
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['u'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
+
+    def test_mcnp_detect_keywords_fill(self):
+        string = "2 3 -14.0 1 fill=3"
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['fill'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
+
+    def test_mcnp_detect_keywords_vol(self):
+        string = "2 3 -14.0 1 vol=300"
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['vol'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
+
+    def test_mcnp_line_format(self):
+        string = "1 0 (-1 3 4 5 6 8 9 ( 12 13 15))"
+        mcnp_string = mcnp_line_formatter(string)
+        self.assertEqual(string,mcnp_string)
+        # note these horrendously long lines - is actually what im trying to test and furthermore
+        # all of the standard techniques to break the string across multuple lines like 
+        # https://stackoverflow.com/questions/5437619/python-style-line-continuation-with-strings
+        # dont actually work 
+        string = "1 0 (-1 3 4 5 6 8 9 ( 12 13 15) ( 12 13 15) ( 12 13 15) ( 12 13 15) ( 12 13 15))"
+        mcnp_string = mcnp_line_formatter(string)
+        self.assertEqual("1 0 (-1 3 4 5 6 8 9 ( 12 13 15) ( 12 13 15) ( 12 13 15) ( 12 13 15) (\n      12 13 15))",mcnp_string)
+
 if __name__ == '__main__':
     unittest.main()

@@ -2,6 +2,8 @@
 
 import unittest
 import sys
+import logging
+
 sys.path.append("..")
 from MCNPInput import MCNPInput #, explode_macrobody
 from MCNPSurfaceCard import MCNPSurfaceCard
@@ -16,7 +18,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         # explode macrobody into surfaces
         cells, new_surfaces = input.explode_macrobody(Surface)        
         self.assertEqual(cells[0], "( 1 -2  3 -4  5 -6 )")
-        self.assertEqual(cells[1], "(-1:2:-3:4:-5:6)")
+        self.assertEqual(cells[1], "(-1 : 2 : -3 : 4 : -5 : 6)")
         self.assertEqual(len(new_surfaces),6)
         self.assertEqual(new_surfaces[0].surface_type,SurfaceCard.SurfaceType["PLANE_X"])
         self.assertEqual(new_surfaces[0].surface_coefficients[3],-1)
@@ -52,7 +54,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         cell2 = input.cell_list[1] 
 
         self.assertEqual(cell1.text_string, "1 1 -1.0 ( 4 -5  6 -7  8 -9 )")
-        self.assertEqual(cell2.text_string, "2 0 (-4:5:-6:7:-8:9)")
+        self.assertEqual(cell2.text_string, "2 0 (-4 : 5 : -6 : 7 : -8 : 9)")
 
     def test_flatten_macrobodies_with_other_surfs(self):
         input_string = ["this is a title\n"]
@@ -61,13 +63,14 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("3 0 7\n")
         input_string.append("\n")
         input_string.append("3 rpp -1 1 -1 1 -1 1\n")
-        input_string.append("7 so 10\n")
+        input_string.append("7 so 10.\n")
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
         input_string.append("      1002 1.0\n")
 
         # setup input
         input = MCNPInput()
+        
         input.cell_list = []
         input.surface_list = []
         input.material_list = {}
@@ -87,7 +90,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         # surface numbering should start at 7
         self.assertEqual(cell3.text_string, "3 0 7\n")
         self.assertEqual(cell2.text_string, "2 0 ( 8 -9  10 -11  12 -13 )")
-        self.assertEqual(cell1.text_string, "1 1 -1.0 -7 (-8:9:-10:11:-12:13)")
+        self.assertEqual(cell1.text_string, "1 1 -1.0 -7 (-8 : 9 : -10 : 11 : -12 : 13)")
 
         # surfaces should be numbered from 7 to 13 contiguously
         for i in range(0,len(input.surface_list)):
@@ -103,6 +106,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
         self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
 
+
     def test_flatten_macrobodies_with_multiple_macrobodies(self):
         input_string = ["this is a title\n"]
         input_string.append("1 1 -1.0 -3\n")
@@ -116,6 +120,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input_string.append("\n")
         input_string.append("m1 1001 1.0\n")
         input_string.append("     1002 1.0\n")
+        input_string.append("\n")
 
         # setup input
         input = MCNPInput()

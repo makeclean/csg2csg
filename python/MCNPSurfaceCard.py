@@ -1,6 +1,8 @@
 from SurfaceCard import SurfaceCard
 from Vector import add,subtract,cross
 
+import numpy as np
+
 # NOTES: Right now Cones are stored in the MCNP form - x y z R2
 
 # function to determine if the card is a surface
@@ -132,7 +134,7 @@ def mcnp_sphere(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
-# write the mcnp form of an arbitrary sphere
+# write the mcnp form of an arbitrary gq
 def mcnp_gq(SurfaceCard):
     string = "gq "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
@@ -146,8 +148,8 @@ def mcnp_gq(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[8]) + "\n      "
     string += str(SurfaceCard.surface_coefficients[9]) + "\n"
     return string
-# write the mcnp form of an arbitrary sphere
 
+# write the mcnp form of an arbitrary sphere
 def mcnp_tx(SurfaceCard):
     string = "tx "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
@@ -159,7 +161,7 @@ def mcnp_tx(SurfaceCard):
     return string
 
 def mcnp_ty(SurfaceCard):
-    string = "tx "
+    string = "ty "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
@@ -169,7 +171,7 @@ def mcnp_ty(SurfaceCard):
     return string
 
 def mcnp_tz(SurfaceCard):
-    string = "tx "
+    string = "tz "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
@@ -578,6 +580,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # classify as a box surface
     def __classify_box(self,surface):
+        
         vx = float(surface["coefficients"][0])
         vy = float(surface["coefficients"][1])
         vz = float(surface["coefficients"][2])
@@ -608,6 +611,7 @@ class MCNPSurfaceCard(SurfaceCard):
                           coords)
         # we cant, its aligned along some arbitrary axis
         else:
+            coords = [0.]*12
             coords[0] = vx
             coords[1] = vy
             coords[2] = vz
@@ -708,7 +712,7 @@ class MCNPSurfaceCard(SurfaceCard):
 
         surf_id = surface["id"]
         surf_type = surface["type"]
-               
+        
         if "box" in surf_type:
             self.__classify_box(surface)
         elif "rpp" in surf_type:
@@ -747,12 +751,72 @@ class MCNPSurfaceCard(SurfaceCard):
             surface["transform"] = 0
             surface["type"] = tokens[1]
             surface["coefficients"] = tokens[2:]
-
+        
         if self.__mcnp_type(surface) == "infinite":
             self.__classify_surface_types(surface)
         elif self.__mcnp_type(surface) == "macrobody":
             self.__classify_macrobody_types(surface)
         else:
-            print("unknown type")
+            print("unknown type")     
 
-            
+    # apply the transform to the surface
+    def transform(self, MCNPTransform):
+        print (self.surface_transform)
+        # do nothing if needs be
+        if self.surface_transform == 0:
+            return
+
+        a = self.surface_coefficients[0]
+        b = self.surface_coefficients[1]
+        c = self.surface_coefficients[2]
+        d = self.surface_coefficients[3]
+        e = self.surface_coefficients[4]
+        f = self.surface_coefficients[5]
+        g = self.surface_coefficients[6]
+        h = self.surface_coefficients[7]
+        j = self.surface_coefficients[8]
+        k = self.surface_coefficients[9]
+
+        A = [[k,   g/2, h/2, j/2],
+            [g/2, a,   d/2, f/2],
+            [h/2, d/2, b,   e/2],
+            [j/2, f/2, e/2, c]]
+
+        dx = MCNPTransform.shift[0]
+        dy = MCNPTransform.shift[1]
+        dz = MCNPTransform.shift[2]
+
+        # form the b matrix
+        b1 = MCNPTransform.v1[0]
+        b2 = MCNPTransform.v1[1]
+        b3 = MCNPTransform.v1[2]
+        b4 = MCNPTransform.v2[0]
+        b5 = MCNPTransform.v2[1]
+        b6 = MCNPTransform.v2[2]
+        b7 = MCNPTransform.v3[0]
+        b8 = MCNPTransform.v3[1]
+        b9 = MCNPTransform.v3[2]
+
+        # transfer matrix
+        trf = [[1,0,0,0],
+           [dx,b1,b2,b3],
+           [dy,b4,b5,b6],
+           [dz,b7,b8,b9]]
+        
+        # first part 
+        tmp = np.matmul(np.transpose(trf),A)
+        # second part
+        tmpr = np.matmul(tmp,trf)
+
+        self.surface_coefficients[0] = tmpr[1][1]
+        self.surface_coefficients[1] = tmpr[2][2]
+        self.surface_coefficients[2] = tmpr[3][3]
+        self.surface_coefficients[3] = tmpr[1][2] + tmpr[2][1]
+        self.surface_coefficients[4] = tmpr[3][2] + tmpr[2][3]
+        self.surface_coefficients[5] = tmpr[1][3] + tmpr[3][1]
+        self.surface_coefficients[6] = tmpr[1][0] + tmpr[0][1]
+        self.surface_coefficients[7] = tmpr[2][0] + tmpr[0][2]
+        self.surface_coefficients[8] = tmpr[3][0] + tmpr[0][3]
+        self.surface_coefficients[9] = tmpr[0][0]
+
+        return
