@@ -23,6 +23,7 @@ jobs:
       - run:
           name: run tests
           command: |
+	    pip3 install numpy --user
             cd python
             cd test
             ./run_tests
