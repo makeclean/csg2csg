@@ -2,6 +2,7 @@
 import sys
 from Card import Card
 from Vector import cross
+import math
 
 # Class to handle MCNP datacards
 class MCNPDataCard(Card):
@@ -50,6 +51,15 @@ class MCNPTransformCard(MCNPDataCard):
             self.v3 = [float(tokens[10]),
                        float(tokens[11]),
                        float(tokens[12])]
+
+            # convert from degs to radians
+            if self.angle_form:
+                for i in range(3):
+                    print (i,self.v1)
+                    self.v1[i] = math.cos(self.v1[i]/180.*math.pi)
+                    self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
+                    self.v3[i] = math.cos(self.v3[i]/180.*math.pi)
+                    print (i,self.v1)
         elif len(tokens) == 10: # define the las transform as cross product
             self.v1 = [float(tokens[4]),
                        float(tokens[5]),
@@ -57,6 +67,11 @@ class MCNPTransformCard(MCNPDataCard):
             self.v2 = [float(tokens[7]),
                        float(tokens[8]),
                        float(tokens[9])]
+            # convert from degs to radians
+            if self.angle_form:
+                for i in range(3):
+                    self.v1[i] = math.cos(self.v1[i]/180.*math.pi)
+                    self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
             self.v3 = cross(self.v1,self.v2)
         else:
             print('Unknown transform definition')

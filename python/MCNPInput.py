@@ -131,9 +131,11 @@ class MCNPInput(InputDeck):
                 card_line = self.file_lines[idx]
                 idx += 1 # only check one more line ahead
                 # mcnp continue line is indicated by 5 spaces
-                if self.file_lines[idx][0:5] == "     ":
+                while self.file_lines[idx][0:5] == "     ":
                     logging.debug("%s", "trn card has continue line " + str(idx))
                     card_line += self.file_lines[idx]
+                    idx += 1
+                idx -=1 
                 self.__make_transform_card(card_line)
                 card_line = ""
             idx += 1
@@ -155,8 +157,14 @@ class MCNPInput(InputDeck):
     def __apply_surface_transformations(self):
         for surf in self.surface_list:
             if surf.surface_transform != 0:
-                #surface.transform()
-                #print (surf)
+                surf.generalise() # generalise the surface into a gq
+                try:
+                    self.transform_list[surf.surface_transform]
+                    surf.transform(self.transform_list[surf.surface_transform])
+                except KeyError:
+                    print ("transform " + surf.surface_transform +" not found ")
+                    #sys.exit()
+            else:
                 pass
 
     # find the next free material number 
@@ -254,11 +262,11 @@ class MCNPInput(InputDeck):
             cell_description_inside += " )"
             # appropriate cell descripiton for outside the macrobody
             cell_description_outside = "(-" + str(new_surf_list[0].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[4].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[5].surface_id)
+            cell_description_outside += " :" + str(new_surf_list[1].surface_id)
+            cell_description_outside += " : -" + str(new_surf_list[2].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[3].surface_id)
+            cell_description_outside += " : -" + str(new_surf_list[4].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
             
             cell_description = [cell_description_inside,cell_description_outside]
@@ -319,29 +327,29 @@ class MCNPInput(InputDeck):
                 self.surface_list.extend(new_surfaces)
                 # remove the old surface
                 to_remove.append(surf)
-#                self.surface_list.remove(surf)
-                # update the cell definition
+
+                # update the cell definition - loop over all cells
                 for jdx, cell in enumerate(self.cell_list):
-                    # for each part of the cell
-#                    for idx, item in enumerate(cell.cell_text_description):
+                    # for each part of the cell - for each component in the cell
                     for idx, item in enumerate(cell.cell_text_description):
                         # if we find a matching surface
                         if item == str(surf.surface_id): # found the outside description
                             cell.cell_text_description[idx] = cell_description[1]
                             self.cell_list[jdx] = cell
                             text_string = ' '.join(cell.cell_text_description)
-                            self.cell_list[jdx].update(text_string) 
+                            self.cell_list[jdx].update(text_string)
                         elif item == str(-1*surf.surface_id): # found the inside description
                             cell.cell_text_description[idx] = cell_description[0]
                             self.cell_list[jdx] = cell
                             text_string = ' '.join(cell.cell_text_description)
-                            self.cell_list[jdx].update(text_string)
+                            self.cell_list[jdx].update(text_string)                            
                         else:
                             pass
                             
         # clear up removed surfaces
         for surf in to_remove:
             self.surface_list.remove(surf)
+
         return
 
     # any more nots to process
@@ -384,6 +392,7 @@ class MCNPInput(InputDeck):
         
         # remove the #cell and insert the full new form
         cell_part = cell.cell_interpreted[0:pos-1]
+        
         cell_part.extend(cell_text)
         cell_part2 = cell.cell_interpreted[pos+1:]
         cell_part.extend(cell_part2)
@@ -463,11 +472,20 @@ class MCNPInput(InputDeck):
             # scan until we are all done
             while True:
                 cell_line = self.file_lines[jdx]
+                pos_comment = cell_line.find("$")
+                cell_comment = ""
+                
+                if pos_comment != -1:
+                    cell_line = cell_line[:pos_comment]
+                    self.file_lines[jdx] = cell_line # update the file data
+                    cell_comment = cell_line[pos_comment:] # set the comment
+                
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line[0:5] == "     ":
                     card_line += cell_line
                 else: # else we have found a new cell card
                     cellcard = MCNPCellCard(card_line)
+                    # we should set the comment here
                     self.cell_list.append(cellcard)
                     break 
                 jdx += 1
@@ -548,15 +566,15 @@ class MCNPInput(InputDeck):
         # based on the mateiral number / density pairs
         # and update cells accordingly.
         self.__reorganise_materials()
-
         # we need to turn macrobodies into regular surface descriptions
-        self.__explode_nots()
         self.__flatten_macrobodies()
+        self.__explode_nots()
+
         self.__generate_bounding_coordinates()
         # update the bounding coordinates of surfaces that need it
         # cones for example
         self.__update_surfaces()
-        
+       
         return
 
     # perhaps these write functions should actually build strings 

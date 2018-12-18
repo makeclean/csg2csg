@@ -103,6 +103,91 @@ class SurfaceCard(Card):
             b_box[5] = self.surface_coefficients[2] + self.surface_coefficients[3]
         return b_box
 
-    # apply and generate a the transform to the surface card definition
-    def transform(self):
-        return
+    # turn the surface into a gq type in preparation for transformation
+    def generalise(self):
+        a = 0 ; b = 0 ; c = 0 ; d = 0 ; e = 0 ; 
+        f = 0 ; g = 0 ; h = 0 ; j = 0 ; k = 0 
+        
+        if self.surface_type == self.SurfaceType['PLANE_X']:
+            g = 1.0
+            k = -self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType['PLANE_Y']:
+            h = 1.0
+            k = -self.surface_coefficients[3]            
+        elif self.surface_type == self.SurfaceType['PLANE_Z']:
+            j = 1.0
+            k = -self.surface_coefficients[3]            
+        elif self.surface_type == self.SurfaceType['PLANE_GENERAL']:
+            g = self.surface_coefficients[0]            
+            h = self.surface_coefficients[1]
+            j = self.surface_coefficients[2]
+            k = self.surface_coefficients[3]            
+        # all spheres are general
+        elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
+            a = 1 ; b = 1 ; c = 1 ; d = 0 ; e = 0 ; f = 0;
+            g = -2*self.surface_coefficients[0]
+            h = -2*self.surface_coefficients[1]
+            j = -2*self.surface_coefficients[2]
+            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 \
+                + self.surface_coefficients[2]**2 - self.surface_coefficients[3]**2
+        # todo need to check cylinder equation
+        elif self.surface_type == self.SurfaceType['CYLINDER_X']:
+            b = 1 
+            c = 1
+            h = -2*self.surface_coefficients[0]
+            j = -2*self.surface_coefficients[1]
+            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        elif self.surface_type == self.SurfaceType['CYLINDER_Y']:
+            a = 1 
+            c = 1
+            g = -2*self.surface_coefficients[0]
+            j = -2*self.surface_coefficients[1]
+            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        elif self.surface_type == self.SurfaceType['CYLINDER_Z']:
+            a = 1 
+            b = 1
+            g = -2*self.surface_coefficients[0]
+            h = -2*self.surface_coefficients[1]
+            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        # todo check cone equation
+        elif self.surface_type == self.SurfaceType['CONE_X']:
+            a = -1*self.surface_coefficients[3]**2
+            b = 1
+            c = 1
+            g =  2*self.surface_coefficients[0]*self.surface_coefficients[3]**2
+            h = -2*self.surface_coefficients[1]
+            j = -2*self.surface_coefficients[2]
+            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        elif self.surface_type == self.SurfaceType['CONE_Y']:
+            a = 1
+            b = -1*self.surface_coefficients[3]**2
+            c = 1
+            g = -2*self.surface_coefficients[0]
+            h =  2*self.surface_coefficients[1]*self.surface_coefficients[3]**2
+            j = -2*self.surface_coefficients[2]
+            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        elif self.surface_type == self.SurfaceType['CONE_Z']:
+            a = 1
+            b = 1
+            c = -1*self.surface_coefficients[3]**2
+            g = -2*self.surface_coefficients[0]
+            h = -2*self.surface_coefficients[1]
+            j = 2*self.surface_coefficients[2]*self.surface_coefficients[3]**2
+            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        new_surface_coefficients = [0.]*10
+
+        new_surface_coefficients[0] = a
+        new_surface_coefficients[1] = b
+        new_surface_coefficients[2] = c
+        new_surface_coefficients[3] = d
+        new_surface_coefficients[4] = e
+        new_surface_coefficients[5] = f
+        new_surface_coefficients[6] = g
+        new_surface_coefficients[7] = h
+        new_surface_coefficients[8] = j
+        new_surface_coefficients[9] = k
+
+        # dont forget to turn the type into a gq
+        self.surface_type = self.SurfaceType['GENERAL_QUADRATIC'] 
+        self.surface_coefficients = new_surface_coefficients
+        return 

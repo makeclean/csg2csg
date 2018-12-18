@@ -47,13 +47,19 @@ def write_openmc_cell(cell, geometry_tree):
     (cell_id, material_number, description,
     universe,fill) = get_openmc_cell_info(cell)
     
-    ET.SubElement(geometry_tree, "cell", id = str(cell_id),
-                  material=str(material_number),
-                  region = str(description),
-                  universe = str(universe),
-                  fill = str(fill)
-                  )
-    
+    if fill != 0:
+        ET.SubElement(geometry_tree, "cell", id = str(cell_id),
+                      material=str(material_number),
+                      region = str(description),
+                      universe = str(universe),
+                      fill = str(fill))
+    else:
+        ET.SubElement(geometry_tree, "cell", id = str(cell_id),
+                      material=str(material_number),
+                      region = str(description),
+                      universe = str(universe))
+
+
 #
 class OpenMCCell(CellCard):
     def __init__(self, card_string):

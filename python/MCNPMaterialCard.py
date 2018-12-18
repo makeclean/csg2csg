@@ -7,9 +7,9 @@ import sys
 # writes an mcnp material card given the generic description
 def write_mcnp_material(filestream, Material, preserve_xs):
     filestream.write("C Material " + str(Material.material_name) + "\n")
-    filestream.write("M"+ str(Material.material_number) + "\n")
+    filestream.write("M"+ str(Material.material_number))
     for nucid in Material.composition_dictionary:
-        string = "        " + str(nucid)
+        string = "     " + str(nucid)
         if preserve_xs:
             string += "." + str(Material.xsid_dictionary[nucid])
         string += " " + str(Material.composition_dictionary[nucid]) + "\n"

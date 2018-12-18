@@ -7,7 +7,41 @@ import re
 
 # to support more keywords for cells add them here
 mcnp_cell_keywords = ["imp","u","fill","vol"]
-#keywords = ["imp","u","fill","vol"]
+
+# take a massive string for an MCNP cell line 
+# makes it no more than 80 chars wide and 
+# include the right indentation
+def mcnp_line_formatter(string_to_format):
+    tmp_string = string_to_format
+    # early return string already ok
+    if(len(tmp_string) < 72 ):
+        return tmp_string
+    else:
+        # need to loop until string is finished
+        new_string = ""
+        while True:
+            # to do make line length an argument?
+            if len(tmp_string) <= 72:
+                if not tmp_string.isspace():
+                    new_string += tmp_string
+                break
+            else:
+                # need to not chop text without disturbing
+                # underlying definition - find first space 
+                # reverse search and split there 
+                pos = tmp_string[:72].rfind(" ") 
+                # todo - robustify this it must be possible for there
+                # to be no space in the string             
+                new_string += tmp_string[:pos] + "\n" 
+                tmp_string = tmp_string[pos:]
+                # if remaining string is empty just leave
+                if tmp_string.isspace():
+                    return new_string
+                else:
+                    # if we are continuing add spaces
+                     new_string += "     "
+
+    return new_string
 
 # if the string is a cell card or not
 def is_cell_card(line):
@@ -77,7 +111,7 @@ def write_mcnp_cell(filestream, CellCard):
     string += "\n"
     
     string = re.sub(" +"," ",string)
-
+    string = mcnp_line_formatter(string)
     filestream.write(string)
 
 class MCNPCellCard(CellCard):
@@ -104,9 +138,10 @@ class MCNPCellCard(CellCard):
     # a mere mortal can understand turns mcnp description
     # like 2 3 -4 into 2 AND 3 AND -4
     def generalise(self):
+        
         cell_description = self.cell_text_description
         cell_description = list(cell_description)
-        
+    
         idx = 0
         while True:
             s = cell_description[idx]
@@ -127,6 +162,7 @@ class MCNPCellCard(CellCard):
             if idx == len(cell_description): break
 
         self.cell_interpreted = cell_description    
+    
         return
 
     # generally spaceify the text so that between each item
@@ -154,6 +190,7 @@ class MCNPCellCard(CellCard):
         if not found_keyword:
             return string
 
+        # 
         posd = string.find('$')
         if posd != -1:
             string = string[:posd]
@@ -214,8 +251,8 @@ class MCNPCellCard(CellCard):
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
 
-        # there can be mulitple comments per cell you sick people
-        # why? is there any need?
+        # there can be mulitple comments per cell you sick sick people
+        # why? is there any need? I mean really?!
         while '$' in string:
             pos = string.find('$')
             nl = string.find('\n',pos)
@@ -240,6 +277,7 @@ class MCNPCellCard(CellCard):
         if not self.__is_sanitised():
             self.__sanitise()
         self.generalise()
+
         return
 
     # update an existing cell description with 
@@ -253,5 +291,7 @@ class MCNPCellCard(CellCard):
         else:
             self.text_string += " " + str(self.cell_density)
             self.text_string += " " + new_cell_description
-
+        
         self.__interpret()
+        
+        

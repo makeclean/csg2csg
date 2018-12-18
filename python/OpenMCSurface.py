@@ -47,7 +47,17 @@ def openmc_surface_info(SurfaceCard):
         coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
         type_string = "z-cone"
-        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients[:-1])
+        if len(SurfaceCard.surface_coefficients) == 3:
+            coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients[:-1])
+        else:
+            if SurfaceCard.surface_coefficients[3] == 1:
+                # if user wants the sheet cone in the +ve sense i.e. a cone
+                # that points upwards
+                coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients[:-1])
+            else:
+                # if user wants the sheet cone in the -ve sense i.e. a cone
+                # with vertex where they want the -z part of the one
+                coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients[:-1])
     else:
         type_string = "error"
         coeff_string = "error"
