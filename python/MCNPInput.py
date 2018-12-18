@@ -262,7 +262,7 @@ class MCNPInput(InputDeck):
             cell_description_inside += " )"
             # appropriate cell descripiton for outside the macrobody
             cell_description_outside = "(-" + str(new_surf_list[0].surface_id)
-            cell_description_outside += " :" + str(new_surf_list[1].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[1].surface_id)
             cell_description_outside += " : -" + str(new_surf_list[2].surface_id)
             cell_description_outside += " : " + str(new_surf_list[3].surface_id)
             cell_description_outside += " : -" + str(new_surf_list[4].surface_id)
