@@ -236,7 +236,8 @@ class MCNPSurfaceCard(SurfaceCard):
                             "cx","cy","cz","c/x","c/y","c/z",
                             "kx","ky","kz","k/x","k/y","k/z",
                             "tx","ty","tz",
-                            "gq","sq"]
+                            "gq","sq",
+                            "x","y","z"]
     # TODO add to this list to add more macrobody types
     __mcnp_macro_types = ["rpp","box","sph","rcc"]
 
@@ -660,7 +661,76 @@ class MCNPSurfaceCard(SurfaceCard):
                       SurfaceCard.SurfaceType["MACRO_RCC"],
                       coords)
         return
-                          
+
+    def __define_edp_1coord(self,surface,coords,direction):
+        return
+
+    def __define_edp_2coord(self,surface,coords,direction):
+        print(surface)
+        # plane
+        if coords[0][0] == coords[1][0]:
+            surface["coefficients"] = [coords[0][0]]
+            surface["type"] = "p" + direction
+            self.__classify_xyz_planes(surface)
+        # cylinder
+        elif coords[0][1] == coords[1][1]:
+            surface["coefficients"] = [coords[0][1]]
+            surface["type"] = "c" + direction
+            self.__classify_cylinder_on_axis(surface)
+        # cone
+        else:
+            # note coords are ri ri pairs
+            dx = coords[1][1]-coords[0][1] 
+            dy = coords[1][0]-coords[0][0] 
+
+            grad = dy/dx
+            offset = coords[1][0] - (grad*coords[1][1])
+
+            angle = (-1/grad)**2
+
+            # decide if we want the up or down part of the
+            # cone since one sheet is used
+            if grad < 0:
+                up_or_down = -1
+            else:
+                up_or_down =  1
+
+            surface["coefficients"] = [offset,angle,up_or_down]
+            surface["type"] = "k"+direction            
+            self.__classify_cone_on_axis(surface)
+
+        return
+
+    # classify edp surface
+    def __classify_edp(self,surface):
+
+        if len(surface["coefficients"]) == 2:
+            coords = [float(surface["coefficients"][0]), float(surface["coefficients"][1])]
+
+            if surface["type"] == "x":       
+                self.__define_edp_1coord(surface,coords,"x")
+            elif surface["type"] == "y":
+                self.__define_edp_1coord(surface,coords,"y")
+            elif surface["type"] == "z":
+                self.__define_edp_1coord(surface,coords,"z")
+            else:
+                raise Exception('Could not determine surface type {}'.format(surface["type"]))
+
+        elif len(surface["coefficients"]) == 4:
+            coords1 = [float(surface["coefficients"][0]), float(surface["coefficients"][1])]
+            coords2 = [float(surface["coefficients"][2]), float(surface["coefficients"][3])]
+
+            coords = [coords1,coords2]
+
+            if surface["type"] == "x":       
+                self.__define_edp_2coord(surface,coords,"y")
+            elif surface["type"] == "y":
+                self.__define_edp_2coord(surface,coords,"y")
+            elif surface["type"] == "z":
+                self.__define_edp_2coord(surface,coords,"z")
+            else:
+                raise Exception('Could not determine surface type {}'.format(surface["type"]))
+
     # classify any inifinite surface
     def __classify_surface_types(self,surface):
 
@@ -703,9 +773,10 @@ class MCNPSurfaceCard(SurfaceCard):
             self.__classify_sph(surface)
         elif "rcc" in surf_type:
             self.__classify_rcc(surface)
+        elif "x" or "y" or "z" in surf_type:
+            self.__classify_edp(surface)
         else:
-            print ("Could not classify surface")
-            sys.exit(1)
+            raise Exception('Could not classify surface type {}'.format(surf_type))
 
     # classify any inifinite surface
     def __classify_macrobody_types(self,surface):
@@ -738,10 +809,12 @@ class MCNPSurfaceCard(SurfaceCard):
         
         tokens = self.text_string.split()
 
-        surface = {}                
-        surface["id"] = int(tokens[0])
-
-        
+        surface = {}    
+        if ("*" in tokens[0]):
+            surface["id"] = int(tokens[0].replace("*",""))
+            surface["boundary_condition"] = SurfaceCard.BoundaryCondition["REFLECTING"]
+        else:            
+            surface["id"] = int(tokens[0])
 
         if surface_has_transform(self.text_string):
             surface["transform"] = tokens[1]

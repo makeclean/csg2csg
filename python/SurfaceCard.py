@@ -13,9 +13,16 @@ class SurfaceCard(Card):
     surface_id = 0
     surface_transform = 0
     surface_coefficients = []
+    boudary_condition = 0 
     comment = ""
     b_box = [0,0,0,0,0,0] # b 
     
+    class BoundaryCondition(Enum):
+        VACUUM = 0
+        REFLECTING = 1
+        PERIODIC = 2
+        WHITE = 3
+
     class SurfaceType(Enum):
         PLANE_GENERAL = 0
         PLANE_X = 1

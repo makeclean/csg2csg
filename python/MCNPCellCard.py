@@ -175,6 +175,7 @@ class MCNPCellCard(CellCard):
     # keyword
     def __get_keyword_value(self,keyword,string):
         offset = len(keyword) + 3 
+        offset += string.find(keyword,offset)
         end = string.find(" ",offset)
         return string[offset:end]  
 
