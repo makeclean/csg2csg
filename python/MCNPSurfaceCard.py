@@ -1,6 +1,6 @@
 from SurfaceCard import SurfaceCard
 from Vector import add,subtract,cross
-
+from MCNPFormatter import mcnp_line_formatter
 import numpy as np
 
 # NOTES: Right now Cones are stored in the MCNP form - x y z R2
@@ -139,13 +139,13 @@ def mcnp_gq(SurfaceCard):
     string = "gq "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += str(SurfaceCard.surface_coefficients[3]) + " "
     string += str(SurfaceCard.surface_coefficients[4]) + " "
-    string += str(SurfaceCard.surface_coefficients[5]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[5]) + " "
     string += str(SurfaceCard.surface_coefficients[6]) + " "
     string += str(SurfaceCard.surface_coefficients[7]) + " "
-    string += str(SurfaceCard.surface_coefficients[8]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[8]) + " "
     string += str(SurfaceCard.surface_coefficients[9]) + "\n"
     return string
 
@@ -154,7 +154,7 @@ def mcnp_tx(SurfaceCard):
     string = "tx "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += str(SurfaceCard.surface_coefficients[3]) + " "
     string += str(SurfaceCard.surface_coefficients[4]) + " "
     string += str(SurfaceCard.surface_coefficients[5]) + "\n"
@@ -164,7 +164,7 @@ def mcnp_ty(SurfaceCard):
     string = "ty "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += str(SurfaceCard.surface_coefficients[3]) + " "
     string += str(SurfaceCard.surface_coefficients[4]) + " "
     string += str(SurfaceCard.surface_coefficients[5]) + "\n"
@@ -174,7 +174,7 @@ def mcnp_tz(SurfaceCard):
     string = "tz "
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + "\n      "
+    string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += str(SurfaceCard.surface_coefficients[3]) + " "
     string += str(SurfaceCard.surface_coefficients[4]) + " "
     string += str(SurfaceCard.surface_coefficients[5]) + "\n"
@@ -218,7 +218,7 @@ def write_mcnp_surface(filestream, SurfaceCard):
     else:
         string += "Unknown surface type"
         
-    filestream.write(string)
+    filestream.write(mcnp_line_formatter(string))
     
     return
 

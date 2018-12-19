@@ -27,9 +27,11 @@ MCNP Surfaces Supported
  - KX, KY, KZ
  - TX TY TZ
  - Macrobodies - RPP, SPH and RCC 
+ - X, Y, Z - one and two coefficent only
+
 
 MCNP Surfaces Not Yet Supported
- - X, Y, Z 
+ - X, Y, Z - three coefficient
  - Macrobodies - BOX, RHP, HEX, REC, TRC, ELL, WEB, ARB
 
 Tranforms
