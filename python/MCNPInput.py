@@ -574,6 +574,8 @@ class MCNPInput(InputDeck):
         # update the bounding coordinates of surfaces that need it
         # cones for example
         self.__update_surfaces()
+
+        self.split_unions()
        
         return
 

@@ -666,7 +666,6 @@ class MCNPSurfaceCard(SurfaceCard):
         return
 
     def __define_edp_2coord(self,surface,coords,direction):
-        print(surface)
         # plane
         if coords[0][0] == coords[1][0]:
             surface["coefficients"] = [coords[0][0]]

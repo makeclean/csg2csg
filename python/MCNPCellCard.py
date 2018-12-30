@@ -292,7 +292,6 @@ class MCNPCellCard(CellCard):
         for idx,i in enumerate(tokens):
             tokens[idx] = i
 
-        print(tokens)
         # transform is a TR card
         if len(tokens) == 1:
             print("need to implement tr cards in universes")

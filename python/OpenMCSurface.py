@@ -4,16 +4,8 @@ from SurfaceCard import SurfaceCard
 import xml.etree.ElementTree as ET
 
 def openmc_surface_info(SurfaceCard):
-    #surface_coefficients = SurfaceCard.surface_coefficients
-    #[str(x) for x in surface_coefficients]
-    #print (SurfaceCard.surface_id, surface_coefficients)
     if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
-        type_string = "plane"
-        #coeff_string = " " + str(SurfaceCard.surface_coefficients[0])
-        #coeff_string += " " + str(SurfaceCard.surface_coefficients[1])
-        #coeff_string += " " + str(SurfaceCard.surface_coefficients[2])
-        #coeff_string += " " + str(-1.*SurfaceCard.surface_coefficients[3])
-        
+        type_string = "plane"        
         coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_X"]:
         type_string = "x-plane"
@@ -61,7 +53,6 @@ def write_openmc_surface(SurfaceCard, geometry_tree):
     ET.SubElement(geometry_tree, "surface", id = str(id), type = str(type),
                   coeffs = str(coeffs), boundary = "transmission")
     
-
     
 class OpenMCSurfaceCard(SurfaceCard):
     """ Class to handle the creation and translation of
