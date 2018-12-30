@@ -33,31 +33,49 @@ def get_openmc_cell_info(cell):
     # make the string to define the cell    
     operation = ''.join(openmc_op_from_generic(e) for e in cell.cell_interpreted)
     operation = ''.join(str(e) for e in operation)
-    # pad parenthesis with spaces
-#    operation = operation.replace(")(",") (")
     operation = operation.replace("("," ( ")
     operation = operation.replace(")"," ) ")
     universe = cell.cell_universe
     fill = cell.cell_fill
-    return (cell_id, material_number, operation,universe,fill)
+
+    if cell.cell_universe_rotation != 0:
+        rotation = ""
+        rotation += cell.cell_universe_rotation[0] + " "
+        rotation += cell.cell_universe_rotation[4] + " "
+        rotation += cell.cell_universe_rotation[8]
+    else:
+        rotation = "0 0 0"
+
+    if cell.cell_universe_offset != 0:
+        translation = ""
+        translation += cell.cell_universe_offset[0] + " "
+        translation += cell.cell_universe_offset[1] + " "
+        translation += cell.cell_universe_offset[2] + " "
+    else:
+        translation = "0 0 0"
+
+    return (cell_id, material_number, operation,universe,fill,rotation,translation)
     
     
 def write_openmc_cell(cell, geometry_tree):
 
     (cell_id, material_number, description,
-    universe,fill) = get_openmc_cell_info(cell)
+    universe,fill,rotation,translation) = get_openmc_cell_info(cell)
     
     if fill != 0:
         ET.SubElement(geometry_tree, "cell", id = str(cell_id),
-                      material=str(material_number),
                       region = str(description),
                       universe = str(universe),
-                      fill = str(fill))
+                      fill = str(fill),
+                      rotation = str(rotation),
+                      translation = str(translation))
     else:
         ET.SubElement(geometry_tree, "cell", id = str(cell_id),
                       material=str(material_number),
                       region = str(description),
                       universe = str(universe))
+
+
 
 
 #

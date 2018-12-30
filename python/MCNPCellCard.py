@@ -5,6 +5,7 @@ from enum import Enum
 from MCNPFormatter import mcnp_line_formatter
 
 import re
+import math
 
 # to support more keywords for cells add them here
 mcnp_cell_keywords = ["imp","u","fill","vol"]
@@ -77,7 +78,31 @@ def write_mcnp_cell(filestream, CellCard):
     string += "\n"
     
     string = re.sub(" +"," ",string)
+    string = string.strip()
+
+    if CellCard.cell_universe != 0:
+        string += " u=" + CellCard.cell_universe
+
+    if CellCard.cell_fill != 0:
+        string += " fill="+CellCard.cell_fill + " "
+        if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:          
+            # universe may have no traslation?
+            string += "("
+            if CellCard.cell_universe_offset != 0:
+                for i in range(3):
+                    string += CellCard.cell_universe_offset[i] + " "
+            else:
+                string += " 0 0 0 "
+    
+            if CellCard.cell_universe_rotation != 0:
+                for i in range(9):
+                    value = float(CellCard.cell_universe_rotation[i])
+                    value = math.cos(value/180.*math.pi) 
+                    string += str(value) + " "
+            string += ")"
+    string += "\n"
     string = mcnp_line_formatter(string)
+
     filestream.write(string)
 
 class MCNPCellCard(CellCard):
@@ -140,10 +165,20 @@ class MCNPCellCard(CellCard):
     # given a valid keyword and string return the value of the
     # keyword
     def __get_keyword_value(self,keyword,string):
-        offset = len(keyword) + 3 
+        offset = len(keyword) + len(" = ") 
         offset += string.find(keyword,offset)
         end = string.find(" ",offset)
         return string[offset:end]  
+
+    def __extract_string_between(self, string, first_substring, second_substring):
+        #print(string, first_substring, second_substring,string.find(first_substring),string.find(second_substring))
+        pos1 = string.find(first_substring) + 1
+        pos2 = string.find(second_substring)
+        result = ' '.join(string[pos1:pos2].split())
+
+        if pos1 == -1:
+            return ""
+        return result
 
     # look through the string for the keywords 
     def __detect_keywords(self, keywords, string):
@@ -190,7 +225,11 @@ class MCNPCellCard(CellCard):
         if posf == -1:
             self.cell_fill = 0
         else:
-            self.cell_fill = self.__get_keyword_value('fill',end_of_string)
+            self.cell_fill = self.__get_keyword_value('fill',end_of_string).strip()
+            # if we have found fill, there may also be a rotation and translation
+            # associated with the universe of the form (0 0 0)
+            rot_trans = self.__extract_string_between(string[posf:],'(',')')
+            self.__set_universe_transform(rot_trans)
  
         if posi == -1:
             self.cell_importance = 0
@@ -244,6 +283,26 @@ class MCNPCellCard(CellCard):
         if not self.__is_sanitised():
             self.__sanitise()
         self.generalise()
+
+        return
+
+    # set the universe transform
+    def __set_universe_transform(self, transform):
+        tokens = transform.split()
+        for idx,i in enumerate(tokens):
+            tokens[idx] = i
+
+        print(tokens)
+        # transform is a TR card
+        if len(tokens) == 1:
+            print("need to implement tr cards in universes")
+        elif len(tokens) > 2:
+            # set the offset
+            self.cell_universe_offset = [tokens[0],tokens[1],tokens[2]]
+            if len(tokens) > 11:
+                rot_angles = [tokens[3],tokens[4],tokens[5],tokens[6],tokens[7],tokens[8],tokens[9],tokens[10],tokens[11]]
+
+                self.cell_universe_rotation = rot_angles
 
         return
 

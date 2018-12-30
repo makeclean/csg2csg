@@ -24,6 +24,9 @@ class MCNPTransformCard(MCNPDataCard):
         MCNPDataCard.__init__(self, card_string)
         self.__process_string()
 
+    def set_shift(self,shift_):
+        self.shift = shift_
+
     # process the string into a transformation card
     def __process_string(self):
         tokens = self.text_string.split()
