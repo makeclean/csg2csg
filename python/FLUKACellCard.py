@@ -48,6 +48,7 @@ def write_fluka_cell(filestream, CellCard):
 
     # removes any multiple spaces
     string = re.sub(" +"," ",string)
+    string = re.sub("\- \+"," ",string)
 
     filestream.write(string)
 
