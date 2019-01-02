@@ -20,6 +20,8 @@ class CellCard(Card):
     cell_interpreted = ""
     cell_fill = 0
     cell_universe = 0
+    cell_universe_offset = 0
+    cell_universe_rotation = 0
 
     class OperationType(Enum):
         NOT = 2

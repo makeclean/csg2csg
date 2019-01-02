@@ -24,10 +24,13 @@ class MCNPTransformCard(MCNPDataCard):
         MCNPDataCard.__init__(self, card_string)
         self.__process_string()
 
+    def set_shift(self,shift_):
+        self.shift = shift_
+
     # process the string into a transformation card
     def __process_string(self):
         tokens = self.text_string.split()
-        print(self.text_string)
+        
         # is the angle specificed in rads or degrees
         if "*" in tokens[0]:
             self.angle_form = 1
@@ -55,11 +58,9 @@ class MCNPTransformCard(MCNPDataCard):
             # convert from degs to radians
             if self.angle_form:
                 for i in range(3):
-                    print (i,self.v1)
                     self.v1[i] = math.cos(self.v1[i]/180.*math.pi)
                     self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
                     self.v3[i] = math.cos(self.v3[i]/180.*math.pi)
-                    print (i,self.v1)
         elif len(tokens) == 10: # define the las transform as cross product
             self.v1 = [float(tokens[4]),
                        float(tokens[5]),

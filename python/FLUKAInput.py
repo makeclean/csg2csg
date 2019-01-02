@@ -180,9 +180,7 @@ class FLUKAInput(InputDeck):
             if collapsed_map[nuc] not in fluka_special_mats and collapsed_map[nuc] not in written:
                 write_fluka_material_element(filestream, nuc, collapsed_map[nuc])
                 written.add(collapsed_map[nuc])
-                
-        print (collapsed_map)
-                
+                                
         # operate on the list of materials present and update the composition maps
         # to have fluka names instead of zaid 
         for material in self.material_list.keys():

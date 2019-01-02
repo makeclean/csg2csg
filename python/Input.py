@@ -54,3 +54,13 @@ class InputDeck:
         InputDeck.surfcace_list = InputDeckClass.surface_list
         InputDeck.material_list = InputDeckClass.material_list
         return
+
+    # step through each cell and determine if the cell can 
+    # be split into multiple simple subcells
+    def split_unions(self):
+        # update the cell definition - loop over all cells
+        for idx, cell in enumerate(self.cell_list):
+            # look through the interpreted cell and determine if we can pattern
+            # match any splitable unions - this will look like (stuff):(stuff):(stuff)
+            # so we could make 3 cells from that
+            continue

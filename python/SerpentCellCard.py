@@ -3,6 +3,7 @@
 from CellCard import CellCard
 from enum import Enum
 import re
+import math
 
 # turn the generic operation type into a serpent relevant text string
 def serpent_op_from_generic(Operation):
@@ -60,6 +61,28 @@ def write_serpent_cell(filestream, CellCard):
     string = re.sub(" +"," ",string)
 
     filestream.write(string)
+
+    # write the universe transform
+    if CellCard.cell_fill != 0: 
+        if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:
+            string = "trans f " + str(CellCard.cell_id) + " "
+
+            # universe may have no traslation?
+            if CellCard.cell_universe_offset != 0:
+                for i in range(3):
+                    string += CellCard.cell_universe_offset[i] + " "
+            else:
+                string += " 0 0 0 "
+    
+            if CellCard.cell_universe_rotation != 0:
+                for i in range(9):
+                    value = float(CellCard.cell_universe_rotation[i])
+                    value = math.cos(value/180.*math.pi)
+                    string += str(value) + " "
+            string += "1 \n"
+
+    filestream.write(string)
+
 
 class SerpentCellCard(CellCard):
     def __init__(self, card_string):

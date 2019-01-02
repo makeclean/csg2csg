@@ -29,6 +29,8 @@ def main(argv):
                         help = 'preserve existing cross section id numbers on write',
                         action="store_true")
     
+    parser.add_argument('-o','--output', help = 'output code selections')
+
     # parse the arguments
     args = parser.parse_args(argv)
       
@@ -44,29 +46,45 @@ def main(argv):
     else:
         filename = args.file
     
+    if args.output is None:
+        print('no output options selected')
+        sys.exit(1)
+    else:
+        if "all" in args.output:
+            codes = ["mcnp","serpent","openmc","fluka"]
+        else:
+            codes = args.output.split(',')
+
+    # read the mcnp input
     input = MCNPInput(filename)
     input.read()
     input.process()
 
-    serpent = SerpentInput()
-    serpent.from_input(input)
-    mkdir("serpent")
-    serpent.write_serpent("serpent/file.serp")
-
-    mcnp = MCNPInput()
-    mcnp.from_input(input)
-    mkdir("mcnp")
-    mcnp.write_mcnp("mcnp/file.mcnp")
-
-    openmc = OpenMCInput()
-    openmc.from_input(input)
-    mkdir("openmc")
-    openmc.write_openmc("openmc")
-
-    fluka = FLUKAInput()
-    fluka.from_input(input)
-    mkdir("fluka")
-    fluka.write_fluka("fluka/fluka.inp")
+    for code in codes:
+        if "serpent" is code:
+            print("Producing Serpent output...")
+            serpent = SerpentInput()
+            serpent.from_input(input)
+            mkdir("serpent")
+            serpent.write_serpent("serpent/file.serp")
+        if "mcnp" is code:
+            print("Producing MCNP output...")
+            mcnp = MCNPInput()
+            mcnp.from_input(input)
+            mkdir("mcnp")
+            mcnp.write_mcnp("mcnp/file.mcnp")
+        if "openmc" is code:
+            print("Producing OpenMC output...")
+            openmc = OpenMCInput()
+            openmc.from_input(input)
+            mkdir("openmc")
+            openmc.write_openmc("openmc")
+        if "fluka" is code:
+            print("Producing FLUKA output...")
+            fluka = FLUKAInput()
+            fluka.from_input(input)
+            mkdir("fluka")
+            fluka.write_fluka("fluka/fluka.inp")
     
     logging.info("Finshed")
 
