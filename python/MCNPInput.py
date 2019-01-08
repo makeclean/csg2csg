@@ -225,6 +225,7 @@ class MCNPInput(InputDeck):
         for mat in self.material_list:
             material = self.material_list[mat]
             material.normalise()
+            material.explode_elements()
             self.material_list[mat] = material
 
         return

@@ -1,6 +1,8 @@
 #!/usr/env/python3
 
 from Card import Card
+from MaterialData import MaterialData
+
 
 class MaterialCard(Card):
 
@@ -16,11 +18,13 @@ class MaterialCard(Card):
     composition_dictionary = {}
     xsid_dictionary = {}
     density = 0
+    mat_data = 0
 
     # constructor
     def __init__(self, material_number = 0, card_string = ""):
         Card.__init__(self,card_string)
         self.material_number = material_number
+        self.mat_data = MaterialData()
 
     def __str__(self):
         string = "Material: " + self.material_name + "\n"
@@ -47,6 +51,32 @@ class MaterialCard(Card):
 
         # all done
         return
-    
+
+    # explode elements loop through the dictionary and any material that has elements
+    # and explode it into its nuclidewise definition
+    def explode_elements(self):
+        keys_to_remove = []
+        new_nuclides = {}
+        for nuc in self.composition_dictionary:
+            if int(nuc)%1000 == 0 :
+                keys_to_remove.append(nuc)
+                nuclides = self.mat_data.get_nucs(int(nuc))
+                # loop over the nuclides
+                for nuclide in nuclides:
+                    print(nuclide)
+                    if self.composition_dictionary[nuc] < 0: # if its mass fraction then 
+                        new_nuclides[str(nuclide)] = self.composition_dictionary[nuc] * \
+                        self.mat_data.natural_abund_map[nuclide*10000] \
+                        / 100 * self.mat_data.atomic_mass(int(nuc))/self.mat_data.get_aa(nuclide)     
+                    else: #its atom fraction pure multiplication
+                        new_nuclides[str(nuclide)] = self.composition_dictionary[nuc]*self.mat_data.natural_abund_map[nuclide*10000]/100
+
+
+        #print(self.composition_dictionary)
+        for key in keys_to_remove:
+            del self.composition_dictionary[key]
+
+        for key in new_nuclides.keys():
+            self.composition_dictionary[key] = new_nuclides[key]
+            self.xsid_dictionary[key] = ""
         
-    
