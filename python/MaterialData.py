@@ -3,7 +3,8 @@
 class MaterialData():
 
     """ Collection of useful material data for exploding
-    material compositions
+    material compositions - note the atomic masses and
+    abundances are extracted automatically from PyNE 
     """
     atomic_mass_map = {}
     atomic_mass_map[10010000] = 1.00782503223

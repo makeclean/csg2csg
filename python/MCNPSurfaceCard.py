@@ -833,7 +833,6 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # apply the transform to the surface
     def transform(self, MCNPTransform):
-        print (self.surface_transform)
         # do nothing if needs be
         if self.surface_transform == 0:
             return

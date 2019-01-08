@@ -70,7 +70,7 @@ def write_serpent_cell(filestream, CellCard):
             # universe may have no traslation?
             if CellCard.cell_universe_offset != 0:
                 for i in range(3):
-                    string += CellCard.cell_universe_offset[i] + " "
+                    string += str(CellCard.cell_universe_offset[i]) + " "
             else:
                 string += " 0 0 0 "
     

@@ -90,7 +90,7 @@ def write_mcnp_cell(filestream, CellCard):
             string += "("
             if CellCard.cell_universe_offset != 0:
                 for i in range(3):
-                    string += CellCard.cell_universe_offset[i] + " "
+                    string += str(CellCard.cell_universe_offset[i]) + " "
             else:
                 string += " 0 0 0 "
     
@@ -228,7 +228,11 @@ class MCNPCellCard(CellCard):
             self.cell_fill = self.__get_keyword_value('fill',end_of_string).strip()
             # if we have found fill, there may also be a rotation and translation
             # associated with the universe of the form (0 0 0)
-            rot_trans = self.__extract_string_between(string[posf:],'(',')')
+            if '(' in string[posf:]:
+                rot_trans = self.__extract_string_between(string[posf:],'(',')')
+            else:
+                rot_trans = "0"
+
             self.__set_universe_transform(rot_trans)
  
         if posi == -1:
@@ -294,16 +298,23 @@ class MCNPCellCard(CellCard):
 
         # transform is a TR card
         if len(tokens) == 1:
-            print("need to implement tr cards in universes")
+            self.cell_universe_transformation_id = tokens[0]
         elif len(tokens) > 2:
             # set the offset
             self.cell_universe_offset = [tokens[0],tokens[1],tokens[2]]
             if len(tokens) > 11:
                 rot_angles = [tokens[3],tokens[4],tokens[5],tokens[6],tokens[7],tokens[8],tokens[9],tokens[10],tokens[11]]
-
                 self.cell_universe_rotation = rot_angles
-
+        else:
+            print('unknown method of transformation')
         return
+
+    # apply the transform to the universe
+    def apply_universe_transform(self,transform):
+        self.cell_universe_offset = transform.shift # set the offset
+        self.cell_universe_rotation = transform.v1 + transform.v2 + transform.v3
+        # reset the transform
+        self.cell_universe_transformation_id = "0"
 
     # update an existing cell description with 
     def update(self,new_cell_description):

@@ -24,6 +24,13 @@ class MCNPTransformCard(MCNPDataCard):
         MCNPDataCard.__init__(self, card_string)
         self.__process_string()
 
+    def print(self):
+        print('transform:', self.id)
+        print('shift:', self.shift)
+        print('v1:', self.v1)
+        print('v2:', self.v2)
+        print('v3:', self.v3)
+
     def set_shift(self,shift_):
         self.shift = shift_
 

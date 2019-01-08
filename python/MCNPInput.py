@@ -150,10 +150,7 @@ class MCNPInput(InputDeck):
             idx += 1
         return
 
-    # apply transforms if needed
-    # need to figure out how MCNP does its surface transforms
-    # this is not a widely supported feature amongst other
-    # monte carlo codes
+    # apply surface transforms if needed
     def __apply_surface_transformations(self):
         for surf in self.surface_list:
             if surf.surface_transform != 0:
@@ -167,8 +164,19 @@ class MCNPInput(InputDeck):
             else:
                 pass
 
+    # apply universe transformations if needed
+    def __apply_universe_transformations(self):
+
+        # loop over all the cells
+        for cell in self.cell_list:
+            # if the transform id is not 0
+            if cell.cell_universe_transformation_id is not "0":
+                # apply the transform
+                cell.apply_universe_transform(self.transform_list[cell.cell_universe_transformation_id])
+                
+
     # find the next free material number 
-    def __next_free_int(self):
+    def __next_free_int(self):  
         idx = 1
         while True:
             if str(idx) in self.material_list.keys():
@@ -561,6 +569,7 @@ class MCNPInput(InputDeck):
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()
+        self.__apply_universe_transformations()
 
         # materials in other codes are tie their composition
         # and density together - need to make new material cards

@@ -22,6 +22,8 @@ class CellCard(Card):
     cell_universe = 0
     cell_universe_offset = 0
     cell_universe_rotation = 0
+    cell_universe_transformation_id = "0" # if there is a cell_universe tr number it should be purged
+                                        # and converted into an offset and rotation
 
     class OperationType(Enum):
         NOT = 2

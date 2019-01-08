@@ -40,17 +40,17 @@ def get_openmc_cell_info(cell):
 
     if cell.cell_universe_rotation != 0:
         rotation = ""
-        rotation += cell.cell_universe_rotation[0] + " "
-        rotation += cell.cell_universe_rotation[4] + " "
-        rotation += cell.cell_universe_rotation[8]
+        rotation += str(cell.cell_universe_rotation[0]) + " "
+        rotation += str(cell.cell_universe_rotation[4]) + " "
+        rotation += str(cell.cell_universe_rotation[8])
     else:
         rotation = "0 0 0"
 
     if cell.cell_universe_offset != 0:
         translation = ""
-        translation += cell.cell_universe_offset[0] + " "
-        translation += cell.cell_universe_offset[1] + " "
-        translation += cell.cell_universe_offset[2] + " "
+        translation += str(cell.cell_universe_offset[0]) + " "
+        translation += str(cell.cell_universe_offset[1]) + " "
+        translation += str(cell.cell_universe_offset[2]) + " "
     else:
         translation = "0 0 0"
 
