@@ -3,6 +3,8 @@
 from SurfaceCard import SurfaceCard
 from math import sqrt
 
+import warnings
+
 # write the general form of a plane
 def fluka_plane_string(SurfaceCard):
     a = SurfaceCard.surface_coefficients[0]
@@ -251,16 +253,19 @@ def fluka_cone_z(SurfaceCard):
 
 # fluka a torus x
 def fluka_torus_x(SurfaceCard):
+    warnings.warn("Warning tori are not supported in FLUKA, some manual manipulation will be required",Warning)
     string = "Surface TORUS_X not supported" 
     return string
 
 # fluka a torus y
 def fluka_torus_y(SurfaceCard):
+    warnings.warn("Warning tori are not supported in FLUKA, some manual manipulation will be required",Warning)
     string = "Surface TORUS_Y not supported"
     return string
 
 # fluka a torus z
 def fluka_torus_z(SurfaceCard):
+    warnings.warn("Warning tori are not supported in FLUKA, some manual manipulation will be required",Warning)
     string = "Surface TORUS_Z not supported"
     return string
 
