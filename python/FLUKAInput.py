@@ -166,13 +166,11 @@ class FLUKAInput(InputDeck):
         collapsed_map = {}
         # nuclide set is the map of zaid to Fluka name
         for nuc in nuclide_set:
-            if nuc in zz_to_remove:
-                print ("nuclide ", nuc, " is purged")
-                nuclide_set.remove(nuc)
             if int(nuc) in zz_to_fluka.keys():
                 collapsed_map[nuc] = zz_to_fluka[int(nuc)]
             else:
-                collapsed_map[nuc] = zz_to_fluka[int(float(nuc)/1000)*1000]
+                if int(float(nuc)/1000)*1000 not in zz_to_remove:
+                    collapsed_map[nuc] = zz_to_fluka[int(float(nuc)/1000)*1000]
 
         written = set()
         # keep track of those already written so we dont call them out multiple times
