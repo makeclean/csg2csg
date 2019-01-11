@@ -82,7 +82,7 @@ class MCNPTransformCard(MCNPDataCard):
                     self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
             self.v3 = cross(self.v1,self.v2)
         else:
-            print('Unknown transform definition')
+            print('Unknown transform definition, ',len(tokens), self.text_string)
           #  sys.exit(1)
         return
 

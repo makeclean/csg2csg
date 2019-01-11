@@ -14,6 +14,8 @@ from numpy import inf as npinf
 from numpy import around as nparound
 
 from copy import deepcopy
+
+import warnings
 import logging
 import sys
 import re
@@ -159,12 +161,11 @@ class MCNPInput(InputDeck):
         for surf in self.surface_list:
             if surf.surface_transform != 0:
                 surf.generalise() # generalise the surface into a gq
-                try:
-                    self.transform_list[surf.surface_transform]
+                if surf.surface_transform in self.transform_list.keys():
                     surf.transform(self.transform_list[surf.surface_transform])
-                except KeyError:
+                    surf.simplify() # turn the transformed surface into its simplest form
+                else:
                     print ("transform " + surf.surface_transform +" not found ")
-                    #sys.exit()
             else:
                 pass
 
@@ -489,7 +490,7 @@ class MCNPInput(InputDeck):
 
             cell_description = [cell_description_inside,cell_description_outside]
         else:
-            print ("Need to implement the other macro body types", Surface.surface_type)
+            warnings.warn('Found an unsupported macrobody, files will not be correct',Warning)
             cell_description = ["",""]
             
         return cell_description, new_surf_list
@@ -501,9 +502,6 @@ class MCNPInput(InputDeck):
         # look through the list until we find
         # a macrobody
         to_remove = []
-
-        for cell in self.cell_list:
-            print(cell.cell_id)
 
         for surf in self.surface_list:
             # if we are a macrobody
@@ -517,41 +515,40 @@ class MCNPInput(InputDeck):
 
                 # update the cell definition - loop over all cells
                 for jdx, cell in enumerate(self.cell_list):
-                    # for each part of the cell - for each component in the cell
-                    for idx, item in enumerate(cell.cell_text_description):
-                        # if we find a matching macrobody surface
-                        if item == str(surf.surface_id): # found the outside description
-                            cell.cell_text_description[idx] = cell_description[1]
-                            self.cell_list[jdx] = cell
-                            text_string = ' '.join(cell.cell_text_description)
-                            self.cell_list[jdx].update(text_string)
-                        elif item == str(-1*surf.surface_id): # found the inside description
-                            cell.cell_text_description[idx] = cell_description[0]
-                            self.cell_list[jdx] = cell
-                            text_string = ' '.join(cell.cell_text_description)
-                            self.cell_list[jdx].update(text_string)
+                    while True:
+                        # cell text description is contually updated
+                        cell_text_description = cell.cell_text_description
+                        
+                        # if we find the surface id of the macrobdy in the text description
+                        sub = str(surf.surface_id)
+                        regex = re.compile("^-?("+str(surf.surface_id)+")(\.+[1-9])?$")
+                        matches = [m.group(0) for l in cell_text_description for m in [regex.search(l)] if m]
+                        #if str(surf.surface_id) in cell_text_description or str(surf.surface_id)+"." in cell_text_description:
+                        
+                        if matches:                       
+                            # loop over each component and find the macrobody
+                            for idx, surface in enumerate(cell.cell_text_description):
+                                # if it matches we have the simmple form
+                                if str(surf.surface_id) == surface:
+                                    # replace it
+                                    cell.cell_text_description[idx] = cell_description[1]
+                                elif "-"+str(surf.surface_id) == surface:
+                                    cell.cell_text_description[idx] = cell_description[0]
+                   
+                                # else we have the facet form
+                                if str(surf.surface_id)+"." in surface:                                    
+                                    surface_index = int(surface.split(".")[1]) # get just the mcnp surface index
+                                    new_surface_id = new_surfaces[surface_index-1].surface_id # mcnp numbers them 1->n
+                                    if "-" in surface: # need to take care of the -sign
+                                        cell.cell_text_description[idx] = "-"+str(new_surface_id)
+                                    else:
+                                        cell.cell_text_description[idx] = str(new_surface_id)
                         else:
-                            pass
-
-                        if "." in item:
-                            print ("found:", item, surf.surface_id,cell.cell_id)
-                        # look for macrobody facets being referenced - this is logically different from above
-                        if str(surf.surface_id)+"." in item: 
-                            surface_index = int(item.split(".")[1]) # get just the mcnp surface index
-                            new_surface_id = new_surfaces[surface_index-1].surface_id # mcnp numbers them 1->n
-
-                            if "-" in cell.cell_text_description[idx]: # need to take care of the -sign
-                                cell.cell_text_description[idx] = "-" 
-                            else:   
-                                cell.cell_text_description[idx] = ""
-
-                            cell.cell_text_description[idx] += str(new_surface_id)
-                            
-                            print (cell.cell_id,cell.cell_text_description[idx],str(new_surface_id))
-                            text_string = ' '.join(cell.cell_text_description)
-                            print (text_string)
-                            self.cell_list[jdx].update(text_string)                           
-                            
+                            break
+                    # update the text description
+                    text_string = ' '.join(cell.cell_text_description)
+                    self.cell_list[jdx].update(text_string)
+                
         # clear up removed surfaces
         for surf in to_remove:
             self.surface_list.remove(surf)

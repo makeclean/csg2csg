@@ -62,7 +62,6 @@ def main(argv):
     input.process()
 
     for code in codes:
-        print(code)
         if "serpent" in code:
             print("Producing Serpent output...")
             serpent = SerpentInput()

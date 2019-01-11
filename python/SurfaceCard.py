@@ -128,7 +128,7 @@ class SurfaceCard(Card):
             g = self.surface_coefficients[0]            
             h = self.surface_coefficients[1]
             j = self.surface_coefficients[2]
-            k = self.surface_coefficients[3]            
+            k = -1.0*self.surface_coefficients[3]            
         # all spheres are general
         elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
             a = 1 ; b = 1 ; c = 1 ; d = 0 ; e = 0 ; f = 0;
@@ -181,6 +181,21 @@ class SurfaceCard(Card):
             h = -2*self.surface_coefficients[1]
             j = 2*self.surface_coefficients[2]*self.surface_coefficients[3]**2
             k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+        elif self.surface_type == self.SurfaceType['GENERAL_QUADRATIC']:
+            a = self.surface_coefficients[0]
+            b = self.surface_coefficients[1]
+            c = self.surface_coefficients[2]
+            d = self.surface_coefficients[3]
+            e = self.surface_coefficients[4]
+            f = self.surface_coefficients[5]
+            g = self.surface_coefficients[6]
+            h = self.surface_coefficients[7]
+            j = self.surface_coefficients[8]
+            k = self.surface_coefficients[9]
+        else:
+            print ("could not classify surface", self.surface_id)
+
+
         new_surface_coefficients = [0.]*10
 
         new_surface_coefficients[0] = a
@@ -198,3 +213,16 @@ class SurfaceCard(Card):
         self.surface_type = self.SurfaceType['GENERAL_QUADRATIC'] 
         self.surface_coefficients = new_surface_coefficients
         return 
+
+    def simplify(self):
+        if(self.surface_type != self.SurfaceType['GENERAL_QUADRATIC']):
+            return  
+        # then its a plane!
+        if ( sum(self.surface_coefficients[0:5]) == 0.):
+            self.surface_coefficients[0] = self.surface_coefficients[6]
+            self.surface_coefficients[1] = self.surface_coefficients[7]
+            self.surface_coefficients[2] = self.surface_coefficients[8]
+            self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_type = self.SurfaceType['PLANE_GENERAL']
+        else:
+            return

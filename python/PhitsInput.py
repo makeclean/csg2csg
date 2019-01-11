@@ -27,21 +27,21 @@ class PhitsInput(InputDeck):
 
     # Write the Phits Cell definitions
     def __write_phits_cells(self, filestream):
-        filestream.write("[ C E L L S ]\n")
+        filestream.write("[ C E L L ]\n")
         for cell in self.cell_list:
-            write_mcnp_cell(filestream,cell)
+            write_mcnp_cell(filestream,cell,False)
         return
     
     # write the serpent surface definitions 
     def __write_phits_surfaces(self, filestream):
-        filestream.write("[ S U R F A C E S ]\n")
+        filestream.write("[ S U R F A C E ]\n")
         for surface in self.surface_list:
             write_mcnp_surface(filestream,surface)
         return
 
     # write the material compositions
     def __write_phits_materials(self, filestream):
-        filestream.write("[ M A T E R I A L S ]\n")
+        filestream.write("[ M A T E R I A L ]\n")
         for material in self.material_list:
             write_mcnp_material(filestream, self.material_list[material],True)
         return

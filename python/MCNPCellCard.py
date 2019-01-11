@@ -60,7 +60,7 @@ def mcnp_op_from_generic(Operation):
     return string
 
 # write the cell card for a serpent cell given a generic cell card
-def write_mcnp_cell(filestream, CellCard):
+def write_mcnp_cell(filestream, CellCard, print_importances = True):
     string = str(CellCard.cell_id) + " "
     
     string += str(CellCard.cell_material_number) + " "
@@ -97,9 +97,13 @@ def write_mcnp_cell(filestream, CellCard):
             if CellCard.cell_universe_rotation != 0:
                 for i in range(9):
                     value = float(CellCard.cell_universe_rotation[i])
-                    value = math.cos(value/180.*math.pi) 
+                    #value = math.cos(value/180.*math.pi) 
                     string += str(value) + " "
             string += ")"
+    
+    if print_importances:
+        string += " IMP:N=" + str(CellCard.cell_importance)
+
     string += "\n"
     string = mcnp_line_formatter(string)
 
@@ -165,10 +169,10 @@ class MCNPCellCard(CellCard):
     # given a valid keyword and string return the value of the
     # keyword
     def __get_keyword_value(self,keyword,string):
-        offset = len(keyword) + len(" = ") 
-        offset += string.find(keyword,offset)
-        end = string.find(" ",offset)
-        return string[offset:end]  
+        #regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*") 
+        regex = re.regex=re.compile("("+keyword+") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)")
+        result = regex.search(string)[0]
+        return result.split(" ")[2] #string[offset:end]  
 
     def __extract_string_between(self, string, first_substring, second_substring):
         #print(string, first_substring, second_substring,string.find(first_substring),string.find(second_substring))
@@ -201,6 +205,12 @@ class MCNPCellCard(CellCard):
         # u= , fill= and imp:
         posu = string.find("u")
         posf = string.find("fill")
+   
+        # universe fill angle could be specified in degrees
+        rot_angle_degrees = False
+        if string.find("*fill"):
+            rot_angle_degrees = True
+        
         posi = string.find("imp")
         posv = string.find("vol")
 
@@ -216,6 +226,7 @@ class MCNPCellCard(CellCard):
         end_of_string = string[m:].replace("="," =")
         end_of_string = end_of_string.replace("=","= ")
         end_of_string = end_of_string.replace("  "," ")
+        end_of_string += " "
 
         if posu == -1:
             self.cell_universe = 0
@@ -233,12 +244,12 @@ class MCNPCellCard(CellCard):
             else:
                 rot_trans = "0"
 
-            self.__set_universe_transform(rot_trans)
+            self.__set_universe_transform(rot_trans,rot_angle_degrees)
  
         if posi == -1:
             self.cell_importance = 0
         else:
-            self.cell_importance = self.__get_keyword_value('imp',end_of_string)
+            self.cell_importance = self.__get_keyword_value('imp:n',end_of_string)
 
         # return the string upto the posisiotn of the first detected keyword          
         return string[:m]
@@ -290,8 +301,9 @@ class MCNPCellCard(CellCard):
 
         return
 
-    # set the universe transform
-    def __set_universe_transform(self, transform):
+    # set the universe transform 
+    # angle
+    def __set_universe_transform(self, transform, angle_form_degrees):
         tokens = transform.split()
         for idx,i in enumerate(tokens):
             tokens[idx] = i
@@ -304,6 +316,10 @@ class MCNPCellCard(CellCard):
             self.cell_universe_offset = [tokens[0],tokens[1],tokens[2]]
             if len(tokens) > 11:
                 rot_angles = [tokens[3],tokens[4],tokens[5],tokens[6],tokens[7],tokens[8],tokens[9],tokens[10],tokens[11]]
+                # cannonical storage format is in radians
+                if angle_form_degrees:
+                    for idx, angle in enumerate(rot_angles):
+                        rot_angles[idx] = math.cos(float(angle)/180.*math.pi)
                 self.cell_universe_rotation = rot_angles
         else:
             print('unknown method of transformation')

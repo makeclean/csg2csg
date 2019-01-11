@@ -77,7 +77,8 @@ def write_serpent_cell(filestream, CellCard):
             if CellCard.cell_universe_rotation != 0:
                 for i in range(9):
                     value = float(CellCard.cell_universe_rotation[i])
-                    value = math.cos(value/180.*math.pi)
+                    # transofmr should be in radians
+                    #value = math.cos(value/180.*math.pi)
                     string += str(value) + " "
             string += "1 \n"
 

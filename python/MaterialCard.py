@@ -63,7 +63,6 @@ class MaterialCard(Card):
                 nuclides = self.mat_data.get_nucs(int(nuc))
                 # loop over the nuclides
                 for nuclide in nuclides:
-                    print(nuclide)
                     if self.composition_dictionary[nuc] < 0: # if its mass fraction then 
                         new_nuclides[str(nuclide)] = self.composition_dictionary[nuc] * \
                         self.mat_data.natural_abund_map[nuclide*10000] \
