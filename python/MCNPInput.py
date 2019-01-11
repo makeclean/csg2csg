@@ -159,7 +159,7 @@ class MCNPInput(InputDeck):
     # apply surface transforms if needed
     def __apply_surface_transformations(self):
         for surf in self.surface_list:
-            if surf.surface_transform != 0:
+            if surf.surface_transform != 0 and not surf.is_macrobody():
                 surf.generalise() # generalise the surface into a gq
                 if surf.surface_transform in self.transform_list.keys():
                     surf.transform(self.transform_list[surf.surface_transform])
@@ -503,14 +503,18 @@ class MCNPInput(InputDeck):
         # a macrobody
         to_remove = []
 
+        logging.debug("%s ", "Flattening macrobodies")
+
         for surf in self.surface_list:
             # if we are a macrobody
             if surf.is_macrobody():
+                logging.debug("%s %i %s", "Surface",surf.surface_id,"is a macrobody")
                 # explode into constituent surfaces
                 cell_description, new_surfaces = self.explode_macrobody(surf)
                 # insert the new surfaces into the surface_list
                 self.surface_list.extend(new_surfaces)
                 # remove the old surface
+                logging.debug("%s %i %s", "Surface",surf.surface_id,"is to be deleted")
                 to_remove.append(surf)
 
                 # update the cell definition - loop over all cells
@@ -550,7 +554,9 @@ class MCNPInput(InputDeck):
                     self.cell_list[jdx].update(text_string)
                 
         # clear up removed surfaces
+        logging.debug("%s", "Deleting macrobody surfaces")
         for surf in to_remove:
+            logging.debug("%s %i", "Deleting surface", surf.surface_id)
             self.surface_list.remove(surf)
 
         return
