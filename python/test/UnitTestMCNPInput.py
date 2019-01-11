@@ -17,7 +17,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         Surface = MCNPSurfaceCard(card_string)
         # explode macrobody into surfaces
         cells, new_surfaces = input.explode_macrobody(Surface)        
-        self.assertEqual(cells[0], "( 1 -2  3 -4  5 -6 )")
+        self.assertEqual(cells[0], "( 1 -2 3 -4 5 -6 )")
         self.assertEqual(cells[1], "(-1 : 2 : -3 : 4 : -5 : 6)")
         self.assertEqual(len(new_surfaces),6)
         self.assertEqual(new_surfaces[0].surface_type,SurfaceCard.SurfaceType["PLANE_X"])
@@ -53,7 +53,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         cell1 = input.cell_list[0] 
         cell2 = input.cell_list[1] 
 
-        self.assertEqual(cell1.text_string, "1 1 -1.0 ( 4 -5  6 -7  8 -9 )")
+        self.assertEqual(cell1.text_string, "1 1 -1.0 ( 4 -5 6 -7 8 -9 )")
         self.assertEqual(cell2.text_string, "2 0 (-4 : 5 : -6 : 7 : -8 : 9)")
 
     def test_flatten_macrobodies_with_other_surfs(self):
@@ -88,8 +88,8 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(len(input.cell_list),3)
 
         # surface numbering should start at 7
-        self.assertEqual(cell3.text_string, "3 0 7\n")
-        self.assertEqual(cell2.text_string, "2 0 ( 8 -9  10 -11  12 -13 )")
+        self.assertEqual(cell3.text_string, "3 0 7")
+        self.assertEqual(cell2.text_string, "2 0 ( 8 -9 10 -11 12 -13 )")
         self.assertEqual(cell1.text_string, "1 1 -1.0 -7 (-8 : 9 : -10 : 11 : -12 : 13)")
 
         # surfaces should be numbered from 7 to 13 contiguously
@@ -165,9 +165,9 @@ class TestMCNPInputMethods(unittest.TestCase):
 
 
         # surface numbering should start at 6
-        self.assertEqual(cell1.text_string, "1 1 -1.0 ( 6 -7  8 -9  10 -11 )")
-        self.assertEqual(cell2.text_string, "2 0 ( -6 : 7 : -8 : 9 : -10 : 11 ) ( 12 -13  14 -15  16 -17 )")
-        self.assertEqual(cell3.text_string, "3 0 ( -12 : 13 : -14 : 15 : -16 : 17 ) ( 18 -19  20 -21  22 -23 )")
+        self.assertEqual(cell1.text_string, "1 1 -1.0 ( 6 -7 8 -9 10 -11 )")
+        self.assertEqual(cell2.text_string, "2 0 ( -6 : 7 : -8 : 9 : -10 : 11 ) ( 12 -13 14 -15 16 -17 )")
+        self.assertEqual(cell3.text_string, "3 0 ( -12 : 13 : -14 : 15 : -16 : 17 ) ( 18 -19 20 -21 22 -23 )")
 
         return
 

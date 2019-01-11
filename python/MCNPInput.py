@@ -336,8 +336,8 @@ class MCNPInput(InputDeck):
         cell_description_inside += ")"
 
         cell_description_outside = "("
-        cell_description_outside += "  " +str(new_surf_list[0].surface_id)
-        cell_description_outside += "  :" + str(new_surf_list[1].surface_id)
+        cell_description_outside += str(new_surf_list[0].surface_id)
+        cell_description_outside += ":" + str(new_surf_list[1].surface_id)
         cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
         cell_description_outside += ")"
 
@@ -413,9 +413,9 @@ class MCNPInput(InputDeck):
             # appropriate cell description for inside the macrobody
             cell_description_inside = "( " + str(new_surf_list[0].surface_id)
             cell_description_inside += " -" + str(new_surf_list[1].surface_id)
-            cell_description_inside += "  " + str(new_surf_list[2].surface_id)
+            cell_description_inside += " " + str(new_surf_list[2].surface_id)
             cell_description_inside += " -" + str(new_surf_list[3].surface_id)
-            cell_description_inside += "  " + str(new_surf_list[4].surface_id)
+            cell_description_inside += " " + str(new_surf_list[4].surface_id)
             cell_description_inside += " -" + str(new_surf_list[5].surface_id)
             cell_description_inside += " )"
             # appropriate cell descripiton for outside the macrobody
@@ -473,9 +473,9 @@ class MCNPInput(InputDeck):
             cell_description_inside = "("
             cell_description_inside +=        str(new_surf_list[0].surface_id)
             cell_description_inside += " -" + str(new_surf_list[1].surface_id)
-            cell_description_inside +=        str(new_surf_list[2].surface_id)
+            cell_description_inside += " " + str(new_surf_list[2].surface_id)
             cell_description_inside += " -" + str(new_surf_list[3].surface_id)
-            cell_description_inside +=        str(new_surf_list[4].surface_id)
+            cell_description_inside += " " + str(new_surf_list[4].surface_id)
             cell_description_inside += " -" + str(new_surf_list[5].surface_id)          
             cell_description_inside += ")"
 
