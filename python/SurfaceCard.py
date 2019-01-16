@@ -218,7 +218,7 @@ class SurfaceCard(Card):
         if(self.surface_type != self.SurfaceType['GENERAL_QUADRATIC']):
             return  
         # then its a plane!
-        if ( sum(self.surface_coefficients[0:5]) == 0.):
+        if all( value == 0. for value in self.surface_coefficients[0:5]) :
             self.surface_coefficients[0] = self.surface_coefficients[6]
             self.surface_coefficients[1] = self.surface_coefficients[7]
             self.surface_coefficients[2] = self.surface_coefficients[8]

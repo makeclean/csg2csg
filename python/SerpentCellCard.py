@@ -32,11 +32,9 @@ def serpent_op_from_generic(Operation):
 def write_serpent_cell(filestream, CellCard):
 
 #    print (CellCard)
-    
+    print (CellCard.cell_id)
     string = "cell " + str(CellCard.cell_id)
-    # if CellCard.cell_universe == 0:
     string += " " + str(CellCard.cell_universe) + " "
-    #   string += " 0 " # note the 0 refers to universe number
     if CellCard.cell_fill != 0 :
         string += " fill " + str(CellCard.cell_fill) + " "
 
@@ -64,6 +62,7 @@ def write_serpent_cell(filestream, CellCard):
 
     # write the universe transform
     if CellCard.cell_fill != 0: 
+        string = ""
         if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:
             string = "trans f " + str(CellCard.cell_id) + " "
 
@@ -80,9 +79,9 @@ def write_serpent_cell(filestream, CellCard):
                     # transofmr should be in radians
                     #value = math.cos(value/180.*math.pi)
                     string += str(value) + " "
-            string += "1 \n"
+                string += "1 \n"
 
-    filestream.write(string)
+        filestream.write(string)
 
 
 class SerpentCellCard(CellCard):

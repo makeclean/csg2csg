@@ -1,6 +1,7 @@
 from SurfaceCard import SurfaceCard
 from Vector import add,subtract,cross
 from MCNPFormatter import mcnp_line_formatter
+
 import numpy as np
 
 # NOTES: Right now Cones are stored in the MCNP form - x y z R2
@@ -298,6 +299,7 @@ class MCNPSurfaceCard(SurfaceCard):
     def __classify_general_planes(self,surface):
         coords = [0.]*4
         if len(surface["coefficients"]) == 9:
+            
             a = [surface["coefficients"][0],
                  surface["coefficients"][1],
                  surface["coefficients"][2]]
@@ -308,20 +310,73 @@ class MCNPSurfaceCard(SurfaceCard):
                  surface["coefficients"][7],
                  surface["coefficients"][8]]
 
+            s = surface["coefficients"]
+            s = [float(i) for i in s]
+
+            order = [[0,1,2],
+                     [1,2,0],
+                     [2,0,1]]
+
+
+            for i in range(3):
+                j = order[i][1]
+                k = order[i][2]
+                coords[i] =  s[j]*(s[k+3] -s[k+6]) + s[j+3]*(s[k+6] - s[k]) \
+                           + s[j+6]*(s[k]-s[k+3])
+                coords[3] += s[i]*s[j+3]*s[k+6] - s[j+6]*s[k+3]
+
+            coeff = 0.
+            for i in range(3,-1,-1):
+                if coeff == 0. and coords[i] != 0.:
+                    coeff = 1/coords[i]
+                coords[i] *= coeff
+
+            """
+            # we require the point 0,0,0 to be +ve -ie. if d is -ve
+            if coords[3] < 0.:
+                coords[0] = coords[0] * -1
+                coords[1] = coords[1] * -1
+                coords[2] = coords[2] * -1
+                coords[3] = coords[3] * -1
+            # if plane passes through origin 
+            elif coords[3] == 0.:
+                # we need 0,0,inf to be +ve
+                if coords[2] < 0:
+                    coords[0] = coords[0] * -1
+                    coords[1] = coords[1] * -1
+                    coords[2] = coords[2] * -1
+                    coords[3] = 0
+                # we need 0,inf,0 to be +ve
+                elif coords[0] < 0.
+                    coords[0] = coords[0] * -1
+                    coords[1] = coords[1] * -1
+                    coords[2] = coords[2] * -1
+                    coords[3] = coords[3] * -1
+
             # floatify
             a = [float(i) for i in a]
             b = [float(i) for i in b]
             c = [float(i) for i in c]
-            # form basis vectors
-            v1 = subtract(a,b)
-            v2 = subtract(c,b)
+
+            for i in range(1,4):
+                j = i % 3 + 1
+                k = 6 - i - j
+                print(i,j,k)
+
+
+            v1 = np.subtract(b,a)
+            v2 = np.subtract(c,b)
+#            v1 = np.subtract(a,b)
+#            v2 = np.subtract(a,c)
+
             # get normal
-            norm = cross(v1,v2)
+            norm = np.cross(v1,v2)
+            print(norm)
             # determine offset using point
             d = 0
-            d += norm[0]*a[0]
-            d += norm[1]*a[1]
-            d += norm[2]*a[2]
+            d += norm[0]*c[0]
+            d += norm[1]*c[1]
+            d += norm[2]*c[2]
 
             # define the equation of plane
             coords[0] = norm[0]
@@ -329,6 +384,18 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = norm[2]
             coords[3] = -d
             
+            # 
+            if d < 0.:
+                coords[0] = coords[0] * -1
+                coords[1] = coords[1] * -1
+                coords[2] = coords[2] * -1
+
+            coords[0] = coords[0] / d
+            coords[1] = coords[1] / d
+            coords[2] = coords[2] / d
+            coords[3] = coords[3] / d
+            """
+
             # determine plane by 3 sets of xyz coords
         elif len(surface["coefficients"]) == 4:
             coords[0] = float(surface["coefficients"][0])

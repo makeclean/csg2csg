@@ -10,6 +10,8 @@ from MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 from collections import Counter
 
 from numpy import linalg as np
+from numpy import dot 
+from numpy import cross 
 from numpy import inf as npinf
 from numpy import around as nparound
 
@@ -261,11 +263,6 @@ class MCNPInput(InputDeck):
         # this is where the cylinder points
         axis_vector = vector/np.norm(vector)
         # the vector perpendicular to this will be the capping plane
-        # one at origin + vector, the other at origin
-        plane_vector = -1/axis_vector
-        plane_vector[plane_vector == -npinf] = 0       
-        plane_vector /= np.norm(plane_vector)
-
 
         gq_coeffs = [0]*10
 
@@ -303,13 +300,13 @@ class MCNPInput(InputDeck):
         new_surf_list.append(surf)
 
         # plane offset 1
-        d1 =   plane_vector[0]*Surface.surface_coefficients[0] \
-             + plane_vector[1]*Surface.surface_coefficients[1] \
-             + plane_vector[2]*Surface.surface_coefficients[2]
+        d1 =   axis_vector[0]*Surface.surface_coefficients[0] \
+             + axis_vector[1]*Surface.surface_coefficients[1] \
+             + axis_vector[2]*Surface.surface_coefficients[2]
 
         self.last_free_surface_index += 1
         surface_string = str(self.last_free_surface_index) + " p "
-        for coeff in plane_vector:
+        for coeff in axis_vector:
             surface_string += str(coeff) + " "
         surface_string += str(d1)
         surf = MCNPSurfaceCard(surface_string) # todo maybe instanciate explicitly generically?
@@ -317,13 +314,13 @@ class MCNPInput(InputDeck):
 
 
         # plane offset 2
-        d2 =   plane_vector[0]*(Surface.surface_coefficients[0] + vector[0]) \
-             + plane_vector[1]*(Surface.surface_coefficients[1] + vector[1]) \
-             + plane_vector[2]*(Surface.surface_coefficients[2] + vector[2]) 
+        d2 =   axis_vector[0]*(Surface.surface_coefficients[0] + vector[0]) \
+             + axis_vector[1]*(Surface.surface_coefficients[1] + vector[1]) \
+             + axis_vector[2]*(Surface.surface_coefficients[2] + vector[2]) 
 
         self.last_free_surface_index += 1
         surface_string = str(self.last_free_surface_index) + " p "
-        for coeff in plane_vector:
+        for coeff in axis_vector:
             surface_string += str(coeff) + " "
         surface_string += str(d2)
         surf = MCNPSurfaceCard(surface_string) # todo maybe instanciate explicitly generically?
@@ -331,14 +328,14 @@ class MCNPInput(InputDeck):
 
         cell_description_inside = "("
         cell_description_inside += " -" + str(new_surf_list[0].surface_id)
-        cell_description_inside += " -" + str(new_surf_list[1].surface_id)
-        cell_description_inside += " "  + str(new_surf_list[2].surface_id)
+        cell_description_inside += "  " + str(new_surf_list[1].surface_id)
+        cell_description_inside += " -"  + str(new_surf_list[2].surface_id)
         cell_description_inside += ")"
 
         cell_description_outside = "("
         cell_description_outside += str(new_surf_list[0].surface_id)
-        cell_description_outside += ":" + str(new_surf_list[1].surface_id)
-        cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
+        cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
+        cell_description_outside += ":" + str(new_surf_list[2].surface_id)
         cell_description_outside += ")"
 
         cell_description = [cell_description_inside,cell_description_outside]
@@ -351,36 +348,49 @@ class MCNPInput(InputDeck):
         if vector[0] == 0 and vector[1] == 0:
             plane = " pz "
             cylinder = " c/z "
+            c1 = Surface.surface_coefficients[0]
+            c2 = Surface.surface_coefficients[1]
+            top = Surface.surface_coefficients[5] + Surface.surface_coefficients[2]
+            bottom = Surface.surface_coefficients[2]
         elif vector[0] == 0 and vector[2] == 0:
             plane = " py "
             cylinder = " c/y "
+            c1 = Surface.surface_coefficients[0]
+            c2 = Surface.surface_coefficients[2]
+            top = Surface.surface_coefficients[4] + Surface.surface_coefficients[1]
+            bottom = Surface.surface_coefficients[1]
         elif vector[1] == 0 and vector[2] == 0:
             plane = " px "
             cylinder = " c/x "
+            c1 = Surface.surface_coefficients[1]
+            c2 = Surface.surface_coefficients[2]
+            top = Surface.surface_coefficients[3] + Surface.surface_coefficients[0] 
+            bottom = Surface.surface_coefficients[0]
+
 
         # if coefficients 4 & 5 are zero then its a cz with planes at 
         self.last_free_surface_index += 1
-        surf = MCNPSurfaceCard(str(self.last_free_surface_index) + plane + str(Surface.surface_coefficients[2]))
-        new_surf_list.append(surf)
-        self.last_free_surface_index += 1
-        surf = MCNPSurfaceCard(str(self.last_free_surface_index) + plane + str(Surface.surface_coefficients[5]))
-        new_surf_list.append(surf)
-        self.last_free_surface_index += 1
         surf = MCNPSurfaceCard(str(self.last_free_surface_index) + cylinder +
-                                str(Surface.surface_coefficients[0]) + " " +
-                                str(Surface.surface_coefficients[1]) + " " +
+                                str(c1) + " " +
+                                str(c2) + " " +
                                 str(Surface.surface_coefficients[6]))
         new_surf_list.append(surf)
+        self.last_free_surface_index += 1
+        surf = MCNPSurfaceCard(str(self.last_free_surface_index) + plane + str(bottom))
+        new_surf_list.append(surf)
+        self.last_free_surface_index += 1
+        surf = MCNPSurfaceCard(str(self.last_free_surface_index) + plane + str(top))
+        new_surf_list.append(surf)
         cell_description_inside = "("
-        cell_description_inside += str(new_surf_list[0].surface_id)
-        cell_description_inside += " -" + str(new_surf_list[1].surface_id)
-        cell_description_inside += " " + str(new_surf_list[2].surface_id)
+        cell_description_inside += " -" + str(new_surf_list[0].surface_id)
+        cell_description_inside += " " + str(new_surf_list[1].surface_id)
+        cell_description_inside += " -" + str(new_surf_list[2].surface_id)
         cell_description_inside += ")"
 
         cell_description_outside = "("
-        cell_description_outside += " -" +str(new_surf_list[0].surface_id)
-        cell_description_outside += " :" + str(new_surf_list[1].surface_id)
-        cell_description_outside += ":-" + str(new_surf_list[2].surface_id)
+        cell_description_outside += "  " +str(new_surf_list[0].surface_id)
+        cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
+        cell_description_outside += ":" + str(new_surf_list[2].surface_id)
         cell_description_outside += ")"
 
         cell_description = [cell_description_inside,cell_description_outside]
