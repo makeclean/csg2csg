@@ -7,6 +7,8 @@ from MCNPFormatter import mcnp_line_formatter
 import re
 import math
 
+import logging
+
 # to support more keywords for cells add them here
 mcnp_cell_keywords = ["imp","u","fill","vol"]
 
@@ -153,11 +155,20 @@ class MCNPCellCard(CellCard):
             elif isinstance(s,str) and cell_description[idx-1] is not "(" and cell_description[idx] is not ")":
                 cell_description.insert(idx,CellCard.OperationType["AND"])
                 idx += 1
+                try:
+                    surf_num = abs(int(s))
+                    self.cell_surface_list.add(surf_num)
+                except:
+                    pass # its means it was a macrobody
+                
             idx += 1
             if idx == len(cell_description): break
 
-        self.cell_interpreted = cell_description    
-    
+        self.cell_interpreted = cell_description  
+        #print(self.cell_id) 
+        #print(self.cell_interpreted) 
+        #logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
+
         return
 
     # generally spaceify the text so that between each item
@@ -247,7 +258,7 @@ class MCNPCellCard(CellCard):
             self.__set_universe_transform(rot_trans,rot_angle_degrees)
  
         if posi == -1:
-            self.cell_importance = 0
+            self.cell_importance = 1
         else:
             self.cell_importance = self.__get_keyword_value('imp:n',end_of_string)
 

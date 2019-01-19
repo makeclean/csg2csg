@@ -32,7 +32,6 @@ def serpent_op_from_generic(Operation):
 def write_serpent_cell(filestream, CellCard):
 
 #    print (CellCard)
-    print (CellCard.cell_id)
     string = "cell " + str(CellCard.cell_id)
     string += " " + str(CellCard.cell_universe) + " "
     if CellCard.cell_fill != 0 :

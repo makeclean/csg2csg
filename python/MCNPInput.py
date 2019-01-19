@@ -48,6 +48,7 @@ class MCNPInput(InputDeck):
     # make a transform card from a string
     def __make_transform_card(self,transform_line):
         tr_card = MCNPTransformCard(transform_line)
+        logging.debug("%s", "TR card initialised " + str(tr_card))
         self.transform_list[tr_card.id] = tr_card
         return
 
@@ -61,6 +62,7 @@ class MCNPInput(InputDeck):
 
             if "tr" in self.file_lines[line]:
                 self.__make_transform_card(self.file_lines[line])
+                
             line += 1
         return
 
@@ -703,6 +705,7 @@ class MCNPInput(InputDeck):
                 if cell_line[0:5] == "     ":
                     card_line += cell_line
                 else: # else we have found a new cell card
+                    logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
                     # we should set the comment here
                     self.cell_list.append(cellcard)
@@ -710,6 +713,17 @@ class MCNPInput(InputDeck):
                 jdx += 1
             idx = jdx                   
         return idx
+
+    # set the boundary conditions
+    def __apply_boundary_conditions(self):
+        # loop over the cells and if the cell has 
+        # importance 0, all the sufaces get boundary
+        # condition 
+        for cell in self.cell_list:
+            if cell.cell_importance == 0:
+                for surf in cell.surface_list:
+                    self.surface_list[surf].BoundaryCondition["VACUUM"]
+        return
 
     # extract all the surface cards from the input deck
     def __get_surface_cards(self,idx):
@@ -780,7 +794,6 @@ class MCNPInput(InputDeck):
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()
         self.__apply_universe_transformations()
-
         # materials in other codes are tie their composition
         # and density together - need to make new material cards
         # based on the mateiral number / density pairs
@@ -790,6 +803,8 @@ class MCNPInput(InputDeck):
     
         self.__flatten_macrobodies()
         self.__explode_nots()
+
+        self.__apply_boundary_conditions() # must be done after explode & flatten
 
         self.__generate_bounding_coordinates()
         # update the bounding coordinates of surfaces that need it

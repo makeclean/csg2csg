@@ -3,6 +3,21 @@
 from SurfaceCard import SurfaceCard
 import xml.etree.ElementTree as ET
 
+import warnings
+
+def boundary_condition(boundaryCondition):
+    if boundaryCondition == SurfaceCard.BoundaryCondition["TRANSMISSION"]:
+        boundary = "transmission"
+    if boundaryCondition == SurfaceCard.BoundaryCondition["VACUUM"]:
+        boundary = "vacuum"
+    if boundaryCondition == SurfaceCard.BoundaryCondition["REFLECTING"]:
+        boundary = "reflecting"
+    if boundaryCondition == SurfaceCard.BoundaryCondition["WHITE"]:
+        boundary = "vacuum"
+        warnings.warn('Found an unsupported boundary condition for OpenMC, White boundary considered vacuum',Warning)
+
+    return boundary
+
 def openmc_surface_info(SurfaceCard):
     if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
         type_string = "plane"        
@@ -51,7 +66,7 @@ def write_openmc_surface(SurfaceCard, geometry_tree):
     id = SurfaceCard.surface_id
     type, coeffs  = openmc_surface_info(SurfaceCard)
     ET.SubElement(geometry_tree, "surface", id = str(id), type = str(type),
-                  coeffs = str(coeffs), boundary = "transmission")
+                  coeffs = str(coeffs), boundary = boundary_condition(SurfaceCard.boundary_condition))
     
     
 class OpenMCSurfaceCard(SurfaceCard):

@@ -24,11 +24,17 @@ class CellCard(Card):
     cell_universe_rotation = 0
     cell_universe_transformation_id = "0" # if there is a cell_universe tr number it should be purged
                                         # and converted into an offset and rotation
+    cell_surface_list = set() # list of cells used in the cell definition
 
     class OperationType(Enum):
+        def __str__(self):
+            return str(self.value)
+
         NOT = 2
         UNION = 1
         AND = 0
+
+
 
     # constructor for the cellcard class
     def __init__(self,card_string):

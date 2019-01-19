@@ -9,20 +9,21 @@ class SurfaceCard(Card):
     CodeSurfaceCard.py file
     """
     
+    class BoundaryCondition(Enum):
+        TRANSMISSION = 0
+        VACUUM = 1
+        REFLECTING = 2
+        PERIODIC = 3
+        WHITE = 4
+
     surface_type = 0
     surface_id = 0
     surface_transform = 0
     surface_coefficients = []
-    boudary_condition = 0 
+    boundary_condition = BoundaryCondition["TRANSMISSION"] 
     comment = ""
     b_box = [0,0,0,0,0,0] # b 
     
-    class BoundaryCondition(Enum):
-        VACUUM = 0
-        REFLECTING = 1
-        PERIODIC = 2
-        WHITE = 3
-
     class SurfaceType(Enum):
         PLANE_GENERAL = 0
         PLANE_X = 1
@@ -115,15 +116,17 @@ class SurfaceCard(Card):
         a = 0 ; b = 0 ; c = 0 ; d = 0 ; e = 0 ; 
         f = 0 ; g = 0 ; h = 0 ; j = 0 ; k = 0 
         
+        # note the -ve sign is due to the special way that MCNP defines
+        # planes (in difference to say FLUKA)
         if self.surface_type == self.SurfaceType['PLANE_X']:
             g = 1.0
-            k = -self.surface_coefficients[3]
+            k = -1.0*self.surface_coefficients[3]
         elif self.surface_type == self.SurfaceType['PLANE_Y']:
             h = 1.0
-            k = -self.surface_coefficients[3]            
+            k = -1.0*self.surface_coefficients[3]            
         elif self.surface_type == self.SurfaceType['PLANE_Z']:
             j = 1.0
-            k = -self.surface_coefficients[3]            
+            k = -1.0*self.surface_coefficients[3]            
         elif self.surface_type == self.SurfaceType['PLANE_GENERAL']:
             g = self.surface_coefficients[0]            
             h = self.surface_coefficients[1]
@@ -224,5 +227,11 @@ class SurfaceCard(Card):
             self.surface_coefficients[2] = self.surface_coefficients[8]
             self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
             self.surface_type = self.SurfaceType['PLANE_GENERAL']
+        elif all( value == 0. for value in self.surface_coefficients[0:7]) :
+            self.surface_coefficients[0] = 0.0
+            self.surface_coefficients[1] = 0.0
+            self.surface_coefficients[2] = 1.0
+            self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_type = self.SurfaceType['PLANE_Z']
         else:
             return
