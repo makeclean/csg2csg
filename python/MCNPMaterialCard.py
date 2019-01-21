@@ -1,6 +1,7 @@
 #!/usr/env/python3
 
 from MaterialCard import MaterialCard
+from MCNPFormatter import get_fortran_formatted_number
 
 import sys
 
@@ -49,7 +50,7 @@ class MCNPMaterialCard(MaterialCard):
             except:
                 xsid = ""
 
-            frac = tokens[1]
+            frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
             self.composition_dictionary[nucid] = frac

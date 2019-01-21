@@ -2,7 +2,8 @@
 
 from CellCard import CellCard
 from enum import Enum
-from MCNPFormatter import mcnp_line_formatter
+
+from MCNPFormatter import mcnp_line_formatter, get_fortran_formatted_number
 
 import re
 import math
@@ -142,13 +143,14 @@ class MCNPCellCard(CellCard):
         idx = 0
         while True:
             s = cell_description[idx]
-
             if s is ":":
                 cell_description[idx] = CellCard.OperationType["UNION"]
                 idx += 1
+                continue
             elif s is "#":
                 cell_description[idx] = CellCard.OperationType["NOT"]
                 idx += 1
+                continue
             elif s is ("(" or  ")"):
                 idx += 1
                 continue
@@ -298,7 +300,7 @@ class MCNPCellCard(CellCard):
         material_number = int(tokens[1])
         if material_number > 0 :
             self.cell_material_number = int(material_number)
-            self.cell_density = float(tokens[2])
+            self.cell_density = get_fortran_formatted_number(tokens[2])
             self.cell_text_description = tokens[3:]
         else:
             self.cell_density = 0.

@@ -15,6 +15,7 @@ class InputDeck:
     cell_list = []
     surface_list = []
     last_free_surface_index = 0
+    importance_list = {} # dictionary of importances
     material_list = {}
     transform_list = {}
     
@@ -46,7 +47,14 @@ class InputDeck:
         # characters into textfiles
         self.file_lines = [x.lower() for x in self.file_lines]
         self.total_num_lines = len(self.file_lines)
-        
+
+    # access a surface with a particular id
+    def get_surface_with_id(self, id):
+        for surface in self.surface_list:
+            if surface.surface_id == id :
+                return surface
+        return None 
+
     def from_input(self,InputDeckClass):
         InputDeck.filename = InputDeckClass.filename
         InputDeck.title = InputDeckClass.title

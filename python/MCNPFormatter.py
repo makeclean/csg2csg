@@ -1,5 +1,24 @@
 #/usr/env/python3
 
+# given a fortran formatted number return
+# it as a float
+def get_fortran_formatted_number(string):
+    
+    new_string = string.split(".")
+    # now have something like [2][321455]
+    if len(new_string) == 1 : # no decimal point
+        return float(string)
+
+    # its a normal number
+    if any(item in new_string[1].lower() for item in ["e-", "e+","e"]):
+        return float(string)
+
+    # its some weird old style fortran formatted number
+    new_string[1] = new_string[1].replace("-","e-")
+    new_string[1] = new_string[1].replace("+","e+")
+        
+    return float(new_string[0]+"."+new_string[1])
+    
 # take a massive string for an MCNP cell line 
 # makes it no more than 80 chars wide and 
 # include the right indentation

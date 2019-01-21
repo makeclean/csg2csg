@@ -66,7 +66,8 @@ def write_openmc_surface(SurfaceCard, geometry_tree):
     id = SurfaceCard.surface_id
     type, coeffs  = openmc_surface_info(SurfaceCard)
     ET.SubElement(geometry_tree, "surface", id = str(id), type = str(type),
-                  coeffs = str(coeffs), boundary = boundary_condition(SurfaceCard.boundary_condition))
+                  coeffs = str(coeffs), 
+                  boundary = boundary_condition(SurfaceCard.boundary_condition))
     
     
 class OpenMCSurfaceCard(SurfaceCard):

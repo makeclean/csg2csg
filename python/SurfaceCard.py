@@ -15,14 +15,6 @@ class SurfaceCard(Card):
         REFLECTING = 2
         PERIODIC = 3
         WHITE = 4
-
-    surface_type = 0
-    surface_id = 0
-    surface_transform = 0
-    surface_coefficients = []
-    boundary_condition = BoundaryCondition["TRANSMISSION"] 
-    comment = ""
-    b_box = [0,0,0,0,0,0] # b 
     
     class SurfaceType(Enum):
         PLANE_GENERAL = 0
@@ -46,6 +38,13 @@ class SurfaceCard(Card):
     
     # constructor for building a surface card
     def __init__(self,card_string):
+        self.surface_type = 0
+        self.surface_id = 0
+        self.surface_transform = 0
+        self.surface_coefficients = []
+        self.boundary_condition = self.BoundaryCondition["TRANSMISSION"] 
+        self.comment = ""
+        self.b_box = [0,0,0,0,0,0] # b 
         Card.__init__(self,card_string)
 
     def __str__(self):
@@ -54,6 +53,7 @@ class SurfaceCard(Card):
         string += "Transform ID " + str(self.surface_transform) + "\n"
         string += "Surface Type " + str(self.surface_type)+"\n"
         string += "Surface Coefficients " + str(self.surface_coefficients)+"\n"
+        string += "Boundary Condition " + str(self.boundary_condition)+"\n"
         string += "Comment: " + str(self.comment)+"\n"
         return string
         
@@ -161,29 +161,29 @@ class SurfaceCard(Card):
             k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
         # todo check cone equation
         elif self.surface_type == self.SurfaceType['CONE_X']:
-            a = -1*self.surface_coefficients[3]**2
+            a = -1*self.surface_coefficients[3]
             b = 1
             c = 1
-            g =  2*self.surface_coefficients[0]*self.surface_coefficients[3]**2
+            g =  2*self.surface_coefficients[0]*self.surface_coefficients[3]
             h = -2*self.surface_coefficients[1]
             j = -2*self.surface_coefficients[2]
-            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+            k = -self.surface_coefficients[3]*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 + self.surface_coefficients[2]**2
         elif self.surface_type == self.SurfaceType['CONE_Y']:
             a = 1
-            b = -1*self.surface_coefficients[3]**2
+            b = -1*self.surface_coefficients[3]
             c = 1
             g = -2*self.surface_coefficients[0]
-            h =  2*self.surface_coefficients[1]*self.surface_coefficients[3]**2
+            h =  2*self.surface_coefficients[1]*self.surface_coefficients[3]
             j = -2*self.surface_coefficients[2]
-            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+            k = self.surface_coefficients[0]**2 - self.surface_coefficients[3]*self.surface_coefficients[1]**2 + self.surface_coefficients[2]**2
         elif self.surface_type == self.SurfaceType['CONE_Z']:
             a = 1
             b = 1
-            c = -1*self.surface_coefficients[3]**2
+            c = -1*self.surface_coefficients[3]
             g = -2*self.surface_coefficients[0]
             h = -2*self.surface_coefficients[1]
-            j = 2*self.surface_coefficients[2]*self.surface_coefficients[3]**2
-            k = -self.surface_coefficients[3]**2*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+            j = 2*self.surface_coefficients[2]*self.surface_coefficients[3]
+            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2*self.surface_coefficients[3]
         elif self.surface_type == self.SurfaceType['GENERAL_QUADRATIC']:
             a = self.surface_coefficients[0]
             b = self.surface_coefficients[1]

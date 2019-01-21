@@ -1,7 +1,9 @@
 #/usr/env/python3
 
-from Input import InputDeck
-from SurfaceCard import SurfaceCard
+from Input import InputDeck #, get_surface_with_id
+from SurfaceCard import SurfaceCard #, BoundaryCondition
+from ParticleNames import particleToGeneric, ParticleNames
+from MCNPParticleNames import mcnpToParticle
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from MCNPDataCard import MCNPTransformCard
@@ -50,6 +52,39 @@ class MCNPInput(InputDeck):
         tr_card = MCNPTransformCard(transform_line)
         logging.debug("%s", "TR card initialised " + str(tr_card))
         self.transform_list[tr_card.id] = tr_card
+        return
+
+    # get the importance cards
+    def __get_importances(self, start_line):
+        idx = start_line
+
+        # dictionary of importances
+        while True:
+            # check to see if we are at the end of the file
+            if idx == len(self.file_lines):
+                #print (self.importance_list)
+                return #self.__process_importances()
+
+            # check for importance keyword
+            if "imp" in self.file_lines[idx]:
+                particle = self.file_lines[idx].split()[0].split(":")[1]
+                particle = mcnpToParticle(particle)
+                logging.debug("%s", "found importance statement for particle " + 
+                              particleToGeneric(particle) + " on line" + str(idx))
+
+                self.importance_list[particle] = self.file_lines[idx][5:].rstrip()
+                idx += 1
+                # while we find a continue line
+                while self.file_lines[idx][0:5] == "     ":
+                    self.importance_list[particle] += self.file_lines[idx].rstrip()
+                    logging.debug("%s", "importance statement has continue line" + str(idx))
+                    idx += 1
+                else:
+                    continue
+            else:
+                # otherwise advance the line by one
+                idx += 1
+        
         return
 
     # get the transform cards
@@ -507,7 +542,6 @@ class MCNPInput(InputDeck):
             
         return cell_description, new_surf_list
 
-
     # if we find a macrobody in the surface list 
     # explode it into a surface based definition
     def __flatten_macrobodies(self):
@@ -716,13 +750,23 @@ class MCNPInput(InputDeck):
 
     # set the boundary conditions
     def __apply_boundary_conditions(self):
+        
+        # apply the importances to cells 
+        if len(self.importance_list) != 0:
+            # TODO make this loop apply to multiple particle
+            # types but for now just do neutrons
+            if len(self.importance_list[ParticleNames["NEUTRON"]]) != 0:
+                importances = self.importance_list[ParticleNames["NEUTRON"]].split()
+                for idx,value in enumerate(importances):
+                    self.cell_list[idx].cell_importance = float(value)       
+
         # loop over the cells and if the cell has 
         # importance 0, all the sufaces get boundary
         # condition 
-        for cell in self.cell_list:
+        for cell in self.cell_list: 
             if cell.cell_importance == 0:
-                for surf in cell.surface_list:
-                    self.surface_list[surf].BoundaryCondition["VACUUM"]
+                for surf in cell.cell_surface_list:
+                    self.get_surface_with_id(surf).boundary_condition = SurfaceCard.BoundaryCondition["VACUUM"]
         return
 
     # extract all the surface cards from the input deck
@@ -790,6 +834,7 @@ class MCNPInput(InputDeck):
         # the idx value should now be at the data block
         # also idx will never be advanced from this point
 
+        self.__get_importances(idx)
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
         self.__apply_surface_transformations()
