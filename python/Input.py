@@ -55,6 +55,14 @@ class InputDeck:
                 return surface
         return None 
 
+    # access a cell with a particular id
+    def get_cell_with_id(self, id):
+        for cell in self.cell_list:
+            if cell.cell_id == id :
+                return cell
+        return None 
+
+
     def from_input(self,InputDeckClass):
         InputDeck.filename = InputDeckClass.filename
         InputDeck.title = InputDeckClass.title

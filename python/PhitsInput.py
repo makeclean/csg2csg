@@ -40,6 +40,15 @@ class PhitsInput(InputDeck):
         return
 
     # write the material compositions
+    def __write_phits_importances(self, filestream):
+        filestream.write("[ I M P O R T A N C E ]\n")
+        filestream.write("   reg       imp   \n")
+        for cell in self.cell_list:
+            filestream.write("    " + str(cell.cell_id) + 
+                             "        " + str(cell.cell_importance) + "\n")
+        return
+
+    # write the material compositions
     def __write_phits_materials(self, filestream):
         filestream.write("[ M A T E R I A L ]\n")
         for material in self.material_list:
@@ -55,6 +64,8 @@ class PhitsInput(InputDeck):
         self.__write_phits_surfaces(f)
         f.write("\n")
         self.__write_phits_cells(f)
+        f.write("\n")
+        self.__write_phits_importances(f)
         f.write("\n")
         self.__write_phits_materials(f)
         f.write("\n")

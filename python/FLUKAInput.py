@@ -1,5 +1,7 @@
 #/usr/env/python3
 
+import warnings
+
 from Input import InputDeck
 from FLUKASurfaceCard import FLUKASurfaceCard, write_fluka_surface
 from FLUKACellCard import FLUKACellCard, write_fluka_cell
@@ -131,6 +133,43 @@ class FLUKAInput(InputDeck):
         filestream.write("END\n")
         return
 
+    def __write_fluka_importances(self,filename):
+        max_importance = 0
+        min_importance = 1e99
+
+        for cell in self.cell_list:
+            if cell.cell_importance > max_importance:
+                max_importance = cell.cell_importance
+            if cell.cell_importance > 0 and cell.cell_importance < min_importance:
+                min_importance = cell.cell_importance
+
+        max_importance /= (min_importance) * (max_importance/1e4) # to scale for fluka range
+
+        if max_importance / min_importance > 1e9:
+            warnings.warn('In Fluka found an importance greater than 1e9, truncated',Warning)
+
+        for cell in self.cell_list:
+            string = '{:<10}'.format("BIASING")
+            string += '{:>10}'.format("3.0")
+            string += '{:>10}'.format("1.0")
+            if cell.cell_importance == 0.0:
+                importance = 1.e-4
+            else:
+                importance = cell.cell_importance/max_importance
+
+            if importance > 100000.0:
+                importance = 100000.0
+            string += '{:>10.4e}'.format(importance)
+            string += '{:>10}'.format("C"+str(cell.cell_id))
+            string += '{:>10}'.format("")
+            string += '{:>10}'.format("")
+            string += '{:>10}'.format("PRINT")
+            string += "\n"
+
+            filename.write(string)
+
+        return
+
     # write the material assignments
     def __write_fluka_assignmats(self, filestream):
         self.__write_ruler(filestream)
@@ -216,6 +255,8 @@ class FLUKAInput(InputDeck):
         self.__write_fluka_surfaces(f)
         self.__write_ruler(f)
         self.__write_fluka_cells(f)
+        self.__write_ruler(f)
+        self.__write_fluka_importances(f)
         self.__write_ruler(f)
         self.__write_fluka_assignmats(f)
         self.__write_fluka_materials(f)

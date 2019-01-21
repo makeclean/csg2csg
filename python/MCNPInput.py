@@ -54,6 +54,32 @@ class MCNPInput(InputDeck):
         self.transform_list[tr_card.id] = tr_card
         return
 
+    def __process_importances(self):
+        # process the lists
+        for particle in self.importance_list.keys():
+            # early exit
+            if 'i' not in self.importance_list[particle] and \
+               'r' not in self.importance_list[particle]:
+                return
+
+            importance_list = self.importance_list[particle].split()
+            # look through the list for r's or i's
+            # in mcnp syntax Xr means repeat the value previous
+            # to x r times
+            for idx,value in enumerate(importance_list):
+                # if we find a repeat value
+                if 'r' in value:
+                    repeat = int(value.replace("r","")) - 1
+                    # this is safe since r cannot be the first
+                    # value in the list
+                    last_importance = importance_list[idx-1]  
+                    to_insert = [last_importance]*repeat
+                    importance_list[idx] = ' '.join(str(e) for e in to_insert)
+            # flatten the list
+            self.importance_list[particle] = ' '.join(str(e) for e in importance_list)         
+
+        return
+
     # get the importance cards
     def __get_importances(self, start_line):
         idx = start_line
@@ -63,11 +89,12 @@ class MCNPInput(InputDeck):
             # check to see if we are at the end of the file
             if idx == len(self.file_lines):
                 #print (self.importance_list)
-                return #self.__process_importances()
+                return self.__process_importances()
 
             # check for importance keyword
             if "imp" in self.file_lines[idx]:
                 particle = self.file_lines[idx].split()[0].split(":")[1]
+                # TODO mcnp allows the following forms imp:n imp:n,p etc 
                 particle = mcnpToParticle(particle)
                 logging.debug("%s", "found importance statement for particle " + 
                               particleToGeneric(particle) + " on line" + str(idx))
@@ -83,8 +110,8 @@ class MCNPInput(InputDeck):
                     continue
             else:
                 # otherwise advance the line by one
-                idx += 1
-        
+                idx += 1        
+
         return
 
     # get the transform cards
@@ -758,7 +785,7 @@ class MCNPInput(InputDeck):
             if len(self.importance_list[ParticleNames["NEUTRON"]]) != 0:
                 importances = self.importance_list[ParticleNames["NEUTRON"]].split()
                 for idx,value in enumerate(importances):
-                    self.cell_list[idx].cell_importance = float(value)       
+                    self.cell_list[idx].cell_importance = float(value)
 
         # loop over the cells and if the cell has 
         # importance 0, all the sufaces get boundary

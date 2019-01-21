@@ -260,9 +260,9 @@ class MCNPCellCard(CellCard):
             self.__set_universe_transform(rot_trans,rot_angle_degrees)
  
         if posi == -1:
-            self.cell_importance = 1
+            self.cell_importance = 1.
         else:
-            self.cell_importance = self.__get_keyword_value('imp:n',end_of_string)
+            self.cell_importance = float(self.__get_keyword_value('imp:n',end_of_string))
 
         # return the string upto the posisiotn of the first detected keyword          
         return string[:m]
