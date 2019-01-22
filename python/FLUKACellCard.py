@@ -17,7 +17,6 @@ def fluka_op_from_generic(Operation):
         elif int(Operation) > 0:
             return " -S" + str(int(Operation))            
         else:
-            print (Operation,(int(Operation)<0))
             return Operation
     else:
         # otherwise we need to do something
@@ -47,8 +46,8 @@ def write_fluka_cell(filestream, CellCard):
     string += "\n"
 
     # removes any multiple spaces
-    string = re.sub(" +"," ",string)
-    string = re.sub("\- \+"," ",string)
+    string = re.sub("  "," ",string)
+    string = re.sub("\- \+"," -",string)
 
     filestream.write(string)
 

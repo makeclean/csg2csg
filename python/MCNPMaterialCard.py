@@ -1,11 +1,13 @@
 #!/usr/env/python3
 
 from MaterialCard import MaterialCard
+from MCNPFormatter import get_fortran_formatted_number
 
 import sys
 
 # writes an mcnp material card given the generic description
 def write_mcnp_material(filestream, Material, preserve_xs):
+
     filestream.write("C Material " + str(Material.material_name) + "\n")
     filestream.write("M"+ str(Material.material_number))
     for nucid in Material.composition_dictionary:
@@ -48,7 +50,7 @@ class MCNPMaterialCard(MaterialCard):
             except:
                 xsid = ""
 
-            frac = tokens[1]
+            frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
             self.composition_dictionary[nucid] = frac

@@ -4,6 +4,8 @@ from Card import Card
 from Vector import cross
 import math
 
+import warnings
+
 # Class to handle MCNP datacards
 class MCNPDataCard(Card):
     def __init__(self, card_string):
@@ -24,6 +26,14 @@ class MCNPTransformCard(MCNPDataCard):
         MCNPDataCard.__init__(self, card_string)
         self.__process_string()
 
+    def __str__(self):
+        string = "transform: {0}\n".format(self.id)
+        string += "shift: {0}\n".format(self.shift)
+        string += "v1: {0}\n".format(self.v1)
+        string += "v2: {0}\n".format(self.v2)
+        string += "v3: {0}\n".format(self.v3)
+        return string
+    
     def set_shift(self,shift_):
         self.shift = shift_
 
@@ -44,7 +54,7 @@ class MCNPTransformCard(MCNPDataCard):
                       float(tokens[2]),
                       float(tokens[3])]
 
-        if len(tokens) == 13 or len(tokens) == 12: # fully defined transform
+        if len(tokens) == 13 or len(tokens) == 14: # fully defined transform
             self.v1 = [float(tokens[4]),
                        float(tokens[5]),
                        float(tokens[6])]
@@ -74,8 +84,12 @@ class MCNPTransformCard(MCNPDataCard):
                     self.v1[i] = math.cos(self.v1[i]/180.*math.pi)
                     self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
             self.v3 = cross(self.v1,self.v2)
+        elif len(tokens) == 4: # just a translation 
+            # shift already set and unitary rotation matrix
+            # defined
+            pass 
         else:
-            print('Unknown transform definition')
-          #  sys.exit(1)
+            warnings.warn('Unknown transform definition, ' + str(len(tokens)) + self.text_string,Warning)
+          
         return
 

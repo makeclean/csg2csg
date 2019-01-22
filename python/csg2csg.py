@@ -4,6 +4,7 @@ from MCNPInput import MCNPInput
 from SerpentInput import SerpentInput
 from OpenMCInput import OpenMCInput
 from FLUKAInput import FLUKAInput
+from PhitsInput import PhitsInput
 
 # for debug info
 import logging, sys 
@@ -51,7 +52,7 @@ def main(argv):
         sys.exit(1)
     else:
         if "all" in args.output:
-            codes = ["mcnp","serpent","openmc","fluka"]
+            codes = ["mcnp","serpent","openmc","phits","fluka"]
         else:
             codes = args.output.split(',')
 
@@ -61,25 +62,31 @@ def main(argv):
     input.process()
 
     for code in codes:
-        if "serpent" is code:
+        if "serpent" in code:
             print("Producing Serpent output...")
             serpent = SerpentInput()
             serpent.from_input(input)
             mkdir("serpent")
             serpent.write_serpent("serpent/file.serp")
-        if "mcnp" is code:
+        if "mcnp" in code:
             print("Producing MCNP output...")
             mcnp = MCNPInput()
             mcnp.from_input(input)
             mkdir("mcnp")
             mcnp.write_mcnp("mcnp/file.mcnp")
-        if "openmc" is code:
+        if "openmc" in code:
             print("Producing OpenMC output...")
             openmc = OpenMCInput()
             openmc.from_input(input)
             mkdir("openmc")
             openmc.write_openmc("openmc")
-        if "fluka" is code:
+        if "phits" in code:
+            print("Producing Phits output...")
+            phits = PhitsInput()
+            phits.from_input(input)
+            mkdir("phits")
+            phits.write_phits("phits/phits.in")
+        if "fluka" in code:
             print("Producing FLUKA output...")
             fluka = FLUKAInput()
             fluka.from_input(input)

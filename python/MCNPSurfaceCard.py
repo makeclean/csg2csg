@@ -1,9 +1,23 @@
 from SurfaceCard import SurfaceCard
 from Vector import add,subtract,cross
 from MCNPFormatter import mcnp_line_formatter
+
 import numpy as np
 
 # NOTES: Right now Cones are stored in the MCNP form - x y z R2
+
+def boundary_condition(boundaryCondition):
+
+    if boundaryCondition == SurfaceCard.BoundaryCondition["TRANSMISSION"]:
+        boundary = ""
+    if boundaryCondition == SurfaceCard.BoundaryCondition["VACUUM"]:
+        boundary = ""
+    if boundaryCondition == SurfaceCard.BoundaryCondition["REFLECTING"]:
+        boundary = "*"
+    if boundaryCondition == SurfaceCard.BoundaryCondition["WHITE"]:
+        boundary = "+"
+
+    return boundary
 
 # function to determine if the card is a surface
 # card or not
@@ -42,7 +56,6 @@ def surface_has_transform(line):
         return False
 
     return True
-
 
 # write the mcnp form of the general plane
 def mcnp_plane_string(SurfaceCard):
@@ -183,7 +196,9 @@ def mcnp_tz(SurfaceCard):
 # generic write method
 def write_mcnp_surface(filestream, SurfaceCard):
     
-    string = str(SurfaceCard.surface_id) + " "
+    string = boundary_condition(SurfaceCard.boundary_condition)
+
+    string += str(SurfaceCard.surface_id) + " "
     
     if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
         string += mcnp_plane_string(SurfaceCard)
@@ -298,6 +313,7 @@ class MCNPSurfaceCard(SurfaceCard):
     def __classify_general_planes(self,surface):
         coords = [0.]*4
         if len(surface["coefficients"]) == 9:
+            
             a = [surface["coefficients"][0],
                  surface["coefficients"][1],
                  surface["coefficients"][2]]
@@ -308,27 +324,26 @@ class MCNPSurfaceCard(SurfaceCard):
                  surface["coefficients"][7],
                  surface["coefficients"][8]]
 
-            # floatify
-            a = [float(i) for i in a]
-            b = [float(i) for i in b]
-            c = [float(i) for i in c]
-            # form basis vectors
-            v1 = subtract(a,b)
-            v2 = subtract(c,b)
-            # get normal
-            norm = cross(v1,v2)
-            # determine offset using point
-            d = 0
-            d += norm[0]*a[0]
-            d += norm[1]*a[1]
-            d += norm[2]*a[2]
+            s = surface["coefficients"]
+            s = [float(i) for i in s]
 
-            # define the equation of plane
-            coords[0] = norm[0]
-            coords[1] = norm[1]
-            coords[2] = norm[2]
-            coords[3] = -d
-            
+            order = [[0,1,2],
+                     [1,2,0],
+                     [2,0,1]]
+
+            for i in range(3):
+                j = order[i][1]
+                k = order[i][2]
+                coords[i] =  s[j]*(s[k+3] - s[k+6]) + s[j+3]*(s[k+6] - s[k]) \
+                           + s[j+6]*(s[k] - s[k+3])
+                coords[3] += s[i]*(s[j+3]*s[k+6] - s[j+6]*s[k+3])
+
+            coeff = 0.
+            for i in range(3,-1,-1):
+                if coeff == 0. and coords[i] != 0.:
+                    coeff = 1./coords[i]
+                coords[i] *= coeff
+
             # determine plane by 3 sets of xyz coords
         elif len(surface["coefficients"]) == 4:
             coords[0] = float(surface["coefficients"][0])
@@ -336,9 +351,9 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = float(surface["coefficients"][2])
             coords[3] = float(surface["coefficients"][3])
         else:
-             print("surface with id " + surface["id"],surface["transform"] + " does not have \
-             enough coefficients")
-             sys.exit(1)     
+            print (surface["coefficients"])
+            raise Exception('Surface with id {} does not have enough coefficents'.format(surface["id"]))
+             
         self.set_type(surface["id"],surface["transform"],
                       SurfaceCard.SurfaceType["PLANE_GENERAL"],
                       coords)
@@ -803,6 +818,8 @@ class MCNPSurfaceCard(SurfaceCard):
         # first extract $ comment
         if "$" in self.text_string:
             pos = self.text_string.find("$")
+            #its possible that the comment is in the middle of 
+            # concatenated lines
             self.comment = self.text_string[pos:]
             self.text_string = self.text_string[0:pos]          
         
@@ -833,7 +850,6 @@ class MCNPSurfaceCard(SurfaceCard):
 
     # apply the transform to the surface
     def transform(self, MCNPTransform):
-        print (self.surface_transform)
         # do nothing if needs be
         if self.surface_transform == 0:
             return
@@ -850,13 +866,13 @@ class MCNPSurfaceCard(SurfaceCard):
         k = self.surface_coefficients[9]
 
         A = [[k,   g/2, h/2, j/2],
-            [g/2, a,   d/2, f/2],
-            [h/2, d/2, b,   e/2],
-            [j/2, f/2, e/2, c]]
+            [g/2,  a,   d/2, f/2],
+            [h/2,  d/2, b,   e/2],
+            [j/2,  f/2, e/2, c]]
 
-        dx = MCNPTransform.shift[0]
-        dy = MCNPTransform.shift[1]
-        dz = MCNPTransform.shift[2]
+        dx = -MCNPTransform.shift[0]
+        dy = -MCNPTransform.shift[1]
+        dz = -MCNPTransform.shift[2]
 
         # form the b matrix
         b1 = MCNPTransform.v1[0]
@@ -869,16 +885,32 @@ class MCNPSurfaceCard(SurfaceCard):
         b8 = MCNPTransform.v3[1]
         b9 = MCNPTransform.v3[2]
 
-        # transfer matrix
-        trf = [[1,0,0,0],
-           [dx,b1,b2,b3],
-           [dy,b4,b5,b6],
-           [dz,b7,b8,b9]]
-        
-        # first part 
-        tmp = np.matmul(np.transpose(trf),A)
-        # second part
-        tmpr = np.matmul(tmp,trf)
+        # set the translate to 0
+        dx = 0 
+        dy = 0
+        dz = 0
+
+        trf = [[1,0,0,0], 
+               [dx,b1,b2,b3],
+               [dy,b4,b5,b6],
+               [dz,b7,b8,b9]]
+
+        # first do rotation
+        tmp = np.matmul(A,trf)
+        tmpr = np.matmul(np.transpose(trf),tmp)
+
+        # now do translation
+        dx = -MCNPTransform.shift[0]
+        dy = -MCNPTransform.shift[1]
+        dz = -MCNPTransform.shift[2]
+
+        trf = [[1,0,0,0], 
+               [dx,1,0,0],
+               [dy,0,1,0],
+               [dz,0,0,1]]
+
+        tmp = np.matmul(tmpr,trf)
+        tmpr = np.matmul(np.transpose(trf),tmp)
 
         self.surface_coefficients[0] = tmpr[1][1]
         self.surface_coefficients[1] = tmpr[2][2]
@@ -889,6 +921,6 @@ class MCNPSurfaceCard(SurfaceCard):
         self.surface_coefficients[6] = tmpr[1][0] + tmpr[0][1]
         self.surface_coefficients[7] = tmpr[2][0] + tmpr[0][2]
         self.surface_coefficients[8] = tmpr[3][0] + tmpr[0][3]
-        self.surface_coefficients[9] = tmpr[0][0]
+        self.surface_coefficients[9] = tmpr[0][0] 
 
         return

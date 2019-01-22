@@ -10,26 +10,32 @@ class CellCard(Card):
     implemented in its own CodeCellCard.py file
     """
 
-    cell_comment = ""
-    cell_id = 0
-    cell_density = 0
-    cell_material_number = 0
-    cell_importance = 1 # note any importance - we assume everything else is 0
-    cell_comment = ""
-    cell_text_description = ""
-    cell_interpreted = ""
-    cell_fill = 0
-    cell_universe = 0
-    cell_universe_offset = 0
-    cell_universe_rotation = 0
-
     class OperationType(Enum):
+        def __str__(self):
+            return str(self.value)
+
         NOT = 2
         UNION = 1
         AND = 0
 
     # constructor for the cellcard class
     def __init__(self,card_string):
+        
+        self.cell_comment = ""
+        self.cell_id = 0
+        self.cell_density = 0
+        self.cell_material_number = 0
+        self.cell_importance = 1 # note any importance - we assume everything else is 0
+        self.cell_text_description = ""
+        self.cell_interpreted = ""
+        self.cell_fill = 0
+        self.cell_universe = 0
+        self.cell_universe_offset = 0
+        self.cell_universe_rotation = 0
+        self.cell_universe_transformation_id = "0" # if there is a cell_universe tr number it should be purged
+                                        # and converted into an offset and rotation
+        self.cell_surface_list = set() # list of cells used in the cell definition
+
         Card.__init__(self,card_string)
 
     # print method
