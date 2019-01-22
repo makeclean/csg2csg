@@ -84,6 +84,10 @@ class MCNPTransformCard(MCNPDataCard):
                     self.v1[i] = math.cos(self.v1[i]/180.*math.pi)
                     self.v2[i] = math.cos(self.v2[i]/180.*math.pi)
             self.v3 = cross(self.v1,self.v2)
+        elif len(tokens) == 4: # just a translation 
+            # shift already set and unitary rotation matrix
+            # defined
+            pass 
         else:
             warnings.warn('Unknown transform definition, ' + str(len(tokens)) + self.text_string,Warning)
           

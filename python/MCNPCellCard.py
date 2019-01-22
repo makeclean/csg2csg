@@ -134,10 +134,14 @@ class MCNPCellCard(CellCard):
 
     # method to break mcnp cell definition into something
     # a mere mortal can understand turns mcnp description
-    # like 2 3 -4 into 2 AND 3 AND -4
+    # like 2 3 -4 into 2 AND 3 AND -4 or even 2 AND 3 AND 
+    # +4
     def generalise(self):
         
         cell_description = self.cell_text_description
+        # wholesale replace + signs as they are implicit
+        # print(cell_description)
+        # cell_description = [ s = "" for item in cell_description if item == "+"]
         cell_description = list(cell_description)
     
         idx = 0
@@ -221,7 +225,7 @@ class MCNPCellCard(CellCard):
    
         # universe fill angle could be specified in degrees
         rot_angle_degrees = False
-        if string.find("*fill"):
+        if string.find("*fill") != -1:
             rot_angle_degrees = True
         
         posi = string.find("imp")
@@ -284,6 +288,7 @@ class MCNPCellCard(CellCard):
         string = string.replace("(", " ( ")
         string = string.replace(")", " ) ")
         string = string.replace(":", " : ")
+        string = string.replace("+","") # purge + signs
 
         # there can be mulitple comments per cell you sick sick people
         # why? is there any need? I mean really?!

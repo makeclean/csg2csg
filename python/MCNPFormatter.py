@@ -1,5 +1,15 @@
 #/usr/env/python3
 
+# given a string find a dollar comment '$' and
+# return the string upto that point
+def strip_dollar_comments(string):
+    pos = string.find("$")
+    if pos == -1:
+        return string
+
+    return string[0:pos]
+
+
 # given a fortran formatted number return
 # it as a float
 def get_fortran_formatted_number(string):

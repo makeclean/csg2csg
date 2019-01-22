@@ -351,6 +351,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = float(surface["coefficients"][2])
             coords[3] = float(surface["coefficients"][3])
         else:
+            print (surface["coefficients"])
             raise Exception('Surface with id {} does not have enough coefficents'.format(surface["id"]))
              
         self.set_type(surface["id"],surface["transform"],
@@ -817,6 +818,8 @@ class MCNPSurfaceCard(SurfaceCard):
         # first extract $ comment
         if "$" in self.text_string:
             pos = self.text_string.find("$")
+            #its possible that the comment is in the middle of 
+            # concatenated lines
             self.comment = self.text_string[pos:]
             self.text_string = self.text_string[0:pos]          
         

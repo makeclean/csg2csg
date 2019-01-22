@@ -1,5 +1,7 @@
 #!/usr/env/python3
 
+from MCNPFormatter import mcnp_line_formatter
+
 from CellCard import CellCard
 from enum import Enum
 import re
@@ -57,6 +59,9 @@ def write_serpent_cell(filestream, CellCard):
     # removes any multiple spaces
     string = re.sub(" +"," ",string)
 
+    string = mcnp_line_formatter(string)
+
+
     filestream.write(string)
 
     # write the universe transform
@@ -78,7 +83,9 @@ def write_serpent_cell(filestream, CellCard):
                     # transofmr should be in radians
                     #value = math.cos(value/180.*math.pi)
                     string += str(value) + " "
-                string += "1 \n"
+            else:
+                string += "1 0 0 0 1 0 0 0 1 " 
+            string += "1 \n"
 
         filestream.write(string)
 

@@ -4,6 +4,7 @@ from Input import InputDeck #, get_surface_with_id
 from SurfaceCard import SurfaceCard #, BoundaryCondition
 from ParticleNames import particleToGeneric, ParticleNames
 from MCNPParticleNames import mcnpToParticle
+from MCNPFormatter import strip_dollar_comments
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from MCNPDataCard import MCNPTransformCard
@@ -111,6 +112,25 @@ class MCNPInput(InputDeck):
             else:
                 # otherwise advance the line by one
                 idx += 1        
+
+        return
+
+    """ Given a starting line munge through the file
+    looking to read weight window information. MCNP
+    Supports at least two forms of reading weight
+    window information
+
+    1) a wwe card 
+    """
+    def __get_weight_windows(self, start_line):
+        return
+        line = start_line
+        while True:
+            if line == len(self.file_lines):
+                break
+
+
+            # if 'wwe' in line:
 
         return
 
@@ -445,6 +465,7 @@ class MCNPInput(InputDeck):
         self.last_free_surface_index += 1
         surf = MCNPSurfaceCard(str(self.last_free_surface_index) + plane + str(top))
         new_surf_list.append(surf)
+
         cell_description_inside = "("
         cell_description_inside += " -" + str(new_surf_list[0].surface_id)
         cell_description_inside += " " + str(new_surf_list[1].surface_id)
@@ -554,12 +575,12 @@ class MCNPInput(InputDeck):
             cell_description_inside += ")"
 
             cell_description_outside = "("
-            cell_description_outside +=        str(new_surf_list[0].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
-            cell_description_outside += ":"  + str(new_surf_list[2].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[3].surface_id)
-            cell_description_outside += ":"  + str(new_surf_list[4].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[5].surface_id)          
+            cell_description_outside += "-"  + str(new_surf_list[0].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
+            cell_description_outside += ":-"  + str(new_surf_list[2].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
+            cell_description_outside += ":-"  + str(new_surf_list[4].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[5].surface_id)          
             cell_description_outside += ")"
 
             cell_description = [cell_description_inside,cell_description_outside]
@@ -584,6 +605,11 @@ class MCNPInput(InputDeck):
                 logging.debug("%s %i %s", "Surface",surf.surface_id,"is a macrobody")
                 # explode into constituent surfaces
                 cell_description, new_surfaces = self.explode_macrobody(surf)
+                # if macro surface has transform apply it to new surfaces
+                if surf.surface_transform != 0:
+                    for surface in new_surfaces:
+                        surface.surface_transform = surf.surface_transform
+
                 # insert the new surfaces into the surface_list
                 self.surface_list.extend(new_surfaces)
                 # remove the old surface
@@ -799,7 +825,7 @@ class MCNPInput(InputDeck):
     # extract all the surface cards from the input deck
     def __get_surface_cards(self,idx):
         while True:
-            surf_line = self.file_lines[idx]
+            surf_line = strip_dollar_comments(self.file_lines[idx])
             if surf_line == "\n":
                 logging.debug('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
@@ -809,7 +835,7 @@ class MCNPInput(InputDeck):
             jdx = idx + 1
             # scan until we are all done
             while True:
-                surf_line = self.file_lines[jdx]
+                surf_line = strip_dollar_comments(self.file_lines[jdx])
                 # mcnp continue line is indicated by 5 spaces
                 if surf_line[0:5] == "     ":
                     surf_card += surf_line
@@ -861,9 +887,18 @@ class MCNPInput(InputDeck):
         # the idx value should now be at the data block
         # also idx will never be advanced from this point
 
-        self.__get_importances(idx)
+        # try to get importances defined in the data block
+        self.__get_importances(idx)  
+        # try to get weights defined the data block
+        self.__get_weight_windows(idx)
+
         self.__get_transform_cards(idx)
         self.__get_material_cards(idx)
+        # need to flatten first to get transformed surface in the 
+        # correct place 
+        self.__flatten_macrobodies()
+        self.__explode_nots()
+
         self.__apply_surface_transformations()
         self.__apply_universe_transformations()
         # materials in other codes are tie their composition
@@ -872,9 +907,6 @@ class MCNPInput(InputDeck):
         # and update cells accordingly.
         self.__reorganise_materials()
         # we need to turn macrobodies into regular surface descriptions
-    
-        self.__flatten_macrobodies()
-        self.__explode_nots()
 
         self.__apply_boundary_conditions() # must be done after explode & flatten
 
