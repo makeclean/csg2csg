@@ -55,6 +55,15 @@ def openmc_surface_info(SurfaceCard):
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
         type_string = "z-cone"
         coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_X"]:
+        type_string = "torus-x"
+        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Y"]:
+        type_string = "torus-y"
+        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
+    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Z"]:
+        type_string = "torus-z"
+        coeff_string = ' '.join(str(e) for e in SurfaceCard.surface_coefficients)
     else:
         type_string = "error"
         coeff_string = "error"
