@@ -3,6 +3,7 @@
 from Input import InputDeck #, get_surface_with_id
 from SurfaceCard import SurfaceCard #, BoundaryCondition
 from ParticleNames import particleToGeneric, ParticleNames
+from MaterialCard import get_material_colour
 from MCNPParticleNames import mcnpToParticle
 from MCNPFormatter import strip_dollar_comments
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
@@ -188,8 +189,14 @@ class MCNPInput(InputDeck):
             break
 
         material = MCNPMaterialCard(mat_num, material_string)
+        # set the colour based on the number of colours
+        # but only if its really used rather than a tally
+        # multiplier material
+        if material.density > 0:
+            material.material_colour = get_material_colour(len(self.material_list))
         self.material_list[material.material_number] = material
-
+        
+        
         return
 
     # get the material cards definitions

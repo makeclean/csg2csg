@@ -6,7 +6,10 @@ from MaterialCard import MaterialCard
 def write_serpent_material(filestream, material):
     string = "% " + material.material_name  +"\n"
     string += "mat " + str(material.material_number) + " "
-    string += str(material.density) + "\n"
+    string += str(material.density)
+    # if its a non tally material set the relevant colour
+    if material.material_colour != 0:
+        string += " rgb " + material.material_colour + "\n"
     for nuc in material.composition_dictionary:
         string += '{} {:e} \n'.format(nuc, material.composition_dictionary[nuc])
     filestream.write(string)
