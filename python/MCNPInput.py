@@ -592,7 +592,8 @@ class MCNPInput(InputDeck):
             cell_description_outside += ":-" + str(new_surf_list[3].surface_id)
             cell_description_outside += ":-"  + str(new_surf_list[4].surface_id)
             cell_description_outside += ":-" + str(new_surf_list[5].surface_id)          
-
+            cell_description_outside += ")"
+            
             cell_description = [cell_description_inside,cell_description_outside]
         else:
             warnings.warn('Found an unsupported macrobody, files will not be correct',Warning)
