@@ -3,6 +3,7 @@
 from Input import InputDeck #, get_surface_with_id
 from SurfaceCard import SurfaceCard #, BoundaryCondition
 from ParticleNames import particleToGeneric, ParticleNames
+from MaterialCard import get_material_colour
 from MCNPParticleNames import mcnpToParticle
 from MCNPFormatter import strip_dollar_comments
 from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
@@ -188,8 +189,14 @@ class MCNPInput(InputDeck):
             break
 
         material = MCNPMaterialCard(mat_num, material_string)
+        # set the colour based on the number of colours
+        # but only if its really used rather than a tally
+        # multiplier material
+        if material.density > 0:
+            material.material_colour = get_material_colour(len(self.material_list))
         self.material_list[material.material_number] = material
-
+        
+        
         return
 
     # get the material cards definitions
@@ -391,7 +398,7 @@ class MCNPInput(InputDeck):
         self.last_free_surface_index += 1
         surface_string = str(self.last_free_surface_index) + " p "
         for coeff in axis_vector:
-            surface_string += str(coeff) + " "
+            surface_string += str(-1.*coeff) + " "
         surface_string += str(d1)
         surf = MCNPSurfaceCard(surface_string) # todo maybe instanciate explicitly generically?
         new_surf_list.append(surf)
@@ -412,13 +419,13 @@ class MCNPInput(InputDeck):
 
         cell_description_inside = "("
         cell_description_inside += " -" + str(new_surf_list[0].surface_id)
-        cell_description_inside += "  " + str(new_surf_list[1].surface_id)
+        cell_description_inside += " -" + str(new_surf_list[1].surface_id)
         cell_description_inside += " -"  + str(new_surf_list[2].surface_id)
         cell_description_inside += ")"
 
         cell_description_outside = "("
         cell_description_outside += str(new_surf_list[0].surface_id)
-        cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
+        cell_description_outside += ":" + str(new_surf_list[1].surface_id)
         cell_description_outside += ":" + str(new_surf_list[2].surface_id)
         cell_description_outside += ")"
 
@@ -468,13 +475,13 @@ class MCNPInput(InputDeck):
 
         cell_description_inside = "("
         cell_description_inside += " -" + str(new_surf_list[0].surface_id)
-        cell_description_inside += " " + str(new_surf_list[1].surface_id)
+        cell_description_inside += " -" + str(new_surf_list[1].surface_id)
         cell_description_inside += " -" + str(new_surf_list[2].surface_id)
         cell_description_inside += ")"
 
         cell_description_outside = "("
         cell_description_outside += "  " +str(new_surf_list[0].surface_id)
-        cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
+        cell_description_outside += ":" + str(new_surf_list[1].surface_id)
         cell_description_outside += ":" + str(new_surf_list[2].surface_id)
         cell_description_outside += ")"
 
@@ -485,40 +492,45 @@ class MCNPInput(InputDeck):
     # explode a macrobody into surfaces
     def explode_macrobody(self,Surface):
         new_surf_list = []
+        # NOTE MCNP Macrobodies have +ve sense outside of it, and -ve sense inside
+        # of it. Therefore, on a RPP the first index is the right hand side of the cube
+        # and the 2nd is the left hand side
         if Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RPP"]:
+            # the order is weird here but so is MCNP
             id = int(Surface.surface_id)
-            self.last_free_surface_index += 1
-            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[0]))
-            new_surf_list.append(surf)
             self.last_free_surface_index += 1
             surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(Surface.surface_coefficients[1]))
             new_surf_list.append(surf)
             self.last_free_surface_index += 1
-            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[2]))
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " p -1.0 0 0 " + str(-1.0*Surface.surface_coefficients[0]))
             new_surf_list.append(surf)
             self.last_free_surface_index += 1
             surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(Surface.surface_coefficients[3]))
             new_surf_list.append(surf)
             self.last_free_surface_index += 1
-            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[4]))
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " p 0 -1.0 0 " + str(-1.0*Surface.surface_coefficients[2]))
             new_surf_list.append(surf)
             self.last_free_surface_index += 1
             surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(Surface.surface_coefficients[5]))
             new_surf_list.append(surf)
+            self.last_free_surface_index += 1
+            surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " p 0 0 -1.0 " + str(-1.0*Surface.surface_coefficients[4]))
+            new_surf_list.append(surf)
+            # NOTE new_surf list here is now in MCNP facet order
             # appropriate cell description for inside the macrobody
-            cell_description_inside = "( " + str(new_surf_list[0].surface_id)
+            cell_description_inside = "( -" + str(new_surf_list[0].surface_id)
             cell_description_inside += " -" + str(new_surf_list[1].surface_id)
-            cell_description_inside += " " + str(new_surf_list[2].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[2].surface_id)
             cell_description_inside += " -" + str(new_surf_list[3].surface_id)
-            cell_description_inside += " " + str(new_surf_list[4].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[4].surface_id)
             cell_description_inside += " -" + str(new_surf_list[5].surface_id)
             cell_description_inside += " )"
             # appropriate cell descripiton for outside the macrobody
-            cell_description_outside = "(-" + str(new_surf_list[0].surface_id)
+            cell_description_outside = "( " + str(new_surf_list[0].surface_id)
             cell_description_outside += " : " + str(new_surf_list[1].surface_id)
-            cell_description_outside += " : -" + str(new_surf_list[2].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[2].surface_id)
             cell_description_outside += " : " + str(new_surf_list[3].surface_id)
-            cell_description_outside += " : -" + str(new_surf_list[4].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[4].surface_id)
             cell_description_outside += " : " + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
             
@@ -528,10 +540,7 @@ class MCNPInput(InputDeck):
             id = int(Surface.surface_id)
             
             vector = [Surface.surface_coefficients[3],Surface.surface_coefficients[4],Surface.surface_coefficients[5]]
-            if vector.count(0) == 2:
-                new_surf_list, cell_description = self.__macro_rcc_cylinder(Surface,vector)                       
-            else:
-                new_surf_list, cell_description = self.__macro_rcc_cylinder_arbitrary(Surface,vector)
+            new_surf_list, cell_description = self.__macro_rcc_cylinder_arbitrary(Surface,vector)
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
 
@@ -554,35 +563,37 @@ class MCNPInput(InputDeck):
             d5 = vec3n[0]*origin[0] + vec3n[1]*origin[1] + vec3n[2]*origin[2]
             d6 = vec3n[0]*(origin[0] + vec3[0]) + vec3n[1]*(origin[1]+vec3[1]) + vec3n[2]*(origin[2]+vec3[2])
 
-            p1 = self.__make_new_plane(vec1n,d1)
-            p2 = self.__make_new_plane(vec1n,d2)
+            
+            # cannonical facet ordering is +ve side the -ve side
+            p1 = self.__make_new_plane(vec1n,d2)
+            p2 = self.__make_new_plane(-1.0*vec1n,d1)
 
-            p3 = self.__make_new_plane(vec2n,d3)
-            p4 = self.__make_new_plane(vec2n,d4)
+            p3 = self.__make_new_plane(vec2n,d4)
+            p4 = self.__make_new_plane(-1.0*vec2n,d3)
 
-            p5 = self.__make_new_plane(vec3n,d5)
-            p6 = self.__make_new_plane(vec3n,d6)
+            p5 = self.__make_new_plane(vec3n,d6)
+            p6 = self.__make_new_plane(-1.0*vec3n,d5)
 
             new_surf_list = [p1,p2,p3,p4,p5,p6]
 
             cell_description_inside = "("
             cell_description_inside +=        str(new_surf_list[0].surface_id)
-            cell_description_inside += " -" + str(new_surf_list[1].surface_id)
+            cell_description_inside += " " + str(new_surf_list[1].surface_id)
             cell_description_inside += " " + str(new_surf_list[2].surface_id)
-            cell_description_inside += " -" + str(new_surf_list[3].surface_id)
+            cell_description_inside += " " + str(new_surf_list[3].surface_id)
             cell_description_inside += " " + str(new_surf_list[4].surface_id)
-            cell_description_inside += " -" + str(new_surf_list[5].surface_id)          
+            cell_description_inside += " " + str(new_surf_list[5].surface_id)          
             cell_description_inside += ")"
 
             cell_description_outside = "("
             cell_description_outside += "-"  + str(new_surf_list[0].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
             cell_description_outside += ":-"  + str(new_surf_list[2].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
+            cell_description_outside += ":-" + str(new_surf_list[3].surface_id)
             cell_description_outside += ":-"  + str(new_surf_list[4].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[5].surface_id)          
+            cell_description_outside += ":-" + str(new_surf_list[5].surface_id)          
             cell_description_outside += ")"
-
+            
             cell_description = [cell_description_inside,cell_description_outside]
         else:
             warnings.warn('Found an unsupported macrobody, files will not be correct',Warning)

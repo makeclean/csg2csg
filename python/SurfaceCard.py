@@ -226,12 +226,14 @@ class SurfaceCard(Card):
             self.surface_coefficients[1] = self.surface_coefficients[7]
             self.surface_coefficients[2] = self.surface_coefficients[8]
             self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_coefficients = self.surface_coefficients[0:4]
             self.surface_type = self.SurfaceType['PLANE_GENERAL']
         elif all( value == 0. for value in self.surface_coefficients[0:7]) :
             self.surface_coefficients[0] = 0.0
             self.surface_coefficients[1] = 0.0
             self.surface_coefficients[2] = 1.0
             self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_coefficients = self.surface_coefficients[0:4]
             self.surface_type = self.SurfaceType['PLANE_Z']
         else:
             return
