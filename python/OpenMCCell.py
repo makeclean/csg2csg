@@ -9,20 +9,25 @@ import xml.etree.ElementTree as ET
 def angle_from_rotmatrix(matrix):
 
     matrix = [float(i) for i in matrix]
+    # from https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+    sy = math.sqrt(matrix[0]**2 + matrix[3]**2)
+    singular = sy < 1.e-6
+    if not singular:
+        phi = math.atan2(matrix[7],matrix[8])
+        theta = math.atan2(-matrix[6],sy)
+        # note certainly it seems this leads to the opposite solution
+        psi = -1*math.atan2(matrix[3],matrix[0])
+    else:
+        phi = math.atan2(-matrix[5],matrix[4])
+        theta = math.atan2(-matrix[6],sy)
+        psi = 0
 
-    # todo these -1s are guesses
-    theta_r = -1*math.asin(matrix[6])
-    theta = -1*np.rad2deg(theta_r)
+    phi = np.rad2deg(phi)
+    theta = np.rad2deg(theta)
+    psi = np.rad2deg(psi)
 
-    # these -1s are guesses
-    sin_phi = matrix[7]/np.cos(theta_r)
-    phi = -1*np.rad2deg(math.asin(sin_phi))
+    return(phi,theta,psi)
 
-    # this one makes clite work properly
-    sin_psi = matrix[3] / np.cos(theta_r)
-    psi = -1*np.rad2deg(math.asin(sin_psi))
-
-    return phi,theta,psi
                      
 # turn the generic operation type into a mcnp relevant text string
 def openmc_op_from_generic(Operation):
