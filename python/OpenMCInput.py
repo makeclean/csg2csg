@@ -53,13 +53,55 @@ class OpenMCInput(InputDeck):
         for mat in self.material_list:
             write_openmc_material(self.material_list[mat], material_tree)
 
+    def __get_unused_fills(self,geometry_tree):
+        universes = set()
+        fill_universes = set()
+
+        for cell_elem in geometry_tree.findall('cell'):
+            u = int(cell_elem.get('universe'))
+            universes.add(u)
+
+            if 'fill' in cell_elem.keys():
+                fill = int(cell_elem.get('fill'))
+                fill_universes.add(fill)
+
+        for lattice_elem in geometry_tree.findall('lattice'):
+            u = int(lattice_elem.get('id'))
+            universes.add(u)
+            for u in lattice_elem.find('universes').text.split():
+                fill_universes.add(int(u))
+
+        not_used_universerses = universes - fill_universes
+        print('Universes not used as a fill: {}'.format(not_used_universerses))
+        return not_used_universerses
+
+    # check to see if any universes are unsed
+    def __check_unused_universes(self, geometry_tree):
+        # loop over the unsed fills 
+        while len(self.__get_unused_fills(geometry_tree)) > 1:
+            cells_to_remove = set()
+            # loop over the universes not used as a fill
+            for universe in self.__get_unused_fills(geometry_tree):
+                if universe != 0:  
+                    for cell_elem in geometry_tree.findall('cell'):
+                        u = int(cell_elem.get('universe'))
+                        if u == universe:
+                            cells_to_remove.add(cell_elem)
+
+            # loop over the cells that have not fill
+            for cell in cells_to_remove:
+                geometry_tree.remove(cell)
+
+        return
+
     # write the openmc geometry
     def write_openmc(self, filename, flat = True):
         geometry = ET.Element("geometry")
 
         self.__write_openmc_surfaces(geometry)
         self.__write_openmc_cells(geometry)
-        
+        self.__check_unused_universes(geometry)
+
         tree = ET.ElementTree(geometry)
         indent(geometry)
         tree.write(filename+"/geometry.xml")
