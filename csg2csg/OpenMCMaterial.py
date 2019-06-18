@@ -1,5 +1,6 @@
 #!/usr/env/python3
 
+import re
 from csg2csg.MaterialCard import MaterialCard
 import xml.etree.ElementTree as ET
 
@@ -24,6 +25,26 @@ name_zaid = {1:"H",2:"He",3:"Li",4:"Be",5:"B",6:"C",7:"N",
              109:"Mt",110:"Ds",111:"Rg",112:"Cn",113:"Nh",
              114:"Fl",115:"Mc",116:"Lv",117:"Ts",118:"Og"}
 
+# return the zz given a name
+def get_zaid(name):
+    m = re.search('[A-Z]?[a-z]*',name)
+    element_name = m.group(0)
+    m = re.search('[0-9]?[0-9]?[0-9]',name)
+    nucleon_number = int(m.group(0))
+
+    for zz,el in name_zaid.items():
+        if el == element_name:
+            break
+
+    # pad the right number of zeros
+    if nucleon_number < 10:
+        nucleon_number = "00" + str(nucleon_number)
+    elif nucleon_number > 10 and nucleon_number < 100:
+        nucleon_number = "0" + str(nucleon_number)  
+        
+
+    return str(zz)+nucleon_number
+
 # convert zaid to a name for openmc
 def zaid_to_name(zaid_string):
     if len(zaid_string) <= 4:
@@ -40,6 +61,43 @@ def zaid_to_name(zaid_string):
 
     name = name_zaid[zz]
     return name+str(aa)
+
+################## input functions #########################
+# 
+def material_from_attribute(xml_element, children):
+    # 
+    material = MaterialCard()
+    material.material_number = xml_element["id"]
+    # loop over the constituents
+    nucs = {}
+    atom_fraction = False
+
+    for child in children:
+        # set the density
+        if "units" in child.attrib:
+            units = child.attrib["units"]
+            density = float(child.attrib["value"])
+        # set the material parameters
+        if "name" in child.attrib:
+            nucid = child.attrib["name"]
+            zaid = get_zaid(nucid)
+            if "wo" in child.attrib:     
+                # mass fractions are -ve 
+                nucs[zaid] = -1*float(child.attrib["wo"])
+            if "ao" in child.attrib:   
+                atom_fraction = True   
+                nucs[zaid] = child.attrib["ao"]      
+
+    if not atom_fraction: density = density*-1.0
+
+    material.density = density
+    material.density_units = units
+    material.composition_dictionary = nucs
+
+    return material
+
+
+################## output functions #########################
 
 # write the atomic fraction entry
 def __write_atomic_fraction(material, nuclide, mass_frac):       

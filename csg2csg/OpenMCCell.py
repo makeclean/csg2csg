@@ -133,9 +133,58 @@ def write_openmc_cell(cell, geometry_tree):
                       universe = str(universe))
 
 
+# take the xml attributes and populate the 
+# cell
+def cell_from_attribute(xml_attribute):
+    cell = OpenMCCell("")
+    cell.cell_id = xml_attribute["id"]
+ 
+    # todo if name based materials are used will need
+    # a helper function
+    if xml_attribute["material"] == "void":
+        cell.cell_material_number = 0
+    else:
+        cell.cell_material_number = xml_attribute["material"]
+        
+    cell.cell_text_description = xml_attribute["region"]
+    cell.cell_universe = xml_attribute["universe"]
+    cell.cell_fill = xml_attribute["fill"]
 
+    cell.generalise()
+    return cell
 
-#
+# base constructor
 class OpenMCCell(CellCard):
     def __init__(self, card_string):
         CellCard.__init__(self, card_string)
+
+    # turn the text representation of the cell
+    # into a generic description
+    def generalise(self):
+        # make an interable list of the components
+        cell_description = list(self.cell_text_description)
+        # first lets sanisise the text description  - remove
+        # double spaces trailing and leading white space
+        idx = 0
+        while True:
+            # breakout condition
+            if idx >= len(cell_description):
+                break
+            # part of the cell we're looking at
+            s = cell_description[idx]
+            if s is "|":
+                cell_description[idx] = CellCard.OperationType["UNION"]
+                idx += 1
+                continue
+            elif s is "~":
+                cell_description[idx] = CellCard.OperationType["NOT"]
+                idx += 1
+                continue
+            elif s is " ":
+                cell_description[idx] = CellCard.OperationType["AND"]
+                idx += 1
+                continue    
+            idx += 1
+        # set the generalised cell description
+        self.cell_interpreted = cell_description
+        return
