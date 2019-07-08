@@ -23,14 +23,28 @@ def mkdir(directory):
 def main(argv):
 
     parser = argparse.ArgumentParser(description='csg conversion tool.')
-    parser.add_argument('-d','--debug', help = 'turn on debug logging',
+
+    parser.add_argument('-d','--debug', 
+                        help = 'Turn on debug logging',
                         action="store_true")
-    parser.add_argument('-f','--file', help = 'filename to read')
+
+    parser.add_argument('-i','--input', 
+                        help = 'Filename to read in',
+                        required=True)
+
+    parser.add_argument('-f','--format', 
+                        choices=["mcnp","serpent","openmc","phits","fluka"],
+                        help = 'format of the input file', 
+                        default = 'mcnp')
+
     parser.add_argument('-p','--preserve', 
-                        help = 'preserve existing cross section id numbers on write',
-                        action="store_true")
+                        help = 'Preserve existing cross section id numbers on write',
+                        action = "store_true")
     
-    parser.add_argument('-o','--output', help = 'output code selections')
+    parser.add_argument('-o','--output', 
+                        nargs='+',
+                        help = 'Output code selections',
+                        default = 'all')
 
     # parse the arguments
     args = parser.parse_args(argv)
@@ -41,25 +55,30 @@ def main(argv):
 
     logging.info("Started")
 
-    if args.file is None:
-        print('file not specified')
-        sys.exit(1)
-    else:
-        filename = args.file
+    filename = args.input
     
-    if args.output is None:
-        print('no output options selected')
-        sys.exit(1)
-    else:
-        if "all" in args.output:
-            codes = ["mcnp","serpent","openmc","phits","fluka"]
-        else:
-            codes = args.output.split(',')
 
-    # read the mcnp input
-    input = MCNPInput(filename)
-    input.read()
-    input.process()
+    if "all" in args.output:
+        codes = ["mcnp","serpent","openmc","phits","fluka"]
+    else:
+        codes = args.output
+
+    if args.format == 'mcnp':
+        # read the mcnp input
+        input = MCNPInput(filename)
+        input.read()
+        input.process()
+    elif args.format == 'serpent':
+        # read the serpent input
+        input = SerpentInput(filename)
+        input.read()
+        input.process()        
+    elif args.format == 'openmc':
+        raise NotImplementedError('OpenMC input files are not supported yet')
+    elif args.format == 'phits':
+        raise NotImplementedError('Phits input files are not supported yet')
+    elif args.format == 'fluka':
+        raise NotImplementedError('Fluka input files are not supported yet')
 
     for code in codes:
         if "serpent" in code:
