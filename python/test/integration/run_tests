@@ -1,0 +1,6 @@
+#!/bin/bash
+set -ex
+
+for i in `ls *.py` ; do
+    python3 $i
+done
