@@ -4,7 +4,3 @@ set -ex
 for i in `ls *.py` ; do
     python3 $i
 done
-
-cd integration
-./run_tests
-cd ..
