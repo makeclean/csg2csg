@@ -141,14 +141,20 @@ def cell_from_attribute(xml_attribute):
  
     # todo if name based materials are used will need
     # a helper function
-    if xml_attribute["material"] == "void":
-        cell.cell_material_number = 0
+
+    if "material" in xml_attribute:
+        if xml_attribute["material"] == "void":
+            cell.cell_material_number = 0
+        else:
+            cell.cell_material_number = xml_attribute["material"]
     else:
-        cell.cell_material_number = xml_attribute["material"]
+        cell.cell_material_number = 0
         
     cell.cell_text_description = xml_attribute["region"]
-    cell.cell_universe = xml_attribute["universe"]
-    cell.cell_fill = xml_attribute["fill"]
+    if "universe" in xml_attribute:
+        cell.cell_universe = xml_attribute["universe"]
+    if "fill" in xml_attribute:
+        cell.cell_fill = xml_attribute["fill"]
 
     cell.generalise()
     return cell

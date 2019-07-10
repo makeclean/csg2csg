@@ -838,14 +838,18 @@ class MCNPInput(InputDeck):
     # set the boundary conditions
     def __apply_boundary_conditions(self):
 
-        # apply the importances to cells
-        if len(self.importance_list) != 0:
+        for particle in self.importance_list:
+            importances = self.importance_list[particle].split()
+            for idx,value in enumerate(importances):
+                # TODO this needs to be multi particle
+                self.cell_list[idx].cell_importance = float(value)
+        # apply the importances to cells 
+        #if len(self.importance_list) != 0:
             # TODO make this loop apply to multiple particle
             # types but for now just do neutrons
-            if len(self.importance_list[ParticleNames["NEUTRON"]]) != 0:
-                importances = self.importance_list[ParticleNames["NEUTRON"]].split()
-                for idx,value in enumerate(importances):
-                    self.cell_list[idx].cell_importance = float(value)
+         #   if len(self.importance_list[ParticleNames["NEUTRON"]]) != 0:
+          #      importances = self.importance_list[ParticleNames["NEUTRON"]].split()
+            
 
         # loop over the cells and if the cell has
         # importance 0, all the sufaces get boundary

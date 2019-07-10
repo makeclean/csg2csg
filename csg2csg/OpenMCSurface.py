@@ -119,10 +119,29 @@ def write_openmc_surface(SurfaceCard, geometry_tree):
 def surface_from_attribute(xml_attribute):
     surface = SurfaceCard("")
     # loop over the surface attributes and build the generic description
-    surface.boundary_condition = boundarystring_to_type(xml_attribute['boundary']) 
-    surface.surface_coefficients = xml_attribute['coeffs'].split() 
+    if "boundary" in xml_attribute:
+        surface.boundary_condition = boundarystring_to_type(xml_attribute['boundary']) 
+    else:
+        # if no boundary parameter then is automatically transmission
+        surface.boundary_condition = SurfaceCard.BoundaryCondition.TRANSMISSION
+
     surface.surface_id = xml_attribute['id'] 
     surface.surface_type = type_to_generictype(xml_attribute['type'])
+
+    # special cases where we need to instanciate as a general plane 
+    # TODO this expansion should likely be done somwhere else in a genaric
+    # way    
+    if surface.surface_type == SurfaceCard.SurfaceType.PLANE_X:
+        surface_coefficients = "1.0 0.0 0.0 " + xml_attribute['coeffs']
+    elif surface.surface_type == SurfaceCard.SurfaceType.PLANE_Y:
+        surface_coefficients = "0.0 1.0 0.0 " + xml_attribute['coeffs']
+    elif surface.surface_type == SurfaceCard.SurfaceType.PLANE_Z:
+        surface_coefficients = "0.0 0.0 1.0 " + xml_attribute['coeffs']
+    else:
+        surface_coefficients = xml_attribute['coeffs']
+ 
+    surface.surface_coefficients = surface_coefficients.split() 
+ 
     return surface
     
 class OpenMCSurfaceCard(SurfaceCard):

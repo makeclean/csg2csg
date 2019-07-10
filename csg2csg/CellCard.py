@@ -28,7 +28,7 @@ class CellCard(Card):
         self.cell_importance = 1 # note any importance - we assume everything else is 0
         self.cell_text_description = ""
         self.cell_interpreted = "" #this it the generalised form of the cell
-        self.cell_fill = 0
+        self.cell_fill = 0 # note fill could corresepond to a universe or a lattice fill
         self.cell_universe = 0
         self.cell_universe_offset = 0
         self.cell_universe_rotation = 0

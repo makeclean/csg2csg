@@ -41,9 +41,8 @@ def get_zaid(name):
         nucleon_number = "00" + str(nucleon_number)
     elif nucleon_number > 10 and nucleon_number < 100:
         nucleon_number = "0" + str(nucleon_number)  
-        
 
-    return str(zz)+nucleon_number
+    return str(zz)+str(nucleon_number)
 
 # convert zaid to a name for openmc
 def zaid_to_name(zaid_string):
@@ -60,6 +59,7 @@ def zaid_to_name(zaid_string):
     # turn zz into a name
 
     name = name_zaid[zz]
+
     return name+str(aa)
 
 ################## input functions #########################
@@ -83,10 +83,10 @@ def material_from_attribute(xml_element, children):
             zaid = get_zaid(nucid)
             if "wo" in child.attrib:     
                 # mass fractions are -ve 
-                nucs[zaid] = -1*float(child.attrib["wo"])
+                nucs[zaid] = float(-1*float(child.attrib["wo"]))
             if "ao" in child.attrib:   
                 atom_fraction = True   
-                nucs[zaid] = child.attrib["ao"]      
+                nucs[zaid] = float(child.attrib["ao"])      
 
     if not atom_fraction: density = density*-1.0
 

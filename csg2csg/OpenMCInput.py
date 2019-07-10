@@ -9,6 +9,8 @@ import xml.etree.ElementTree as ET
 from csg2csg.OpenMCSurface import SurfaceCard,surface_from_attribute, write_openmc_surface
 from csg2csg.OpenMCCell import cell_from_attribute, write_openmc_cell
 from csg2csg.OpenMCMaterial import material_from_attribute, write_openmc_material
+from csg2csg.OpenMCLattice import lattice_from_attribute, write_openmc_lattice
+
 '''
 copy and paste from http://effbot.org/zone/element-lib.htm#prettyprint
 it basically walks your tree and adds spaces and newlines so the tree is
@@ -69,6 +71,7 @@ class OpenMCInput(InputDeck):
 
     # process the geometry
     def __process_geometry(self):
+
         for child in self.xml_geom:
             if child.tag == "surface":
                 surface = surface_from_attribute(child.attrib)
@@ -76,6 +79,13 @@ class OpenMCInput(InputDeck):
             elif child.tag == "cell":
                 cell = cell_from_attribute(child.attrib)
                 InputDeck.cell_list.append(cell)
+            elif child.tag == "lattice":
+                lattice = lattice_from_attribute('lattice', child.attrib, child.getchildren())
+                InputDeck.lattice_list.append(lattice)
+            elif child.tag == "hex_lattice":
+                lattice = lattice_from_attribute('hex_latice', child.attrib, child.getchildren())
+                InputDeck.lattice_list.append(lattice)
+
 
         # loop over the cells and set the material 
         # density for each cell
@@ -114,7 +124,13 @@ class OpenMCInput(InputDeck):
     def __write_openmc_cells(self, geometry_tree):
         for cell in self.cell_list:
             write_openmc_cell(cell, geometry_tree)
-            
+
+    # write the collection of OpenMC lattice definitions
+    def __write_openmc_lattices(self, geometry_tree):
+        for lattice in self.lattice_list:
+            write_openmc_lattice(lattice, geometry_tree)
+
+
     # write the collection of Material
     def __write_openmc_materials(self, material_tree):
         for mat in self.material_list:
@@ -167,6 +183,7 @@ class OpenMCInput(InputDeck):
 
         self.__write_openmc_surfaces(geometry)
         self.__write_openmc_cells(geometry)
+        self.__write_openmc_lattices(geometry)
         self.__check_unused_universes(geometry)
 
         tree = ET.ElementTree(geometry)
