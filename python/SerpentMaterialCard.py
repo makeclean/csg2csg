@@ -27,7 +27,7 @@ class SerpentMaterialCard(MaterialCard):
         self.density = material_density
         self.__process_string()
 
-    # populate the MCNP Material Card
+    # populate the Serpent Material Card
     def __process_string(self):
         # need to reset the dictionary
         # otherwise state seems to linger - weird
@@ -38,10 +38,10 @@ class SerpentMaterialCard(MaterialCard):
         
         # split string
         tokens = mat_string.split()
-        
+
         if len(tokens)%2 != 0:
-            print ("Material string not correctly processed")
-            sys.exit(1)
+            raise Exception("Material string not correctly processed")
+
         while len(tokens) != 0:
             nuclide = tokens[0].split(".")
             nucid = nuclide[0]

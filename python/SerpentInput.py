@@ -16,13 +16,6 @@ class SerpentInput(InputDeck):
     def __init__(self,filename = ""):
         InputDeck.__init__(self,filename)
         
-#    def from_input(self,InputDeckClass):
-#        InputDeck.filename = InputDeckClass.filename
-#        InputDeck.title = InputDeckClass.title
-#        InputDeck.cell_list = InputDeckClass.cell_list
-#        InputDeck.surfcace_list = InputDeckClass.surface_list
-#        return
-
     # extract a material card from the start line until
     def __get_material_card(self, start_line, mat_num):
         # we already know that the start line has an mat name
