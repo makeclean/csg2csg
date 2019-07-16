@@ -34,12 +34,12 @@ class SerpentMaterialCard(MaterialCard):
         self.composition_dictionary = {}
 
         mat_string = self.text_string
-        mat_string = mat_string.replace("\n","")
+        mat_string = mat_string.replace("\n"," ")
         
         # split string
         tokens = mat_string.split()
 
-        if len(tokens)%2 != 0:
+        if len(tokens)< 2:
             raise Exception("Material string not correctly processed")
 
         while len(tokens) != 0:

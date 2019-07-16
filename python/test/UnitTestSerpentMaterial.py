@@ -22,10 +22,10 @@ class TestSerpentMaterial(unittest.TestCase):
         self.assertEqual(matcard.material_name,name)
 
     def test_serpent_mat_input(self):
-        string = ["mat 1 8.93\n", \
-                "29063 6.917000e-01\n" ,\
-                "29065 3.083000e-01\n"]
-        print(string)
+        string = ["mat 1 8.93\n",
+                  "29063 6.917000e-01\n",
+                  "29065 3.083000e-01\n"]
+        
         serpent = SerpentInput()
         serpent.file_lines = string
         serpent.process()
