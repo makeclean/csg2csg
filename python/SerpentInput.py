@@ -49,6 +49,7 @@ class SerpentInput(InputDeck):
                 # increment the line that we are looking at
                 idx += 1
             break
+            
         material = SerpentMaterialCard(mat_num, mat_name, mat_density, material_string)
 
         self.material_list[material.material_number] = material

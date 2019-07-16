@@ -38,8 +38,8 @@ class SerpentMaterialCard(MaterialCard):
         
         # split string
         tokens = mat_string.split()
-
-        if len(tokens)< 2:
+        
+        if len(tokens)%2 != 0:
             raise Exception("Material string not correctly processed")
 
         while len(tokens) != 0:
@@ -49,7 +49,7 @@ class SerpentMaterialCard(MaterialCard):
                 xsid = nuclide[1]
             except:
                 xsid = ""
-
+            print('tokens',tokens)
             frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
