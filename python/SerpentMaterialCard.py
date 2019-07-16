@@ -49,7 +49,6 @@ class SerpentMaterialCard(MaterialCard):
                 xsid = nuclide[1]
             except:
                 xsid = ""
-            print('tokens',tokens)
             frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
