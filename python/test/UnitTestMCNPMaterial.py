@@ -15,9 +15,6 @@ class TestMCNPMaterial(unittest.TestCase):
         number = 1
         name = "M1"
         matcard = MCNPMaterialCard(number,string)
-        
-        print(matcard.xsid_dictionary)
-        # input()
 
         self.assertEqual(matcard.material_number,number)
         self.assertEqual(matcard.material_name,name)
