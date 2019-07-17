@@ -55,16 +55,15 @@ def __write_mass_fraction(material, nuclide, mass_frac):
 # material xml element
 def write_openmc_material(MaterialCard, material_tree):
     matid = str(MaterialCard.material_number)
-    name = "Material " + str(matid)
+    matname = str(MaterialCard.material_name)
     density = str(abs(MaterialCard.density))
     if MaterialCard.density < 0:
         density_units = "g/cc"
     else:
         density_units = "atom/b-cm"
     
-    material = ET.SubElement(material_tree, "material", id = matid)
+    material = ET.SubElement(material_tree, "material", id = matid, name = matname)
     ET.SubElement(material, "density", value = density, units = density_units)
-
     for nuclide in MaterialCard.composition_dictionary:
         mass_frac = MaterialCard.composition_dictionary[nuclide]
         nuclide_name = zaid_to_name(nuclide)
