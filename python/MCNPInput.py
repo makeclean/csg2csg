@@ -782,7 +782,7 @@ class MCNPInput(InputDeck):
         idx = 0
         while True:
             cell_line = self.file_lines[idx]
-)
+
             if cell_line.isspace():
                 logging.info('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
