@@ -10,11 +10,11 @@ Input: filestream - an openfilestream to write to
        zz - the zaid of the the element
        name - the fluka name of the element
 """
-def write_fluka_material_element(filestream,zz,name):
+def write_fluka_material_element(filestream,zz,name,density="1.0"):
     string = '{:<10}'.format("MATERIAL")
     atomic_number = '{:>10}'.format(float(int(int(zz)/1000)))
     atomic_mass = '{:>10}'.format("")
-    density = '{:>10}'.format("")
+    density = '{:>10}'.format(density)
     number = '{:>10}'.format("")
     alternate = '{:>10}'.format("")
     mass_num = '{:>10}'.format("")
