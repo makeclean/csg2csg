@@ -28,7 +28,6 @@ class TestBlockBreaks(unittest.TestCase):
         input.file_lines = input_string
         input.total_num_lines = len(input_string)       
         input.process()
-        print(input.cell_list)
         
         # check number of cells found
         self.assertEqual(len(input.cell_list),2)
@@ -49,8 +48,8 @@ class TestBlockBreaks(unittest.TestCase):
         input.file_lines = input_string
         input.total_num_lines = len(input_string)       
         input.process()
-        # check number of cells found
-        print(input.cell_list)
+       
+       # check number of cells found
         self.assertEqual(len(input.cell_list),2)
         
     
