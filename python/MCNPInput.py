@@ -96,6 +96,7 @@ class MCNPInput(InputDeck):
             # check for importance keyword
             if "imp" in self.file_lines[idx]:
                 particle = self.file_lines[idx].split()[0].split(":")[1]
+               
                 # TODO mcnp allows the following forms imp:n imp:n,p etc 
                 particle = mcnpToParticle(particle)
                 logging.debug("%s", "found importance statement for particle " + 
@@ -781,8 +782,9 @@ class MCNPInput(InputDeck):
         idx = 0
         while True:
             cell_line = self.file_lines[idx]
-            if cell_line == "\n":
-                logging.debug('%s',"found end of cell cards at line " + str(idx))
+
+            if cell_line.isspace():
+                logging.info('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
                 break
 
@@ -800,7 +802,7 @@ class MCNPInput(InputDeck):
                     cell_comment = cell_line[pos_comment:] # set the comment
                 
                 # mcnp continue line is indicated by 5 spaces
-                if cell_line[0:5] == "     ":
+                if cell_line[0:5] == "     " and not cell_line.isspace():
                     card_line += cell_line
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
@@ -837,7 +839,7 @@ class MCNPInput(InputDeck):
     def __get_surface_cards(self,idx):
         while True:
             surf_line = strip_dollar_comments(self.file_lines[idx])
-            if surf_line == "\n":
+            if surf_line.isspace():
                 logging.debug('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
                 break
@@ -848,7 +850,7 @@ class MCNPInput(InputDeck):
             while True:
                 surf_line = strip_dollar_comments(self.file_lines[jdx])
                 # mcnp continue line is indicated by 5 spaces
-                if surf_line[0:5] == "     ":
+                if surf_line[0:5] == "     " and not surf_line.isspace():
                     surf_card += surf_line
                 else: # else we have found a new surf card
                     surfacecard = MCNPSurfaceCard(surf_card)
