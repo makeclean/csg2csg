@@ -839,7 +839,7 @@ class MCNPInput(InputDeck):
     def __get_surface_cards(self,idx):
         while True:
             surf_line = strip_dollar_comments(self.file_lines[idx])
-            if surf_line == "\n":
+            if surf_line.isspace():
                 logging.debug('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
                 break
@@ -850,7 +850,7 @@ class MCNPInput(InputDeck):
             while True:
                 surf_line = strip_dollar_comments(self.file_lines[jdx])
                 # mcnp continue line is indicated by 5 spaces
-                if surf_line[0:5] == "     ":
+                if surf_line[0:5] == "     " and not surf_line.isspace():
                     surf_card += surf_line
                 else: # else we have found a new surf card
                     surfacecard = MCNPSurfaceCard(surf_card)

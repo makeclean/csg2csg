@@ -9,6 +9,51 @@ from MCNPInput import MCNPInput #, explode_macrobody
 from MCNPSurfaceCard import MCNPSurfaceCard
 from SurfaceCard import SurfaceCard
 
+
+class TestBlockBreaks(unittest.TestCase):
+
+    def test_SpacesBlockBreaks(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -3\n")
+        input_string.append("2 0 3\n")
+        input_string.append("    \n")
+        input_string.append("3 rpp -1 1 -1 1 -1 1\n")
+        input_string.append("    \n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("    1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        print(input.cell_list)
+        
+        # check number of cells found
+        self.assertEqual(len(input.cell_list),2)
+        
+    def test_WhiteSpacesBlockBreaks(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -3\n")
+        input_string.append("2 0 3\n")
+        input_string.append("  \t   \n")
+        input_string.append("3 rpp -1 1 -1 1 -1 1\n")
+        input_string.append("   \t \n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("    1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        # check number of cells found
+        print(input.cell_list)
+        self.assertEqual(len(input.cell_list),2)
+        
+    
 class TestMCNPInputMethods(unittest.TestCase):
 
     def test_explode_macrobody(self):
