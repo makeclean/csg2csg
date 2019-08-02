@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from MCNPInput import MCNPInput
-from SerpentInput import SerpentInput
-from OpenMCInput import OpenMCInput
-from FLUKAInput import FLUKAInput
-from PhitsInput import PhitsInput
+from csg2csg.MCNPInput import MCNPInput
+from csg2csg.SerpentInput import SerpentInput
+from csg2csg.OpenMCInput import OpenMCInput
+from csg2csg.FLUKAInput import FLUKAInput
+from csg2csg.PhitsInput import PhitsInput
 
 # for debug info
 import logging, sys 
