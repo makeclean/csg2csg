@@ -3,7 +3,7 @@
 from csg2csg.CellCard import CellCard
 from enum import Enum
 
-from MCNPFormatter import mcnp_line_formatter, get_fortran_formatted_number
+from csg2csg.MCNPFormatter import mcnp_line_formatter, get_fortran_formatted_number
 
 import re
 import math

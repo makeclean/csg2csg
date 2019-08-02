@@ -23,9 +23,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            pip3 install numpy --user
-            cd csg2csg
             python setup.py install
+            cd csg2csg
             cd test
             ./run_tests
 
