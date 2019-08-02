@@ -5,7 +5,7 @@ A tool to translate common Monte Carlo geometry formats between each other.
 Right now the code is petty rough; as is the install procedure.
 
 Install using pip
-```pip install csg2csg
+```pip3 install csg2csg --user
 ```
 
 Run csg2csg.py -i filename
