@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
 
-from MaterialData import MaterialData
+from csg2csg.MaterialData import MaterialData
 
 class TestMaterialDataMethods(unittest.TestCase):
    

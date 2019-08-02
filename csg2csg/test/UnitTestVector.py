@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
 
-from Vector import add,cross,subtract
+from csg2csg.Vector import add,cross,subtract
 
 class TestVectorMethods(unittest.TestCase):
 

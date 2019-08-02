@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
  
-from OpenMCMaterial import zaid_to_name
+from csg2csg.OpenMCMaterial import zaid_to_name
 
 class TestOpenMCMaterial(unittest.TestCase):
 

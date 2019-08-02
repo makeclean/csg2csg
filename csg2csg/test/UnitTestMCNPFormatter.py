@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
 
-from MCNPFormatter import get_fortran_formatted_number
+from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
 class TestFortranReadMethods(unittest.TestCase):
 

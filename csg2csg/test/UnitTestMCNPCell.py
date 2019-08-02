@@ -3,8 +3,8 @@
 import unittest
 import sys
 sys.path.append("..")
-from MCNPCellCard import MCNPCellCard, mcnp_line_formatter
-from CellCard import CellCard
+from csg2csg.MCNPCellCard import MCNPCellCard, mcnp_line_formatter
+from csg2csg.CellCard import CellCard
 
 class TestMCNPCellMethods(unittest.TestCase):
 

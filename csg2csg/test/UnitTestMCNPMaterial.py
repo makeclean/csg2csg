@@ -4,8 +4,8 @@ import unittest
 import sys
 sys.path.append("..")
  
-from MCNPMaterialCard import MCNPMaterialCard
-from MCNPInput import MCNPInput
+from csg2csg.MCNPMaterialCard import MCNPMaterialCard
+from csg2csg.MCNPInput import MCNPInput
 
 class TestMCNPMaterial(unittest.TestCase):
 

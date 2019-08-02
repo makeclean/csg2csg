@@ -3,8 +3,8 @@
 import unittest
 import sys
 sys.path.append("..")
-from MCNPSurfaceCard import MCNPSurfaceCard, surface_has_transform
-from SurfaceCard import SurfaceCard
+from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, surface_has_transform
+from csg2csg.SurfaceCard import SurfaceCard
 
 class TestMCNPSurfaceMethods(unittest.TestCase):
 

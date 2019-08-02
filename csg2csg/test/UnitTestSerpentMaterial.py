@@ -4,8 +4,8 @@ import unittest
 import sys
 sys.path.append("..")
  
-from SerpentMaterialCard import SerpentMaterialCard
-from SerpentInput import SerpentInput
+from csg2csg.SerpentMaterialCard import SerpentMaterialCard
+from csg2csg.SerpentInput import SerpentInput
 
 class TestSerpentMaterial(unittest.TestCase):
 

@@ -4,8 +4,8 @@ import unittest
 import sys
 sys.path.append("..")
 
-from ParticleNames import ParticleNames
-from MCNPParticleNames import particleToMCNP,mcnpToParticle
+from csg2csg.ParticleNames import ParticleNames
+from csg2csg.MCNPParticleNames import particleToMCNP,mcnpToParticle
 
 class TestMCNPParticleMethods(unittest.TestCase):
 

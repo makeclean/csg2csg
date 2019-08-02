@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
 
-from ParticleNames import particleToGeneric,ParticleNames
+from csg2csg.ParticleNames import particleToGeneric,ParticleNames
 
 class TestParticleMethods(unittest.TestCase):
 

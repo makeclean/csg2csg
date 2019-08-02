@@ -4,9 +4,9 @@ import unittest
 import sys
 sys.path.append("..")
  
-from SurfaceCard import SurfaceCard
-from MCNPSurfaceCard import MCNPSurfaceCard
-from SerpentSurfaceCard import serpent_cone_x
+from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard
+from csg2csg.SerpentSurfaceCard import serpent_cone_x
 from math import sqrt
 
 class TestSerpentSurface(unittest.TestCase):
