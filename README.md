@@ -8,9 +8,6 @@ Install using pip
 ```pip install csg2csg
 ```
 
-
-add the   csg2csg/python path to your $PATH environment
-
 Run csg2csg.py -i filename
 
 ## Caveats
