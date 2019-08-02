@@ -4,15 +4,14 @@ A tool to translate common Monte Carlo geometry formats between each other.
 ## How to use
 Right now the code is petty rough; as is the install procedure.
 
-Clone the repository
-```sh
-$ git clone https://github.com/makeclean/csg2csg
+Install using pip
+```pip install csg2csg
 ```
 
 
 add the   csg2csg/python path to your $PATH environment
 
-Run python3 csg2csg.py --file <mcnp input file>
+Run csg2csg.py -i filename
 
 ## Caveats
 Several! Right now only MCNP can be read, and then written to MCNP Serpent and OpenMC. 
