@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6.1
+      - image: circleci/python:stretch
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -24,7 +24,7 @@ jobs:
           name: run tests
           command: |
             pip3 install numpy --user
-            sudo python setup.py install
+            python setup.py install --user
             cd csg2csg
             cd test
             ./run_tests
