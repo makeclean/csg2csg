@@ -1,4 +1,4 @@
-from Card import Card
+from csg2csg.Card import Card
 from enum import Enum
 
 class SurfaceCard(Card):

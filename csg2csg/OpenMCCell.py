@@ -3,7 +3,7 @@
 import math
 import numpy as np
 
-from CellCard import CellCard
+from csg2csg.CellCard import CellCard
 import xml.etree.ElementTree as ET
 
 def angle_from_rotmatrix(matrix):

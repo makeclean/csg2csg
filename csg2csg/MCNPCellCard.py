@@ -1,6 +1,6 @@
 #/usr/env/python3
 
-from CellCard import CellCard
+from csg2csg.CellCard import CellCard
 from enum import Enum
 
 from MCNPFormatter import mcnp_line_formatter, get_fortran_formatted_number

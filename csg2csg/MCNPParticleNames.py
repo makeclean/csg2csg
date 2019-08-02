@@ -1,6 +1,6 @@
 #!/usr/env/python3 
 
-from ParticleNames import ParticleNames
+from csg2csg.ParticleNames import ParticleNames
 
 def particleToMCNP(particle_name):
     if particle_name == ParticleNames["NEUTRON"]:

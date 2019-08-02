@@ -1,7 +1,7 @@
 #!/usr/env/python3
 
-from MaterialCard import MaterialCard
-from MCNPFormatter import get_fortran_formatted_number
+from csg2csg.MaterialCard import MaterialCard
+from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
 # write a specific serpent material card
 def write_serpent_material(filestream, material):

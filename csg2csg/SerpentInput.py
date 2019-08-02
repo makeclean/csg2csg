@@ -1,9 +1,9 @@
 #/usr/env/python3
 
-from Input import InputDeck
-from SerpentSurfaceCard import SerpentSurfaceCard, write_serpent_surface
-from SerpentCellCard import SerpentCellCard, write_serpent_cell
-from SerpentMaterialCard import SerpentMaterialCard, write_serpent_material
+from csg2csg.Input import InputDeck
+from csg2csg.SerpentSurfaceCard import SerpentSurfaceCard, write_serpent_surface
+from csg2csg.SerpentCellCard import SerpentCellCard, write_serpent_cell
+from csg2csg.SerpentMaterialCard import SerpentMaterialCard, write_serpent_material
 
 import logging
 import re

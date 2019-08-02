@@ -1,7 +1,7 @@
 #!/usr/env/python3
 import sys
-from Card import Card
-from Vector import cross
+from csg2csg.Card import Card
+from csg2csg.Vector import cross
 import math
 
 import warnings

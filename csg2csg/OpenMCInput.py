@@ -1,14 +1,14 @@
 #/usr/env/python3
 
-from Input import InputDeck
+from csg2csg.Input import InputDeck
 
 import logging
 import sys
 import xml.etree.ElementTree as ET
 
-from OpenMCSurface import write_openmc_surface
-from OpenMCCell import write_openmc_cell
-from OpenMCMaterial import write_openmc_material
+from csg2csg.OpenMCSurface import write_openmc_surface
+from csg2csg.OpenMCCell import write_openmc_cell
+from csg2csg.OpenMCMaterial import write_openmc_material
 '''
 copy and paste from http://effbot.org/zone/element-lib.htm#prettyprint
 it basically walks your tree and adds spaces and newlines so the tree is

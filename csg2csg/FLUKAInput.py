@@ -2,10 +2,10 @@
 
 import warnings
 
-from Input import InputDeck
-from FLUKASurfaceCard import FLUKASurfaceCard, write_fluka_surface
-from FLUKACellCard import FLUKACellCard, write_fluka_cell
-from FLUKAMaterialCard import FLUKAMaterialCard, write_fluka_material, write_fluka_material_element, write_fluka_compound
+from csg2csg.Input import InputDeck
+from csg2csg.FLUKASurfaceCard import FLUKASurfaceCard, write_fluka_surface
+from csg2csg.FLUKACellCard import FLUKACellCard, write_fluka_cell
+from csg2csg.FLUKAMaterialCard import FLUKAMaterialCard, write_fluka_material, write_fluka_material_element, write_fluka_compound
 
 fluka_special_mats = ["HYDROGEN","HELIUM","BERYLLIU","CARBON","NITROGEN",
                       "OXYGEN","MAGNESIU","ALUMINUM","IRON","COPPER",

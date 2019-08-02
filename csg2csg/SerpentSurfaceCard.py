@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard
 from math import sqrt
 
 # write the general form of a plane

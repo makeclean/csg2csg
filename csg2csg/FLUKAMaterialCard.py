@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from MaterialCard import MaterialCard
+from csg2csg.MaterialCard import MaterialCard
 
 
 """ A function which writes the fluka material card for an element

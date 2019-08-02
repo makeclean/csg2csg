@@ -1,9 +1,9 @@
 #/usr/env/python3
 
-from Input import InputDeck
-from MCNPSurfaceCard import MCNPSurfaceCard, write_mcnp_surface
-from MCNPCellCard import MCNPCellCard, write_mcnp_cell
-from MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
+from csg2csg.Input import InputDeck
+from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, write_mcnp_surface
+from csg2csg.MCNPCellCard import MCNPCellCard, write_mcnp_cell
+from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 
 class PhitsInput(InputDeck):
     """ PhitsInput class - does the actual processing

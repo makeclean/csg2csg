@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from MaterialCard import MaterialCard
+from csg2csg.MaterialCard import MaterialCard
 import xml.etree.ElementTree as ET
 
 name_zaid = {1:"H",2:"He",3:"Li",4:"Be",5:"B",6:"C",7:"N",

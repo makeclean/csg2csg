@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from CellCard import CellCard
+from csg2csg.CellCard import CellCard
 from enum import Enum
 import re
 

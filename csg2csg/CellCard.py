@@ -1,6 +1,6 @@
 #/usr/env/python3
 
-from Card import Card
+from csg2csg.Card import Card
 from enum import Enum
 
 class CellCard(Card):

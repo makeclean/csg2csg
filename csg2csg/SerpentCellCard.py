@@ -1,8 +1,8 @@
 #!/usr/env/python3
 
-from MCNPFormatter import mcnp_line_formatter
+from csg2csg.MCNPFormatter import mcnp_line_formatter
 
-from CellCard import CellCard
+from csg2csg.CellCard import CellCard
 from enum import Enum
 import re
 import math

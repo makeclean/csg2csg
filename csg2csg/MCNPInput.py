@@ -1,15 +1,15 @@
 #/usr/env/python3
 
-from Input import InputDeck #, get_surface_with_id
-from SurfaceCard import SurfaceCard #, BoundaryCondition
-from ParticleNames import particleToGeneric, ParticleNames
-from MaterialCard import get_material_colour
-from MCNPParticleNames import mcnpToParticle
-from MCNPFormatter import strip_dollar_comments
-from MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
-from MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
-from MCNPDataCard import MCNPTransformCard
-from MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
+from csg2csg.Input import InputDeck #, get_surface_with_id
+from csg2csg.SurfaceCard import SurfaceCard #, BoundaryCondition
+from csg2csg.ParticleNames import particleToGeneric, ParticleNames
+from csg2csg.MaterialCard import get_material_colour
+from csg2csg.MCNPParticleNames import mcnpToParticle
+from csg2csg.MCNPFormatter import strip_dollar_comments
+from csg2csg.MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
+from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
+from csg2csg.MCNPDataCard import MCNPTransformCard
+from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 
 from collections import Counter
 

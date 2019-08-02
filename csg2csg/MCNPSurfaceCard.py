@@ -1,6 +1,6 @@
-from SurfaceCard import SurfaceCard
-from Vector import add,subtract,cross
-from MCNPFormatter import mcnp_line_formatter
+from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.Vector import add,subtract,cross
+from csg2csg.MCNPFormatter import mcnp_line_formatter
 
 import numpy as np
 

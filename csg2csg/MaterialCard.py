@@ -1,7 +1,7 @@
 #!/usr/env/python3
 
-from Card import Card
-from MaterialData import MaterialData
+from csg2csg.Card import Card
+from csg2csg.MaterialData import MaterialData
 
 colours = [0]*71
 colours[0]="0 208 31"
