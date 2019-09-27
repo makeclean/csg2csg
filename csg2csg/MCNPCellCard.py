@@ -11,7 +11,7 @@ import math
 import logging
 
 # to support more keywords for cells add them here
-mcnp_cell_keywords = ["imp","u","fill","vol"]
+mcnp_cell_keywords = ["imp","u","fill","vol", "tmp"]
 
 # if the string is a cell card or not
 def is_cell_card(line):
@@ -219,9 +219,10 @@ class MCNPCellCard(CellCard):
             string = string[:posd]
             
         # otherwise loop through and find
-        # u= , fill= and imp:
+        # u= , fill=, imp and tmp:
         posu = string.find("u")
         posf = string.find("fill")
+        post = string.find("tmp")
    
         # universe fill angle could be specified in degrees
         rot_angle_degrees = False
@@ -232,8 +233,8 @@ class MCNPCellCard(CellCard):
         posv = string.find("vol")
 
         # find the posititon of the first match
-        positions = [posu,posf,posi,posv]
-        if posu != -1 or posf != -1 or posi != -1 or posv != -1:
+        positions = [posu, posf, posi, posv, post]
+        if posu != -1 or posf != -1 or posi != -1 or posv != -1 or post != -1:
             m = min(i for i in positions if i > 0)
         else:
             return string
