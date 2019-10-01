@@ -52,8 +52,8 @@ def fluka_cylinder_x(SurfaceCard):
 
 # write a cylinder_y
 def fluka_cylinder_y(SurfaceCard):
-    string = "YCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[0]) + " "
-    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string = "YCC S" + str(SurfaceCard.surface_id) + " " + str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += "\n"
     return string
