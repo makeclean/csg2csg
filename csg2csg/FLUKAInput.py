@@ -96,7 +96,8 @@ zz_to_fluka = {1000:"HYDROGEN",1001:"HYDROG-1",1002:"DEUTERIU",
                90230:"230-TH",90232:"232-TH",
                92233:"233-U",92234:"234-U",92235:"235-U",92238:"238-U",
                94239:"239-PU",
-               95241:"241-AM"}
+               95241:"241-AM",
+               98000:"CALIFORN"}
 
 
 class FLUKAInput(InputDeck):
