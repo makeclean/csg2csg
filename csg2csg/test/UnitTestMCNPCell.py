@@ -55,6 +55,12 @@ class TestMCNPCellMethods(unittest.TestCase):
         cell_card = MCNPCellCard(string)
         new_string =  cell_card._MCNPCellCard__detect_keywords(['vol'],string)
         self.assertEqual(new_string, "2 3 -14.0 1 ")
+        
+    def test_mcnp_detect_keywords_tmp(self):
+        string = "2 3 -14.0 1 tmp=300"
+        cell_card = MCNPCellCard(string)
+        new_string =  cell_card._MCNPCellCard__detect_keywords(['tmp'],string)
+        self.assertEqual(new_string, "2 3 -14.0 1 ")
 
     def test_mcnp_line_format(self):
         string = "1 0 (-1 3 4 5 6 8 9 ( 12 13 15))"
