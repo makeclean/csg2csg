@@ -100,6 +100,38 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(cell1.text_string, "1 1 -1.0 ( -4 -5 -6 -7 -8 -9 )")
         self.assertEqual(cell2.text_string, "2 0 ( 4 : 5 : 6 : 7 : 8 : 9)")
 
+    # test case for the box macrobody
+    def test_flatten_macrobodies(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -3\n")
+        input_string.append("2 0 3\n")
+        input_string.append("\n")
+        input_string.append("3 box -1 -1 -1 2 0 0 0 2 0 0 0 2\n")
+        input_string.append("\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        
+        # cell card
+        cell1 = input.cell_list[0] 
+        cell2 = input.cell_list[1] 
+
+        self.assertEqual(cell1.text_string, "1 1 -1.0 ( -4 -5 -6 -7 -8 -9 )")
+        self.assertEqual(cell2.text_string, "2 0 ( 4 : 5 : 6 : 7 : 8 : 9)")
+
+        # surface card
+        surface1 = input.surface_list[0]
+        surface2 = input.surface_list[1]
+        self.assertEqual(surface1.surface_type,SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(surface1.surface_coefficients,[1,0,0,1])
+        self.assertEqual(surface2.surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(surface2.surface_coefficients,[-1,0,0,1])
+        
     def test_flatten_macrobodies_with_other_surfs(self):
         input_string = ["this is a title\n"]
         input_string.append("1 1 -1.0 -7 3\n")
