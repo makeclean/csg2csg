@@ -565,34 +565,35 @@ class MCNPInput(InputDeck):
             d6 = vec3n[0]*(origin[0] + vec3[0]) + vec3n[1]*(origin[1]+vec3[1]) + vec3n[2]*(origin[2]+vec3[2])
 
             
-            # cannonical facet ordering is +ve side the -ve side
+            # cannonical facet ordering is done such that the surfaces
+            # making up the macrobody all point inwards
             p1 = self.__make_new_plane(vec1n,d2)
-            p2 = self.__make_new_plane(-1.0*vec1n,d1)
+            p2 = self.__make_new_plane(-1.0*vec1n,-1*d1)
 
             p3 = self.__make_new_plane(vec2n,d4)
-            p4 = self.__make_new_plane(-1.0*vec2n,d3)
+            p4 = self.__make_new_plane(-1.0*vec2n,-1*d3)
 
             p5 = self.__make_new_plane(vec3n,d6)
-            p6 = self.__make_new_plane(-1.0*vec3n,d5)
+            p6 = self.__make_new_plane(-1.0*vec3n,-1*d5)
 
             new_surf_list = [p1,p2,p3,p4,p5,p6]
 
             cell_description_inside = "("
-            cell_description_inside +=        str(new_surf_list[0].surface_id)
-            cell_description_inside += " " + str(new_surf_list[1].surface_id)
-            cell_description_inside += " " + str(new_surf_list[2].surface_id)
-            cell_description_inside += " " + str(new_surf_list[3].surface_id)
-            cell_description_inside += " " + str(new_surf_list[4].surface_id)
-            cell_description_inside += " " + str(new_surf_list[5].surface_id)          
+            cell_description_inside += " -" + str(new_surf_list[0].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[1].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[2].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[3].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[4].surface_id)
+            cell_description_inside += " -" + str(new_surf_list[5].surface_id)          
             cell_description_inside += ")"
 
             cell_description_outside = "("
-            cell_description_outside += "-"  + str(new_surf_list[0].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[1].surface_id)
-            cell_description_outside += ":-"  + str(new_surf_list[2].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[3].surface_id)
-            cell_description_outside += ":-"  + str(new_surf_list[4].surface_id)
-            cell_description_outside += ":-" + str(new_surf_list[5].surface_id)          
+            cell_description_outside += " "  + str(new_surf_list[0].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[1].surface_id)
+            cell_description_outside += ":"  + str(new_surf_list[2].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[3].surface_id)
+            cell_description_outside += ":"  + str(new_surf_list[4].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[5].surface_id)          
             cell_description_outside += ")"
             
             cell_description = [cell_description_inside,cell_description_outside]
@@ -782,7 +783,9 @@ class MCNPInput(InputDeck):
         idx = 0
         while True:
             cell_line = self.file_lines[idx]
-
+            # this relies upon us checking correctly for all other
+            # cases where there may be blank lines due to our 
+            # processing of the string
             if cell_line.isspace():
                 logging.info('%s',"found end of cell cards at line " + str(idx))
                 idx += 1
@@ -795,15 +798,18 @@ class MCNPInput(InputDeck):
                 cell_line = self.file_lines[jdx]
                 pos_comment = cell_line.find("$")
                 cell_comment = ""
-                
                 if pos_comment != -1:
                     cell_line = cell_line[:pos_comment]
+                    cell_comment = self.file_lines[jdx][pos_comment:] # set the comment 
                     self.file_lines[jdx] = cell_line # update the file data
-                    cell_comment = cell_line[pos_comment:] # set the comment
-                
+                    
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line[0:5] == "     " and not cell_line.isspace():
                     card_line += cell_line
+                # we have found a $comment line with nothing before it
+                elif cell_line.isspace() and cell_comment:
+                    print(cell_line,cell_comment, cell_line.isspace(), cell_comment.isspace())
+                    pass
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
