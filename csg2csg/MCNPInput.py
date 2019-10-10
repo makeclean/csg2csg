@@ -712,7 +712,7 @@ class MCNPInput(InputDeck):
         cell_text = cell_text + [")"]
         
         # remove the #cell and insert the full new form
-        cell_part = cell.cell_interpreted[0:pos-1]
+        cell_part = cell.cell_interpreted[:pos]
         
         cell_part.extend(cell_text)
         cell_part2 = cell.cell_interpreted[pos+1:]
