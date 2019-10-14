@@ -300,6 +300,9 @@ class MCNPInput(InputDeck):
         # remove density 0.0 and material 0
         if 0 in material_density.keys(): del material_density[0]
 
+        # maybe void problem
+        if len(material_density): return
+
         # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):
             num_densities = len(material_density[mat])
