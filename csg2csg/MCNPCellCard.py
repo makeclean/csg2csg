@@ -228,6 +228,7 @@ class MCNPCellCard(CellCard):
         rot_angle_degrees = False
         if string.find("*fill") != -1:
             rot_angle_degrees = True
+            posf -= 1
         
         posi = string.find("imp")
         posv = string.find("vol")
