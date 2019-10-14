@@ -300,6 +300,9 @@ class MCNPInput(InputDeck):
         # remove density 0.0 and material 0
         if 0 in material_density.keys(): del material_density[0]
 
+        # maybe void problem
+        if len(material_density): return
+
         # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):
             num_densities = len(material_density[mat])
@@ -358,21 +361,25 @@ class MCNPInput(InputDeck):
 
         gq_coeffs = [0]*10
 
+        # form the gq quadratic terms
         gq_coeffs[0] = 1. - axis_vector[0]**2
         gq_coeffs[1] = 1. - axis_vector[1]**2        
         gq_coeffs[2] = 1. - axis_vector[2]**2 
-
+        # form the rotational terms
         gq_coeffs[3] = -2.*axis_vector[0]*axis_vector[1]        
         gq_coeffs[4] = -2.*axis_vector[1]*axis_vector[2]        
         gq_coeffs[5] = -2.*axis_vector[0]*axis_vector[2]
-
-        gq_coeffs[6] = -Surface.surface_coefficients[1]*gq_coeffs[3] - Surface.surface_coefficients[2]*gq_coeffs[5] \
+        # form the linear offset terms
+        gq_coeffs[6] =  -Surface.surface_coefficients[1]*gq_coeffs[3] \
+                        -Surface.surface_coefficients[2]*gq_coeffs[5] \
                         -2.0*Surface.surface_coefficients[0]*gq_coeffs[0]
-        gq_coeffs[7] = -Surface.surface_coefficients[0]*gq_coeffs[3] - Surface.surface_coefficients[2]*gq_coeffs[4] \
+        gq_coeffs[7] =  -Surface.surface_coefficients[0]*gq_coeffs[3] \
+                        -Surface.surface_coefficients[2]*gq_coeffs[4] \
                         -2.0*Surface.surface_coefficients[1]*gq_coeffs[1]
-        gq_coeffs[8] = -Surface.surface_coefficients[0]*gq_coeffs[5] - Surface.surface_coefficients[1]*gq_coeffs[4] \
+        gq_coeffs[8] =  -Surface.surface_coefficients[0]*gq_coeffs[5] \
+                        -Surface.surface_coefficients[1]*gq_coeffs[4] \
                         -2.0*Surface.surface_coefficients[2]*gq_coeffs[2]
-
+        # form the offset term
         gq_coeffs[9] = Surface.surface_coefficients[0]*Surface.surface_coefficients[1]*gq_coeffs[3] + \
                        Surface.surface_coefficients[1]*Surface.surface_coefficients[2]*gq_coeffs[4] + \
                        Surface.surface_coefficients[0]*Surface.surface_coefficients[2]*gq_coeffs[5] + \
@@ -400,7 +407,7 @@ class MCNPInput(InputDeck):
         surface_string = str(self.last_free_surface_index) + " p "
         for coeff in axis_vector:
             surface_string += str(-1.*coeff) + " "
-        surface_string += str(d1)
+        surface_string += str(-d1)
         surf = MCNPSurfaceCard(surface_string) # todo maybe instanciate explicitly generically?
         new_surf_list.append(surf)
 
@@ -712,7 +719,7 @@ class MCNPInput(InputDeck):
         cell_text = cell_text + [")"]
         
         # remove the #cell and insert the full new form
-        cell_part = cell.cell_interpreted[0:pos-1]
+        cell_part = cell.cell_interpreted[:pos]
         
         cell_part.extend(cell_text)
         cell_part2 = cell.cell_interpreted[pos+1:]
