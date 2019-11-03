@@ -58,5 +58,52 @@ class SurfaceMethods(unittest.TestCase):
         self.assertEqual(surface.surface_coefficients[2],0.0)
         self.assertEqual(surface.surface_coefficients[3],-10.0)
 
+    # test the surface.generalise() function
+    def test_surface_reverse(self):
+        # first surface
+        surface1 = SurfaceCard('')
+        surface_coefficients = [1.0,0.0,0.0,-10.]
+        transform_id = 0
+        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_id = 1
+        surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
+        surface1.generalise()
+        self.assertEqual(surface1.surface_coefficients[6],-1.0)
+        self.assertEqual(surface1.surface_coefficients[9],-10.0)
+    
+    # test the surface.reverse() function
+    def test_surface_reverse(self):
+        # first surface
+        surface1 = SurfaceCard('')
+        surface_coefficients = [1.0,0.0,0.0,-10.]
+        transform_id = 0
+        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_id = 1
+        surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
+        surface1.generalise()
+        surface1.reverse()
+        self.assertEqual(surface1.surface_coefficients[6],-1.0)
+        self.assertEqual(surface1.surface_coefficients[9],-10.0)
+        
+    def test_surface_two_planes_compare(self):
+        # first surface
+        surface1 = SurfaceCard('')
+        surface_coefficients = [1.0,0.0,0.0,10.]
+        transform_id = 0
+        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_id = 1
+        surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
+
+        # second surface
+        surface2 = SurfaceCard('')
+        surface_coefficients = [-1.0,0.0,0.0,-10.]
+        transform_id = 0
+        surface_type = surface2.SurfaceType['PLANE_GENERAL']
+        surface_id = 2
+        surface2.set_type(surface_id,transform_id,surface_type,surface_coefficients)
+
+        self.assertEqual(surface1.diff(surface2,False),(False,False))
+        self.assertEqual(surface1.diff(surface2),(True,True))
+    
 if __name__ == '__main__':
     unittest.main()

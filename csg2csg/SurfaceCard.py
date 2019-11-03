@@ -1,6 +1,8 @@
 from csg2csg.Card import Card
 from enum import Enum
 
+from copy import deepcopy
+
 class SurfaceCard(Card):
     """ Class for the storage of the generic SurfaceCard type
     Methods for the generation of flat geometry surface card data
@@ -56,7 +58,56 @@ class SurfaceCard(Card):
         string += "Boundary Condition " + str(self.boundary_condition)+"\n"
         string += "Comment: " + str(self.comment)+"\n"
         return string
+
+    """
+    Provides the diff of two surfaces
+
+    Surface: An instance of a Surface Class
+    both: check the diff of the inverse of the surface - only meaningful for plains
+
+    Returns: Bool,Bool (surface same, inverse_same)
+    e.g. T,F - surface was the same, but it wasnt the inverted one
+         T,T - surface was the same, but it was the inverted one
+         F,F - surfaces wasnt the same
+         F,T - cannot occur
+    """
+    def diff(self, Surface, both = True):
+        # copy the surfaces so we dont peturb their state
+        s1 = deepcopy(self)
+        s2 = deepcopy(Surface)
         
+        # generalise the surfaces
+        s1.generalise()
+        s2.generalise()
+        
+        # they arent the same type 
+        if ( s2.surface_type is not s1.surface_type):
+            return (False,False)
+
+        # they are the same
+        if s2.surface_coefficients == s1.surface_coefficients:
+            return (True,False)
+        # comparing the other side
+        elif both:
+            s2.reverse()
+            if s2.surface_coefficients == s1.surface_coefficients:
+                return (True,True)
+            else:
+                return (False,False)
+        # no matches
+        else:
+            return (False,False)
+
+    """
+    Function to reverse the normal of the surface definition
+
+    modifies the class in place
+    """
+    def reverse(self):
+        surf_coeffs = [i * -1 for i in self.surface_coefficients]
+        self.surface_coefficients = surf_coeffs
+        return
+    
     def set_type(self, surf_id, surf_transform, surf_type, coords):
         self.surface_id = surf_id
         self.surface_transform = surf_transform
