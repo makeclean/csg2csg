@@ -85,13 +85,17 @@ class SurfaceCard(Card):
         # they are the same
         if surface.surface_coefficients == self.surface_coefficients:
             return (True,False)
+
         # comparing the other side
         elif both:
             surface.reverse()
             if surface.surface_coefficients == self.surface_coefficients:
+                surface.reverse()
                 return (True,True)
             else:
+                surface.reverse()
                 return (False,False)
+            
         # no matches
         else:
             return (False,False)

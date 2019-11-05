@@ -916,11 +916,37 @@ class MCNPInput(InputDeck):
             # generalise the surface - this list is build because
             # generalisation is quite expensive
             new_surf.generalise()
-            surfs_for_comparison[surf] = new_surf
+            surfs_for_comparison[new_surf] = surf
+
+        surf_by_type = {}
+        # segregate surfs for comparison by type
+        for surf in surfs_for_comparison:
+            if surf.surface_type in surf_by_type:
+                surf_by_type[surf.surface_type].append(surf)
+            else:
+                surf_by_type[surf.surface_type] = [surf]
+
+        # loop over the types
+        for type in surf_by_type.keys():
+            # loop over the surfaces of the same type
+            for idx,surf in enumerate(surf_by_type[type]):
+                # loop over surface of the same type
+                for compare in surf_by_type[type]:
+                    # this looks wrong but doesnt do double comparing
+                    if surf == compare:
+                        break
+
+                    # compare surfaces including the reverse
+                    (same,reverse) = surf.diff(compare,True,True)
+                    # surface is duplicated
+                    if(same):
+                        match = surfs_for_comparison[compare]
+                        original = surfs_for_comparison[surf]
+                        duplicates[match] = original
+                        senses[match] = reverse
 
 
-        # segregate surfs for comparison
-        #for surf in surfs_for_comparison:
+        """
 
         num_surf = len(self.surface_list)
 
@@ -948,7 +974,8 @@ class MCNPInput(InputDeck):
                 if(same):
                     duplicates[compare] = surf
                     senses[compare] = reverse
-        
+        """
+
         # may need to check for surfaces that have multiple
         # similarities e.g. 3 and 1 are the same and so are
         # 4 and 1, but I think 3 and 4 would also be recognised
