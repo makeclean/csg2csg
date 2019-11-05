@@ -52,7 +52,7 @@ class PhitsInput(InputDeck):
     def __write_phits_materials(self, filestream):
         filestream.write("[ M A T E R I A L ]\n")
         for material in self.material_list:
-            write_mcnp_material(filestream, self.material_list[material],True)
+            write_mcnp_material(filestream, self.material_list[material], True, False)
         return
     
     # main write serpent method, depending upon where the geometry

@@ -48,4 +48,34 @@ class CellCard(Card):
         string += "Comment " + str(self.cell_comment) + "\n"
         string += "Text Description " + str(self.cell_text_description) + "\n"
         string += "Cell Description " + str(self.cell_interpreted) + "\n"
+        string += "Surfs in Cell " + str(self.cell_surface_list) + "\n"
         return string
+
+    """ Look for surface new in the list
+    and replace with surface reference
+    """
+    def replace_surface(self,reference_surface,new,reverse):
+        #self.cell_surface_list.remove(reference_surface)
+        #self.cell_surface_list.add(new)
+        print('ref ',reference_surface,' new ',new)
+        # loop over the cell looking for surfaces
+        for idx,item in enumerate(self.cell_interpreted):
+            # if the surface has -ve or +ve sense and doesnt
+            # need reversing just insert it
+            if not isinstance(item, self.OperationType) and item not in {'(',')'}:
+                
+                surf = int(item)
+                if abs(surf) == new and surf == new and not reverse:
+                    print('replacing ',surf,' with ',reference_surface)
+                    self.cell_interpreted[idx] = str(int(reference_surface))
+                elif abs(surf) == new and surf != new and not reverse:
+                   self.cell_interpreted[idx] = str(-1*int(reference_surface))
+                   print('replacing -',surf,' with -',reference_surface)
+                elif abs(surf) == new and surf != new and reverse:
+                    self.cell_interpreted[idx] = str(int(reference_surface))
+                    print('replacing -',surf,' with ',reference_surface)
+                elif abs(surf) == new and surf == new and reverse:
+                    self.cell_interpreted[idx] = str(-1*int(reference_surface))
+                    print('replacing ',surf,' with -',reference_surface)
+        print(self.cell_id, self.cell_interpreted)
+        return

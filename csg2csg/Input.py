@@ -6,8 +6,11 @@ class InputDeck:
     from this class
     """
     
-    def __init__(self, filename):
+    """ Constructor
+    """
+    def __init__(self, filename, quick = False):
         self.filename = filename
+        self.quick_process = quick
 
         self.file_lines = ""
         self.title = ""

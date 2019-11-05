@@ -246,8 +246,10 @@ class SurfaceCard(Card):
             h = self.surface_coefficients[7]
             j = self.surface_coefficients[8]
             k = self.surface_coefficients[9]
+        elif self.surface_type in {self.SurfaceType['TORUS_X'],self.SurfaceType['TORUS_Y'],self.SurfaceType['TORUS_Z']}:
+            return
         else:
-            print ("could not classify surface", self.surface_id)
+            print ("could not classify surface", self.surface_id, self.surface_type)
 
 
         new_surface_coefficients = [0.]*10
