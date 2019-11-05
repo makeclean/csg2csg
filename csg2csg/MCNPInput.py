@@ -832,6 +832,9 @@ class MCNPInput(InputDeck):
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
                     card_line += cell_line
+                # we have found a $comment line with nothing before it
+                elif cell_line.isspace() and cell_comment:
+                    pass
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
@@ -903,20 +906,44 @@ class MCNPInput(InputDeck):
 
         # loop over the surfaces and compare them
         print('comparing surfaces...')
+
+        surfs_for_comparison = {}
+
+        # loop over the surfaces
+        for surf in self.surface_list:
+            # take a copy so we dont peturb state
+            new_surf = deepcopy(surf)
+            # generalise the surface - this list is build because
+            # generalisation is quite expensive
+            new_surf.generalise()
+            surfs_for_comparison[surf] = new_surf
+
+
+        # segregate surfs for comparison
+        #for surf in surfs_for_comparison:
+
+        num_surf = len(self.surface_list)
+
         for idx,surf in enumerate(self.surface_list):
             # compare surfaces against all others
             # dont compare surfaces that we already have duplicates 
             # for
             if surf in duplicates:
-                break
+                continue
+
+            print(idx, num_surf)
 
             # build a new list not including the current surf
             for compare in self.surface_list:
                 if compare == surf:
                     break
+
+                # base surf for comparison
+                surf1 = surfs_for_comparison[surf]
+                surf2 = surfs_for_comparison[compare]
                 
                 # compare surfaces including the reverse
-                (same,reverse) = surf.diff(compare,True)
+                (same,reverse) = surf1.diff(surf2,True,True)
                 # surface is duplicated
                 if(same):
                     duplicates[compare] = surf

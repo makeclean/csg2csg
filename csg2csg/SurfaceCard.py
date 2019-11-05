@@ -64,6 +64,7 @@ class SurfaceCard(Card):
 
     Surface: An instance of a Surface Class
     both: check the diff of the inverse of the surface - only meaningful for plains
+    already_generalised: surface has already been generalised
 
     Returns: Bool,Bool (surface same, inverse_same)
     e.g. T,F - surface was the same, but it wasnt the inverted one
@@ -71,26 +72,23 @@ class SurfaceCard(Card):
          F,F - surfaces wasnt the same
          F,T - cannot occur
     """
-    def diff(self, Surface, both = True):
-        # copy the surfaces so we dont peturb their state
-        s1 = deepcopy(self)
-        s2 = deepcopy(Surface)
-        
+    def diff(self, surface, both = True, already_generalised = False):        
         # generalise the surfaces
-        s1.generalise()
-        s2.generalise()
+        if not already_generalised:
+            self.generalise()
+            surface.generalise()
         
         # they arent the same type 
-        if ( s2.surface_type is not s1.surface_type):
+        if ( surface.surface_type is not self.surface_type):
             return (False,False)
 
         # they are the same
-        if s2.surface_coefficients == s1.surface_coefficients:
+        if surface.surface_coefficients == self.surface_coefficients:
             return (True,False)
         # comparing the other side
         elif both:
-            s2.reverse()
-            if s2.surface_coefficients == s1.surface_coefficients:
+            surface.reverse()
+            if surface.surface_coefficients == self.surface_coefficients:
                 return (True,True)
             else:
                 return (False,False)

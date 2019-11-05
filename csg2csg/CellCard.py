@@ -62,20 +62,14 @@ class CellCard(Card):
         for idx,item in enumerate(self.cell_interpreted):
             # if the surface has -ve or +ve sense and doesnt
             # need reversing just insert it
-            if not isinstance(item, self.OperationType) and item not in {'(',')'}:
-                
+            if not isinstance(item, self.OperationType) and item not in {'(',')'}:                
                 surf = int(item)
                 if abs(surf) == new and surf == new and not reverse:
-                    print('replacing ',surf,' with ',reference_surface)
                     self.cell_interpreted[idx] = str(int(reference_surface))
                 elif abs(surf) == new and surf != new and not reverse:
                    self.cell_interpreted[idx] = str(-1*int(reference_surface))
-                   print('replacing -',surf,' with -',reference_surface)
                 elif abs(surf) == new and surf != new and reverse:
                     self.cell_interpreted[idx] = str(int(reference_surface))
-                    print('replacing -',surf,' with ',reference_surface)
                 elif abs(surf) == new and surf == new and reverse:
                     self.cell_interpreted[idx] = str(-1*int(reference_surface))
-                    print('replacing ',surf,' with -',reference_surface)
-        print(self.cell_id, self.cell_interpreted)
         return
