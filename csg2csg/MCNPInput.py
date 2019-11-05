@@ -10,7 +10,6 @@ from csg2csg.MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from csg2csg.MCNPDataCard import MCNPTransformCard
 from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
-from csg2csg.ProgressBar import ProgressBar
 
 from collections import Counter
 
@@ -940,8 +939,10 @@ class MCNPInput(InputDeck):
                     (same,reverse) = surf.diff(compare,True,True)
                     # surface is duplicated
                     if(same):
+                        # convert the surface 
                         match = surfs_for_comparison[compare]
                         original = surfs_for_comparison[surf]
+
                         duplicates[match] = original
                         senses[match] = reverse
 
