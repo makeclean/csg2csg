@@ -81,7 +81,7 @@ colours[70]="255 255 255"
 def get_material_colour(idx):
     # this obviously returns the same colour more than once
     # but this is what MCNP does so we duplicate this behavior
-    return colours[idx%71] 
+    return colours[idx%63] 
 
 class MaterialCard(Card):
 
@@ -110,7 +110,7 @@ class MaterialCard(Card):
         string = "Material: " + self.material_name + "\n"
         string += "Material num: " + str(self.material_number) + "\n"
         string += "Density: " + str(self.density) + "\n"
-        string += "Colour: " + str(self.material_colour)
+        string += "Colour: " + str(self.material_colour) + "\n"
         string += "Composition \n"
         for item in self.composition_dictionary.keys():
             string += item + " " + str(self.composition_dictionary[item]) + "\n"

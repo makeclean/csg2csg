@@ -72,7 +72,7 @@ class OpenMCInput(InputDeck):
                 fill_universes.add(int(u))
 
         not_used_universerses = universes - fill_universes
-        print('Universes not used as a fill: {}'.format(not_used_universerses))
+        
         return not_used_universerses
 
     # check to see if any universes are unsed

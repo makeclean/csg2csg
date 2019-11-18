@@ -5,11 +5,13 @@ from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
 # write a specific serpent material card
 def write_serpent_material(filestream, material):
+
     string = "% " + material.material_name  +"\n"
     string += "mat " + str(material.material_number) + " "
     string += str(material.density)
+
     # if its a non tally material set the relevant colour
-    if material.material_colour != 0:
+    if material.material_colour:
         string += " rgb " + material.material_colour + "\n"
     else:
         string += "\n"
