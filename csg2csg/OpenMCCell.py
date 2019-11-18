@@ -28,8 +28,28 @@ def angle_from_rotmatrix(matrix):
 
     return(phi,theta,psi)
 
-                     
-# turn the generic operation type into a mcnp relevant text string
+def rotmatrix_from_angle(angles):
+    angles = [float(i) for i in angles]
+
+    psi = angles[2]/180*math.pi
+    theta = angles[1]/180*math.pi
+    phi = angles[0]/180*math.pi
+    
+    rotation_matrix = [0.]*9
+
+    rotation_matrix[0] =  math.cos(theta)*math.cos(psi)
+    rotation_matrix[1] = -math.cos(phi)*math.sin(psi) + math.sin(phi)*math.sin(theta)*math.cos(psi)
+    rotation_matrix[2] =  math.sin(phi)*math.sin(psi) + math.cos(phi)*math.sin(theta)*math.cos(psi)
+    rotation_matrix[3] =  math.cos(theta)*math.sin(psi) 
+    rotation_matrix[4] =  math.cos(phi)*math.cos(psi) + math.sin(phi)*math.sin(theta)*math.sin(psi)
+    rotation_matrix[5] = -math.sin(phi)*math.cos(psi) + math.cos(phi)*math.sin(theta)*math.sin(psi)
+    rotation_matrix[6] = -math.sin(theta)
+    rotation_matrix[7] =  math.sin(phi)*math.cos(theta)
+    rotation_matrix[8] =  math.cos(phi)*math.cos(theta)
+    
+    return rotation_matrix
+
+# turn the generic operation type into an openmc relevant text string
 def openmc_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
@@ -67,13 +87,19 @@ def get_openmc_cell_info(cell):
     if cell.cell_universe_rotation != 0:
         rotation = ""
 
-        [phi,theta,psi] = angle_from_rotmatrix(cell.cell_universe_rotation)
-
-        print (cell.cell_id, phi, theta, psi)
+        rotation = "{} {} {} {} {} {} {} {} {}".format(cell.cell_universe_rotation[0],cell.cell_universe_rotation[1],
+                                                       cell.cell_universe_rotation[2],cell.cell_universe_rotation[3],
+                                                       cell.cell_universe_rotation[4],cell.cell_universe_rotation[5],
+                                                       cell.cell_universe_rotation[6],cell.cell_universe_rotation[7],
+                                                       cell.cell_universe_rotation[8])
         
-        rotation += str(phi) + " "
-        rotation += str(theta) + " "
-        rotation += str(psi)
+        #[phi,theta,psi] = angle_from_rotmatrix(cell.cell_universe_rotation)
+        #"""
+        #print (cell.cell_id, phi, theta, psi)
+        
+        #rotation += str(phi) + " "
+        #rotation += str(theta) + " "
+        #rotation += str(psi)
     else:
         rotation = "0 0 0"
 

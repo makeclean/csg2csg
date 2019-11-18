@@ -193,11 +193,9 @@ class MCNPInput(InputDeck):
         # set the colour based on the number of colours
         # but only if its really used rather than a tally
         # multiplier material
-        if material.density > 0:
-            material.material_colour = get_material_colour(len(self.material_list))
+        material.material_colour = get_material_colour(len(self.material_list))
         self.material_list[material.material_number] = material
-        
-        
+                
         return
 
     # get the material cards definitions
@@ -301,7 +299,7 @@ class MCNPInput(InputDeck):
         if 0 in material_density.keys(): del material_density[0]
 
         # maybe void problem
-        if len(material_density): return
+        if not len(material_density): return
 
         # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):

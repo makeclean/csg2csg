@@ -50,11 +50,10 @@ class TestBlockBreaks(unittest.TestCase):
         input.process()
        
        # check number of cells found
-        self.assertEqual(len(input.cell_list),2)
-        
-    
+        self.assertEqual(len(input.cell_list),2)        
+   
 class TestMCNPInputMethods(unittest.TestCase):
-
+     
     def test_explode_macrobody(self):
         input = MCNPInput()
         card_string = "1 rpp -1 1 -1 1 -1 1"
@@ -253,6 +252,30 @@ class TestMCNPInputMethods(unittest.TestCase):
             
         # surface 7 should be a sphere
         # 8-9 px 10-11 py 12-13 pz
+
+class TestMCNPInputRegressions(unittest.TestCase):
+
+    def test_parenthesis_bug(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 0 (3) \n")
+        input_string.append("2 0 (#1)\n")
+        input_string.append(" \n")
+        input_string.append("3 cz 300\n")
+        input_string.append(" \n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("    1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+       
+        # check number of cells found
+        self.assertEqual(len(input.cell_list),2)
+        self.assertEqual(input.cell_list[0].text_string,"1 0 (3) \n")
+        self.assertEqual(input.cell_list[1].text_string,"2 0 (#1)\n")
         
 if __name__ == '__main__':
     unittest.main()
