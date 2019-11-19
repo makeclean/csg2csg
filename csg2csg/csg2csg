@@ -5,6 +5,7 @@ from csg2csg.SerpentInput import SerpentInput
 from csg2csg.OpenMCInput import OpenMCInput
 from csg2csg.FLUKAInput import FLUKAInput
 from csg2csg.PhitsInput import PhitsInput
+from csg2csg.GDMLInput import GDMLInput
 
 # for debug info
 import logging, sys 
@@ -33,7 +34,7 @@ def main(argv):
                         required=True)
 
     parser.add_argument('-f','--format', 
-                        choices=["mcnp","serpent","openmc","phits","fluka"],
+                        choices=["mcnp","serpent","gdml"],
                         help = 'format of the input file', 
                         default = 'mcnp')
 
@@ -79,6 +80,10 @@ def main(argv):
         raise NotImplementedError('Phits input files are not supported yet')
     elif args.format == 'fluka':
         raise NotImplementedError('Fluka input files are not supported yet')
+    elif args.format == 'gdml':
+        input = GDMLInput(filename)
+        input.read()
+        input.process()
 
     for code in codes:
         if "serpent" in code:
@@ -111,7 +116,7 @@ def main(argv):
             fluka.from_input(input)
             mkdir("fluka")
             fluka.write_fluka("fluka/fluka.inp")
-    
+        
     logging.info("Finshed")
 
 if __name__ == "__main__":

@@ -6,6 +6,25 @@ class MaterialData():
     material compositions - note the atomic masses and
     abundances are extracted automatically from PyNE 
     """
+    name_zaid = {}
+    name_zaid["hydrogen"] = 1000
+    name_zaid["helium"] = 2000
+    name_zaid["lithium"] = 3000
+    name_zaid["beryllium"] = 4000
+    name_zaid["boron"] = 5000
+    name_zaid["carbon"] = 6000
+    name_zaid["nitrogen"] = 7000
+    name_zaid["oxygen"] = 8000
+    name_zaid["fluorine"] = 9000
+    name_zaid["neon"] = 10000
+    name_zaid["sodium"] = 11000
+    name_zaid["magnesium"] = 12000
+    name_zaid["aluminium"] = 13000
+    name_zaid["silcon"] = 14000
+    name_zaid["phosphorus"] = 15000
+    name_zaid["sulphur"] = 16000
+    name_zaid["chlorine"] = 17000
+
     atomic_mass_map = {}
     atomic_mass_map[10010000] = 1.00782503223
     atomic_mass_map[10020000] = 2.01410177812

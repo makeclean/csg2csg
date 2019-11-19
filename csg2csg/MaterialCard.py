@@ -91,19 +91,16 @@ class MaterialCard(Card):
     belonging to the material definition as opposed to a given cell. This 
     approach is taken here for maximal compability amongst codes.
     """
-
-    material_name = ""
-    material_number = 0
-    composition_dictionary = {}
-    xsid_dictionary = {}
-    density = 0
-    mat_data = 0
-    material_colour = 0
     
     # constructor
     def __init__(self, material_number = 0, card_string = ""):
         Card.__init__(self,card_string)
         self.material_number = material_number
+        self.material_name = ""
+        self.composition_dictionary = {}
+        self.xsid_dictionary = {}
+        self.density = 0
+        self.material_colour = 0
         self.mat_data = MaterialData()
 
     def __str__(self):

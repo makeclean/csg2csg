@@ -1,6 +1,8 @@
 from csg2csg.Card import Card
 from enum import Enum
 
+import numpy as np
+
 class SurfaceCard(Card):
     """ Class for the storage of the generic SurfaceCard type
     Methods for the generation of flat geometry surface card data
@@ -237,3 +239,100 @@ class SurfaceCard(Card):
             self.surface_type = self.SurfaceType['PLANE_Z']
         else:
             return
+
+    """ translate a given surface by a distance coords
+    """
+    def translation(self,coords):
+        self.generalise()
+        # now do translation
+        dx = -coords[0]
+        dy = -coords[1]
+        dz = -coords[2]
+
+        a = self.surface_coefficients[0]
+        b = self.surface_coefficients[1]
+        c = self.surface_coefficients[2]
+        d = self.surface_coefficients[3]
+        e = self.surface_coefficients[4]
+        f = self.surface_coefficients[5]
+        g = self.surface_coefficients[6]
+        h = self.surface_coefficients[7]
+        j = self.surface_coefficients[8]
+        k = self.surface_coefficients[9]
+
+        A = [[k,   g/2, h/2, j/2],
+            [g/2,  a,   d/2, f/2],
+            [h/2,  d/2, b,   e/2],
+            [j/2,  f/2, e/2, c]]
+
+        trf = [[1,0,0,0], 
+               [dx,1,0,0],
+               [dy,0,1,0],
+               [dz,0,0,1]]
+
+        tmp = np.matmul(A,trf)
+        tmpr = np.matmul(np.transpose(trf),tmp)
+
+        self.surface_coefficients[0] = tmpr[1][1]
+        self.surface_coefficients[1] = tmpr[2][2]
+        self.surface_coefficients[2] = tmpr[3][3]
+        self.surface_coefficients[3] = tmpr[1][2] + tmpr[2][1]
+        self.surface_coefficients[4] = tmpr[3][2] + tmpr[2][3]
+        self.surface_coefficients[5] = tmpr[1][3] + tmpr[3][1]
+        self.surface_coefficients[6] = tmpr[1][0] + tmpr[0][1]
+        self.surface_coefficients[7] = tmpr[2][0] + tmpr[0][2]
+        self.surface_coefficients[8] = tmpr[3][0] + tmpr[0][3]
+        self.surface_coefficients[9] = tmpr[0][0] 
+        return
+
+    # apply the transform to the surface
+    def transform(self, rotation_matrix):
+        self.generalise()
+        a = self.surface_coefficients[0]
+        b = self.surface_coefficients[1]
+        c = self.surface_coefficients[2]
+        d = self.surface_coefficients[3]
+        e = self.surface_coefficients[4]
+        f = self.surface_coefficients[5]
+        g = self.surface_coefficients[6]
+        h = self.surface_coefficients[7]
+        j = self.surface_coefficients[8]
+        k = self.surface_coefficients[9]
+
+        A = [[k,   g/2, h/2, j/2],
+            [g/2,  a,   d/2, f/2],
+            [h/2,  d/2, b,   e/2],
+            [j/2,  f/2, e/2, c]]
+
+        # form the b matrix
+        b1 = rotation_matrix[0][0]
+        b2 = rotation_matrix[0][1]
+        b3 = rotation_matrix[0][2]
+        b4 = rotation_matrix[1][0]
+        b5 = rotation_matrix[1][1]
+        b6 = rotation_matrix[1][2]
+        b7 = rotation_matrix[2][0]
+        b8 = rotation_matrix[2][1]
+        b9 = rotation_matrix[2][2]
+
+        trf = [[1,0,0,0], 
+               [0,b1,b2,b3],
+               [0,b4,b5,b6],
+               [0,b7,b8,b9]]
+
+        # first do rotation
+        tmp = np.matmul(A,trf)
+        tmpr = np.matmul(np.transpose(trf),tmp)
+
+        self.surface_coefficients[0] = tmpr[1][1]
+        self.surface_coefficients[1] = tmpr[2][2]
+        self.surface_coefficients[2] = tmpr[3][3]
+        self.surface_coefficients[3] = tmpr[1][2] + tmpr[2][1]
+        self.surface_coefficients[4] = tmpr[3][2] + tmpr[2][3]
+        self.surface_coefficients[5] = tmpr[1][3] + tmpr[3][1]
+        self.surface_coefficients[6] = tmpr[1][0] + tmpr[0][1]
+        self.surface_coefficients[7] = tmpr[2][0] + tmpr[0][2]
+        self.surface_coefficients[8] = tmpr[3][0] + tmpr[0][3]
+        self.surface_coefficients[9] = tmpr[0][0] 
+
+        return
