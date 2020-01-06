@@ -796,6 +796,11 @@ class MCNPInput(InputDeck):
                 idx += 1
                 break
 
+            if cell_line.strip() == 'c':
+                logging.info('%s',"Found comment only line")
+                idx +=1
+                continue
+
             card_line = cell_line
             jdx = idx + 1
             # scan until we are all done
@@ -817,8 +822,6 @@ class MCNPInput(InputDeck):
                     pass
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
-                    if card_line == 'c':
-                        continue
                     cellcard = MCNPCellCard(card_line)
                     # we should set the comment here
                     self.cell_list.append(cellcard)
