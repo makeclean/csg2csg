@@ -53,6 +53,9 @@ class MCNPMaterialCard(MaterialCard):
             frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
-            self.composition_dictionary[nucid] = frac
+            if nucid in self.composition_dictionary.keys():
+                self.composition_dictionary[nucid] += frac
+            else:
+                self.composition_dictionary[nucid] = frac
             self.xsid_dictionary[nucid] = xsid
         return
