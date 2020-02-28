@@ -5,12 +5,16 @@
 A tool to translate common Monte Carlo geometry formats between each other.
 
 ## How to use
-Right now the code is petty rough; as is the install procedure.
+Right now the code is petty rough.
 
 Install using pip
 ``pip3 install csg2csg --user``
 
-Run csg2csg.py -i filename
+Run from the terminal with ``csg2csg -i filename -f format`` where filename is the input filename and format is the file format of the input file. Options for the file format include several neutronics codes [mcnp, serpent, openmc, phits, fluka] each is at a different level of completeness.
+
+The default is to attempt to translate the input file into all neutronics codes but users can specify which codes with the ``-o`` flag.
+
+To see all the run options type ``csg2csg -h`` in the terminal
 
 ## Caveats
 Several! Right now only MCNP can be read, and then written to MCNP Serpent and OpenMC. 
