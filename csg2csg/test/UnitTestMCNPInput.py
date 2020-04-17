@@ -12,7 +12,7 @@ from csg2csg.SurfaceCard import SurfaceCard
 
 class TestBlockBreaks(unittest.TestCase):
 
-    def test_SpacesBlockBreaks(self):
+    def test_spaces_block_breaks(self):
         input_string = ["this is a title\n"]
         input_string.append("1 1 -1.0 -3\n")
         input_string.append("2 0 3\n")
@@ -32,7 +32,7 @@ class TestBlockBreaks(unittest.TestCase):
         # check number of cells found
         self.assertEqual(len(input.cell_list),2)
         
-    def test_WhiteSpacesBlockBreaks(self):
+    def test_white_spaces_block_breaks(self):
         input_string = ["this is a title\n"]
         input_string.append("1 1 -1.0 -3\n")
         input_string.append("2 0 3\n")
@@ -50,7 +50,44 @@ class TestBlockBreaks(unittest.TestCase):
         input.process()
        
        # check number of cells found
-        self.assertEqual(len(input.cell_list),2)        
+        self.assertEqual(len(input.cell_list),2)      
+
+    def test_comment_lines(self):
+        input_string = ["this is a title\n"]
+        input_string.append("4980  130 0.06026342    8085  -8086   8654  -4684  27  100 -200 imp:n=1\n")
+        input_string.append("4985  130 0.06000038     8011  -8086   4684  -4682  27  100 -200 imp:n=1\n")
+        input_string.append("4995  130 0.099591    8011  -8086   4682  -53    27  100 -200 imp:n=1\n")
+        input_string.append("c\n")
+        input_string.append("c      Comment line sandwiched by two blank comment lines\n")
+        input_string.append("c\n")
+        input_string.append("5001  130 0.099591    7511  -7586   -67 7602  -53  100 -200 imp:n=1\n")
+        input_string.append("5002  130 0.06000038    7511  -7586   -7602  7604  -53  100 -200 imp:n=1 \n")
+        input_string.append("   \t \n")
+        input_string.append("8085 so 10.\n")
+        input_string.append("8086 so 11.\n")
+        input_string.append("8654 so 12.\n")
+        input_string.append("4684 so 13.\n")
+        input_string.append("27 so 14.\n")
+        input_string.append("100 so 15.\n")
+        input_string.append("200 so 16.\n")
+        input_string.append("   \t \n")
+        input_string.append("m130 1001 1.0\n")
+        input_string.append("    1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.surface_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+
+        # check number of cells found is 5 and does not include the c
+        self.assertEqual(len(input.cell_list),5)
+
+        # checks the number of surfaces found is 7
+        self.assertEqual(len(input.surface_list),7) 
+  
    
 class TestMCNPInputMethods(unittest.TestCase):
      
