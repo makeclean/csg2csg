@@ -26,7 +26,7 @@ def is_cell_card(line):
                 return True
     except ValueError:
         return False
-    
+
     cellid = int(cell_card[0])
     mat_num = int(cell_card[1])
     if cellid and mat_num == 0:
@@ -65,21 +65,21 @@ def mcnp_op_from_generic(Operation):
 # write the cell card for a serpent cell given a generic cell card
 def write_mcnp_cell(filestream, CellCard, print_importances = True):
     string = str(CellCard.cell_id) + " "
-    
+
     string += str(CellCard.cell_material_number) + " "
     if CellCard.cell_material_number != 0:
         string += str(CellCard.cell_density) + " "
 
     string += " ( "
-    
+
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += mcnp_op_from_generic(item)
 
-    # TODO make string no longer than 60 chars    
-    string += " ) " 
+    # TODO make string no longer than 60 chars
+    string += " ) "
     string += "\n"
-    
+
     string = re.sub(" +"," ",string)
     string = string.strip()
 
@@ -88,7 +88,7 @@ def write_mcnp_cell(filestream, CellCard, print_importances = True):
 
     if CellCard.cell_fill != 0:
         string += " fill="+CellCard.cell_fill + " "
-        if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:          
+        if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:
             # universe may have no traslation?
             string += "("
             if CellCard.cell_universe_offset != 0:
@@ -96,14 +96,14 @@ def write_mcnp_cell(filestream, CellCard, print_importances = True):
                     string += str(CellCard.cell_universe_offset[i]) + " "
             else:
                 string += " 0 0 0 "
-    
+
             if CellCard.cell_universe_rotation != 0:
                 for i in range(9):
                     value = float(CellCard.cell_universe_rotation[i])
-                    #value = math.cos(value/180.*math.pi) 
+                    #value = math.cos(value/180.*math.pi)
                     string += str(value) + " "
             string += ")"
-    
+
     if print_importances:
         string += " IMP:N=" + str(CellCard.cell_importance)
 
@@ -134,16 +134,16 @@ class MCNPCellCard(CellCard):
 
     # method to break mcnp cell definition into something
     # a mere mortal can understand turns mcnp description
-    # like 2 3 -4 into 2 AND 3 AND -4 or even 2 AND 3 AND 
+    # like 2 3 -4 into 2 AND 3 AND -4 or even 2 AND 3 AND
     # +4
     def generalise(self):
-        
+
         cell_description = self.cell_text_description
         # wholesale replace + signs as they are implicit
         # print(cell_description)
         # cell_description = [ s = "" for item in cell_description if item == "+"]
         cell_description = list(cell_description)
-    
+
         idx = 0
         while True:
             s = cell_description[idx]
@@ -166,13 +166,13 @@ class MCNPCellCard(CellCard):
                     self.cell_surface_list.add(surf_num)
                 except:
                     pass # its means it was a macrobody
-                
+
             idx += 1
             if idx == len(cell_description): break
 
-        self.cell_interpreted = cell_description  
-        #print(self.cell_id) 
-        #print(self.cell_interpreted) 
+        self.cell_interpreted = cell_description
+        #print(self.cell_id)
+        #print(self.cell_interpreted)
         #logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
 
         return
@@ -186,10 +186,10 @@ class MCNPCellCard(CellCard):
     # given a valid keyword and string return the value of the
     # keyword
     def __get_keyword_value(self,keyword,string):
-        #regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*") 
+        #regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*")
         regex = re.regex=re.compile("("+keyword+") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)")
         result = regex.search(string)[0]
-        return result.split(" ")[2] #string[offset:end]  
+        return result.split(" ")[2] #string[offset:end]
 
     def __extract_string_between(self, string, first_substring, second_substring):
         #print(string, first_substring, second_substring,string.find(first_substring),string.find(second_substring))
@@ -201,9 +201,9 @@ class MCNPCellCard(CellCard):
             return ""
         return result
 
-    # look through the string for the keywords 
+    # look through the string for the keywords
     def __detect_keywords(self, keywords, string):
-        
+
         # loop over the keywords and test
         found_keyword = False
         for word in keywords:
@@ -213,23 +213,23 @@ class MCNPCellCard(CellCard):
         if not found_keyword:
             return string
 
-        # 
+        #
         posd = string.find('$')
         if posd != -1:
             string = string[:posd]
-            
+
         # otherwise loop through and find
         # u= , fill=, imp and tmp:
         posu = string.find("u")
         posf = string.find("fill")
         post = string.find("tmp")
-   
+
         # universe fill angle could be specified in degrees
         rot_angle_degrees = False
         if string.find("*fill") != -1:
             rot_angle_degrees = True
             posf -= 1
-        
+
         posi = string.find("imp")
         posv = string.find("vol")
 
@@ -251,7 +251,7 @@ class MCNPCellCard(CellCard):
             self.cell_universe = 0
         else:
             self.cell_universe = self.__get_keyword_value('u',end_of_string)
-            
+
         if posf == -1:
             self.cell_fill = 0
         else:
@@ -264,15 +264,15 @@ class MCNPCellCard(CellCard):
                 rot_trans = "0"
 
             self.__set_universe_transform(rot_trans,rot_angle_degrees)
- 
+
         if posi == -1:
             self.cell_importance = 1.
         else:
             self.cell_importance = float(self.__get_keyword_value('imp:n',end_of_string))
 
-        # return the string upto the posisiotn of the first detected keyword          
+        # return the string upto the posisiotn of the first detected keyword
         return string[:m]
-    
+
     # populute the part CellCard into its
     # consituent parts
     def __interpret(self):
@@ -281,7 +281,7 @@ class MCNPCellCard(CellCard):
 
         # look for mcnp cell specific keywords
         string = self.__detect_keywords(mcnp_cell_keywords,string)
-        
+
         # this is to detect the presence of any importance
         # values only need one - used to indentify the
         # graveyard
@@ -313,7 +313,7 @@ class MCNPCellCard(CellCard):
             self.cell_density = 0.
             self.cell_material_number = 0
             self.cell_text_description = tokens[2:]
-            
+
         # now interpret the cell text description
         if not self.__is_sanitised():
             self.__sanitise()
@@ -321,7 +321,7 @@ class MCNPCellCard(CellCard):
 
         return
 
-    # set the universe transform 
+    # set the universe transform
     # angle
     def __set_universe_transform(self, transform, angle_form_degrees):
         tokens = transform.split()
@@ -352,9 +352,9 @@ class MCNPCellCard(CellCard):
         # reset the transform
         self.cell_universe_transformation_id = "0"
 
-    # update an existing cell description with 
+    # update an existing cell description with
     def update(self,new_cell_description):
-        # take the new cell description and make a new 
+        # take the new cell description and make a new
         # cell description
         self.text_string = str(self.cell_id)
         self.text_string += " " + str(self.cell_material_number)
@@ -363,7 +363,5 @@ class MCNPCellCard(CellCard):
         else:
             self.text_string += " " + str(self.cell_density)
             self.text_string += " " + new_cell_description
-        
+
         self.__interpret()
-        
-        
