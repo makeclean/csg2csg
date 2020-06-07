@@ -808,6 +808,11 @@ class MCNPInput(InputDeck):
                     cell_comment = self.file_lines[jdx][pos_comment:] # set the comment
                     self.file_lines[jdx] = cell_line # update the file data
 
+                # if first token is 'c', skip this line
+                if cell_line.split()[0] == "c":
+                    idx += 1
+                    continue
+
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line[0:5] == "     " and not cell_line.isspace():
                     card_line += cell_line
