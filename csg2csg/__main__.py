@@ -7,7 +7,7 @@ from csg2csg.FLUKAInput import FLUKAInput
 from csg2csg.PhitsInput import PhitsInput
 
 # for debug info
-import logging, sys 
+import logging, sys
 import argparse
 import os
 
@@ -16,39 +16,41 @@ import os
 def mkdir(directory):
     try:
         os.mkdir(directory)
-    except: 
+    except:
         pass
 
 # the main worker
-def main(argv):
+def main():
+
+    argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser(description='csg conversion tool.')
 
-    parser.add_argument('-d','--debug', 
+    parser.add_argument('-d','--debug',
                         help = 'Turn on debug logging',
                         action="store_true")
 
-    parser.add_argument('-i','--input', 
+    parser.add_argument('-i','--input',
                         help = 'Filename to read in',
                         required=True)
 
-    parser.add_argument('-f','--format', 
+    parser.add_argument('-f','--format',
                         choices=["mcnp","serpent","openmc","phits","fluka"],
-                        help = 'format of the input file', 
+                        help = 'format of the input file',
                         default = 'mcnp')
 
-    parser.add_argument('-p','--preserve', 
+    parser.add_argument('-p','--preserve',
                         help = 'Preserve existing cross section id numbers on write',
                         action = "store_true")
-    
-    parser.add_argument('-o','--output', 
+
+    parser.add_argument('-o','--output',
                         nargs='+',
                         help = 'Output code selections',
                         default = 'all')
 
     # parse the arguments
     args = parser.parse_args(argv)
-      
+
     # if debugging requested
     if args.debug:
         logging.basicConfig(filename="csg2csg.log", level=logging.DEBUG)
@@ -56,7 +58,7 @@ def main(argv):
     logging.info("Started")
 
     filename = args.input
-    
+
 
     if "all" in args.output:
         codes = ["mcnp","serpent","openmc","phits","fluka"]
@@ -72,7 +74,7 @@ def main(argv):
         # read the serpent input
         input = SerpentInput(filename)
         input.read()
-        input.process()        
+        input.process()
     elif args.format == 'openmc':
         raise NotImplementedError('OpenMC input files are not supported yet')
     elif args.format == 'phits':
@@ -111,9 +113,9 @@ def main(argv):
             fluka.from_input(input)
             mkdir("fluka")
             fluka.write_fluka("fluka/fluka.inp")
-    
+
     logging.info("Finshed")
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
-    
+    main()
+
