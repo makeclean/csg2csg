@@ -2,7 +2,7 @@
 
 class InputDeck:
     """ InputDeck class from which other concrete examples
-    should inherit, for example MCNPInputDeck will inhert
+    should inherit, for example MCNPInputDeck will inherit
     from this class
     """
     filename = ""
@@ -10,7 +10,7 @@ class InputDeck:
     title = ""
     total_num_lines = 0
 
-    # if doing a direct tranlation store here
+    # if doing a direct translation store here
     # TODO maybe these should be dictionaries by index
     cell_list = []
     surface_list = []

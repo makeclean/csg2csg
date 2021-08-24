@@ -34,7 +34,7 @@ class CellCard(Card):
         self.cell_universe_rotation = 0
         self.cell_universe_transformation_id = "0" # if there is a cell_universe tr number it should be purged
                                         # and converted into an offset and rotation
-        self.cell_surface_list = set() # list of cells used in the cell definition
+        self.cell_surface_list = set() # list of surfaces used in the cell definition
 
         Card.__init__(self,card_string)
 
