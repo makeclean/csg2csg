@@ -15,11 +15,19 @@ class TestWindowsLineEndings(unittest.TestCase):
     # round trip the MCNP file produced from the line above - it should be
     # identical
     def test_round_trip(self):
-        return_code = subprocess.call("csg2csg -i mcnp/file.mcnp -f mcnp -o mcnp", shell=True)
+        return_code = subprocess.call("mv mcnp/file.mcnp . ", shell=True)
+        self.assertEqual(return_code,0)
+        return_code = subprocess.call("rm -rf mcnp fluka openmc serpent", shell=True)
         self.assertEqual(return_code,0)
 
-        return_code = subprocess.call("diff mcnp/file.mcnp mcnp/mcnp/file.mcnp", shell=True)
+        return_code = subprocess.call("csg2csg -i file.mcnp -f mcnp -o mcnp", shell=True)
         self.assertEqual(return_code,0)
+        return_code = subprocess.call("diff file.mcnp mcnp/file.mcnp", shell=True)
+        self.assertEqual(return_code,0)
+
+        return_code = subprocess.call("rm -rf mcnp fluka openmc serpent file.mcnp", shell=True)
+        self.assertEqual(return_code,0)
+
         
 if __name__ == '__main__':
     unittest.main()
