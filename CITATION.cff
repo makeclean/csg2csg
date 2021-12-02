@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Davis"
+  given-names: "Andrew"
+- family-names: "Shimwell"
+  given-names: "Jonathan"
+  orcid: "https://orcid.org/0000-0001-6909-0946"
+- family-names: "Lilley"
+  given-names: "Steve"
+- family-names: "Shriwise"
+  given-names: "Patrick"
+  orcid: "https://orcid.org/0000-0002-3979-7665"
+title: "csg2csg: Tools to translate between different CSG geometry types "
+version: 0.0.30 
+date-released: 2021-3-2
+url: "https://github.com/makeclean/csg2csg"
