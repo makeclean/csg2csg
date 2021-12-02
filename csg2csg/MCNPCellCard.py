@@ -43,19 +43,19 @@ def is_cell_card(line):
 def mcnp_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
-        if Operation is "(":
+        if Operation == "(":
             return " "+Operation+" "
-        elif Operation is ")":
+        elif Operation == ")":
             return " "+Operation+" "
         else:
             return Operation
     else:
         # otherwise we need to do something
-        if Operation is CellCard.OperationType["NOT"]:
+        if Operation == CellCard.OperationType["NOT"]:
             string = " #"
-        elif Operation is CellCard.OperationType["AND"]:
+        elif Operation == CellCard.OperationType["AND"]:
             string = "  "
-        elif Operation is CellCard.OperationType["UNION"]:
+        elif Operation == CellCard.OperationType["UNION"]:
             string = " : "
         else:
             string = "unknown operation"
@@ -147,18 +147,18 @@ class MCNPCellCard(CellCard):
         idx = 0
         while True:
             s = cell_description[idx]
-            if s is ":":
+            if s == ":":
                 cell_description[idx] = CellCard.OperationType["UNION"]
                 idx += 1
                 continue
-            elif s is "#":
+            elif s == "#":
                 cell_description[idx] = CellCard.OperationType["NOT"]
                 idx += 1
                 continue
-            elif s is ("(" or  ")"):
+            elif s == ("(" or  ")"):
                 idx += 1
                 continue
-            elif isinstance(s,str) and cell_description[idx-1] is not "(" and cell_description[idx] is not ")":
+            elif isinstance(s,str) and cell_description[idx-1] != "(" and cell_description[idx] != ")":
                 cell_description.insert(idx,CellCard.OperationType["AND"])
                 idx += 1
                 try:

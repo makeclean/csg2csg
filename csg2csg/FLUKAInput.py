@@ -135,8 +135,8 @@ class FLUKAInput(InputDeck):
         return
 
     def __write_fluka_importances(self,filename):
-        max_importance = 0
-        min_importance = 1e99
+        max_importance = 1
+        min_importance = 1e9
 
         for cell in self.cell_list:
             if cell.cell_importance > max_importance:
