@@ -70,14 +70,14 @@ def write_mcnp_cell(filestream, CellCard, print_importances = True):
     if CellCard.cell_material_number != 0:
         string += str(CellCard.cell_density) + " "
 
-    string += " ( "
+    #string += " ( "
 
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += mcnp_op_from_generic(item)
 
     # TODO make string no longer than 60 chars
-    string += " ) "
+    #string += " ) "
     string += "\n"
 
     string = re.sub(" +"," ",string)
