@@ -942,9 +942,9 @@ class MCNPInput(InputDeck):
                         # convert the surface 
                         match = surfs_for_comparison[compare]
                         original = surfs_for_comparison[surf]
-
                         duplicates[match] = original
                         senses[match] = reverse
+                        logging.debug("%s", "Surface %s and Surface %s match with the sense %s" % (match.surface_id, original.surface_id,reverse))
 
 
         """
@@ -988,7 +988,12 @@ class MCNPInput(InputDeck):
             for surf in duplicates.keys():
                 # TODO really we should be replacing the surface instance
                 # rather than the id
-                cell.replace_surface(duplicates[surf].surface_id,surf.surface_id,senses[surf])
+                cell.replace_surface(duplicates[surf].surface_id, surf.surface_id, senses[surf])
+
+        # remove the duplicate surface
+        for surf in duplicates:
+            self.surface_list.remove(surf)
+                
         return
 
     # process the mcnp input deck and read into a generic datastructure
