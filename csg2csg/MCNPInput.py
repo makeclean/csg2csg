@@ -267,7 +267,7 @@ class MCNPInput(InputDeck):
         # loop over all the cells
         for cell in self.cell_list:
             # if the transform id is not 0
-            if cell.cell_universe_transformation_id is not "0":
+            if cell.cell_universe_transformation_id != "0":
                 # apply the transform
                 cell.apply_universe_transform(self.transform_list[cell.cell_universe_transformation_id])
                 
