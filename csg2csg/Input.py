@@ -66,11 +66,11 @@ class InputDeck:
 
 
     def from_input(self,InputDeckClass):
-        InputDeck.filename = InputDeckClass.filename
-        InputDeck.title = InputDeckClass.title
-        InputDeck.cell_list = InputDeckClass.cell_list
-        InputDeck.surfcace_list = InputDeckClass.surface_list
-        InputDeck.material_list = InputDeckClass.material_list
+        self.filename = InputDeckClass.filename
+        self.title = InputDeckClass.title
+        self.cell_list = InputDeckClass.cell_list
+        self.surfcace_list = InputDeckClass.surface_list
+        self.material_list = InputDeckClass.material_list
         return
 
     # step through each cell and determine if the cell can 
