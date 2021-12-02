@@ -37,7 +37,16 @@ class MCNPMaterialCard(MaterialCard):
         mat_string = mat_string.replace("\n","")
         
         # split string
-        tokens = mat_string.split()
+        all_tokens = mat_string.split()
+
+        # need to remove other material keywords not zaids
+        tokens = []
+        keywords = []
+        for token in all_tokens:
+            if "=" in token:
+                keywords.append(token)
+            else:
+                tokens.append(token)
 
         if len(tokens)%2 != 0:
             print ("Material string not correctly processed")

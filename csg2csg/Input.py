@@ -2,7 +2,7 @@
 
 class InputDeck:
     """ InputDeck class from which other concrete examples
-    should inherit, for example MCNPInputDeck will inhert
+    should inherit, for example MCNPInputDeck will inherit
     from this class
     """
     

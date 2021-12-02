@@ -114,7 +114,7 @@ def main():
             mkdir("fluka")
             fluka.write_fluka("fluka/fluka.inp")
 
-    logging.info("Finshed")
+    logging.info("Finished")
 
 if __name__ == "__main__":
     main()
