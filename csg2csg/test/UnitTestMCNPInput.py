@@ -313,6 +313,37 @@ class TestMCNPInputRegressions(unittest.TestCase):
         self.assertEqual(len(input.cell_list),2)
         self.assertEqual(input.cell_list[0].text_string,"1 0 (3) \n")
         self.assertEqual(input.cell_list[1].text_string,"2 0 (#1)\n")
-        
+
+        del input
+
+    def test_parenthesis_plane_bug(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -1\n")
+        input_string.append("2 0  1\n")
+        input_string.append(" \n")
+        input_string.append("1 1 px 2.0\n")
+        input_string.append(" \n")
+        input_string.append("*tr1 0 0.15 0 45 90 45 90 0 90 135 90 45\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+               
+        # check number of cells found
+        self.assertEqual(len(input.cell_list),2)
+        self.assertEqual(len(input.surface_list),1)
+        self.assertEqual(len(input.surface_list[0].surface_coefficients),4)
+        self.assertEqual(input.surface_list[0].surface_coefficients[0], 0.7071067811865476)
+        self.assertEqual(input.surface_list[0].surface_coefficients[1], 6.123233995736766e-17)
+        self.assertEqual(input.surface_list[0].surface_coefficients[2], 0.7071067811865476)
+        self.assertEqual(input.surface_list[0].surface_coefficients[3], 2.0)
+
+        del input
+
 if __name__ == '__main__':
     unittest.main()
