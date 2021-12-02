@@ -819,6 +819,9 @@ class MCNPInput(InputDeck):
                 idx += 1
                 break
 
+            card_line = cell_line
+            jdx = idx + 1
+            # scan until we are all done                                                             
 
             card_line = cell_line
             jdx = idx + 1
@@ -831,9 +834,6 @@ class MCNPInput(InputDeck):
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
                     card_line += cell_line
-                # we have found a $comment line with nothing before it
-                elif cell_line.isspace() and cell_comment:
-                    pass
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
