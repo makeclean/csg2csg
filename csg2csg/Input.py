@@ -64,12 +64,12 @@ class InputDeck:
                 return cell
         return None 
 
-
+    # instanciate from input
     def from_input(self,InputDeckClass):
         self.filename = InputDeckClass.filename
         self.title = InputDeckClass.title
         self.cell_list = InputDeckClass.cell_list
-        self.surfcace_list = InputDeckClass.surface_list
+        self.surface_list = InputDeckClass.surface_list
         self.material_list = InputDeckClass.material_list
         return
 
