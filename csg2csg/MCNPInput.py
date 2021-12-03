@@ -9,7 +9,7 @@ from csg2csg.MCNPFormatter import strip_dollar_comments
 from csg2csg.MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from csg2csg.MCNPDataCard import MCNPTransformCard
-from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
+from csg2csg.MCNPMaterialCard import MCNPMaterialCard, MCNPSABCard, write_mcnp_material
 
 from collections import Counter
 
@@ -23,6 +23,7 @@ from copy import deepcopy
 
 import warnings
 import logging
+import os
 import sys
 import re
 
@@ -38,6 +39,35 @@ class MCNPInput(InputDeck):
 
     # TODO - maybe make a function that aribitrarily extract text
     # between one keyword until another keyword is found
+
+    # extend read method to process "read" cards in MCNP input file
+    def read(self):
+        with open(self.filename, 'rU', errors="replace") as f:
+            file_content = f.read()
+
+        # look for and swap read cards
+        read_cards = re.findall("^read .*?\n", file_content, re.DOTALL|re.MULTILINE)
+        for read_card in read_cards:
+            filepath = read_card.split("=")[1].strip().split()[0]
+            # if file exists, read it in and replace
+            if os.path.isfile(filepath):
+                with open(filepath, 'rU', errors="replace") as i:
+                    read_input = i.read()
+                i.close()
+        
+                file_content = re.sub(read_card, read_input, file_content)
+        
+            # else, print error and comment out
+            else:
+                print("WARNING: read file {} does not exist.".format(filepath))
+                file_content = re.sub(read_card, "c " + read_card, file_content)
+
+        self.file_lines = file_content.splitlines(keepends=True)
+
+        # split into lines and count total lines
+        self.file_lines = [x.lower() for x in self.file_lines]
+
+        self.total_num_lines = len(self.file_lines)
 
     def __set_title(self):
         # set the title card
@@ -189,12 +219,24 @@ class MCNPInput(InputDeck):
                 idx += 1
             break
 
-        material = MCNPMaterialCard(mat_num, material_string)
-        # set the colour based on the number of colours
-        # but only if its really used rather than a tally
-        # multiplier material
-        material.material_colour = get_material_colour(len(self.material_list))
-        self.material_list[material.material_number] = material
+        # process s(alpha, beta) 
+        # assumes that all s(alpha, beta) are input after corresponding material cards in the input file
+        if "t" in mat_num:
+            mat_num = mat_num.replace("t","")
+            material = MCNPSABCard(mat_num, material_string)
+
+            # update the previous material card to include thermal scattering
+            self.material_list[material.material_number].thermal_scattering = material.thermal_scattering
+
+            return 
+
+        else:
+            material = MCNPMaterialCard(mat_num, material_string)
+            # set the colour based on the number of colours
+            # but only if its really used rather than a tally
+            # multiplier material
+            material.material_colour = get_material_colour(len(self.material_list))
+            self.material_list[material.material_number] = material
 
         return
 
@@ -209,7 +251,7 @@ class MCNPInput(InputDeck):
 
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if re.match(" *m[0-9]/*",self.file_lines[idx]):
+            if re.match(" *m(t)?[0-9]/*",self.file_lines[idx]):
 #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
@@ -670,6 +712,42 @@ class MCNPInput(InputDeck):
                     text_string = ' '.join(cell.cell_text_description)
                     self.cell_list[jdx].update(text_string)
 
+                # update the lattice definition (cell in mcnp) - loop over all cells
+                for jdx, cell in enumerate(self.lattice_list):
+                    while True:
+                        # cell text description is contually updated
+                        cell_text_description = cell.cell_text_description
+                        
+                        # if we find the surface id of the macrobdy in the text description
+                        sub = str(surf.surface_id)
+                        regex = re.compile("^-?("+str(surf.surface_id)+")(\.+[1-9])?$")
+                        matches = [m.group(0) for l in cell_text_description for m in [regex.search(l)] if m]
+                        #if str(surf.surface_id) in cell_text_description or str(surf.surface_id)+"." in cell_text_description:
+                        
+                        if matches:                       
+                            # loop over each component and find the macrobody
+                            for idx, surface in enumerate(cell.cell_text_description):
+                                # if it matches we have the simmple form
+                                if str(surf.surface_id) == surface:
+                                    # replace it
+                                    cell.cell_text_description[idx] = cell_description[1]
+                                elif "-"+str(surf.surface_id) == surface:
+                                    cell.cell_text_description[idx] = cell_description[0]
+                   
+                                # else we have the facet form
+                                if str(surf.surface_id)+"." in surface:                                    
+                                    surface_index = int(surface.split(".")[1]) # get just the mcnp surface index
+                                    new_surface_id = new_surfaces[surface_index-1].surface_id # mcnp numbers them 1->n
+                                    if "-" in surface: # need to take care of the -sign
+                                        cell.cell_text_description[idx] = "-"+str(new_surface_id)
+                                    else:
+                                        cell.cell_text_description[idx] = str(new_surface_id)
+                        else:
+                            break
+                    # update the text description
+                    text_string = ' '.join(cell.cell_text_description)
+                    self.lattice_list[jdx].update(text_string)
+
         # clear up removed surfaces
         logging.debug("%s", "Deleting macrobody surfaces")
         for surf in to_remove:
@@ -825,11 +903,19 @@ class MCNPInput(InputDeck):
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
                     card_line += cell_line
+                # if & continuation 
+                elif self.file_lines[jdx-1].rstrip().endswith("&"):
+                    card_line += cell_line
+                    # strip any &
+                    card_line = re.sub("&", "", card_line)
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
-                    # we should set the comment here
-                    self.cell_list.append(cellcard)
+                    if cellcard.cell_lattice_type is not None:
+                        self.lattice_list.append(cellcard)
+                    else:
+                        # we should set the comment here
+                        self.cell_list.append(cellcard)
                     break
                 jdx += 1
             idx = jdx
@@ -853,6 +939,7 @@ class MCNPInput(InputDeck):
         for cell in self.cell_list:
             if cell.cell_importance == 0:
                 for surf in cell.cell_surface_list:
+                    if self.get_surface_with_id(surf) is None: continue
                     self.get_surface_with_id(surf).boundary_condition = SurfaceCard.BoundaryCondition["VACUUM"]
         return
 
@@ -884,6 +971,44 @@ class MCNPInput(InputDeck):
             idx = jdx
         return idx
 
+    # return specific surface card
+    def __get_surface_card(self, surface_id):
+        for surface in self.surface_list:
+            if surface.surface_id == surface_id:
+                return surface
+
+    # update lattices
+    def __update_lattices(self):
+        # todo - note, this is not very robust
+        # "orientation" is only used for hex lattice
+        for lattice in self.lattice_list:
+            # initialize data
+            heights = []
+
+            # determine orientation, flat-to-flat, and height
+            for surface_id in lattice.cell_surface_list:
+                surface = self.__get_surface_card(surface_id)
+
+                # if z
+                if surface.surface_type == SurfaceCard.SurfaceType["PLANE_Z"]:
+                    heights.append( surface.surface_coefficients[3] )
+                elif (surface.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"] and 
+                      surface.surface_coefficients[0] == 0 and
+                      surface.surface_coefficients[1] == 0 and
+                      surface.surface_coefficients[2] == -1):
+                    heights.append( -surface.surface_coefficients[3] )
+                # if px, py
+                elif surface.surface_type == SurfaceCard.SurfaceType["PLANE_X"]:
+                    orientation = "x"
+                    pitch = abs(2.*surface.surface_coefficients[3])
+                elif surface.surface_type == SurfaceCard.SurfaceType["PLANE_Y"]:
+                    orientation = "y"
+                    pitch = abs(2.*surface.surface_coefficients[3])
+
+            height = abs(heights[0] - heights[1])
+            
+            lattice.pitch = [pitch, height]
+            lattice.orientation = orientation
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
@@ -948,6 +1073,9 @@ class MCNPInput(InputDeck):
         # update the bounding coordinates of surfaces that need it
         # cones for example
         self.__update_surfaces()
+        
+        # process lattices, to get geometric information, now that surfaces are defined
+        self.__update_lattices()
 
         self.split_unions()
 

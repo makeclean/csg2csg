@@ -1,6 +1,7 @@
 #!/usr/env/python3
 
 from csg2csg.MaterialCard import MaterialCard
+from csg2csg.MaterialData import ThermalScattering
 from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
 import sys
@@ -67,4 +68,35 @@ class MCNPMaterialCard(MaterialCard):
             else:
                 self.composition_dictionary[nucid] = frac
             self.xsid_dictionary[nucid] = xsid
+        return
+
+
+class MCNPSABCard(MaterialCard):
+    
+    def __init__(self, material_number, card_string):
+        MaterialCard.__init__(self, material_number, card_string)
+        self.material_name = "MT"+str(material_number)
+        self.material_number = material_number
+        self.__process_string()
+
+    # populate the MCNP Material Card
+    def __process_string(self):
+        # need to reset the list
+        # otherwise state seems to linger - weird
+        self.thermal_scattering = []
+
+        mat_string = self.text_string
+        mat_string = mat_string.replace("\n","")
+        
+        # split string
+        tokens = mat_string.split()
+
+        while len(tokens) != 0:
+            sab = tokens[0].split(".")[0]
+
+            tokens.pop(0)
+
+            scattering = ThermalScattering()
+
+            self.thermal_scattering.append( scattering.generalise[sab] )
         return
