@@ -17,6 +17,7 @@ class InputDeck:
         # TODO maybe these should be dictionaries by index
         self.cell_list = []
         self.surface_list = []
+        self.lattice_list = []
         self.last_free_surface_index = 0
         self.importance_list = {} # dictionary of importances
         self.material_list = {}
@@ -70,6 +71,7 @@ class InputDeck:
         self.title = InputDeckClass.title
         self.cell_list = InputDeckClass.cell_list
         self.surface_list = InputDeckClass.surface_list
+        self.lattice_list = InputDeckClass.lattice_list
         self.material_list = InputDeckClass.material_list
         return
 

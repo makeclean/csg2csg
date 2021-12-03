@@ -10,8 +10,14 @@ import math
 
 import logging
 
+import numpy
+import scipy.constants
+
+# define constants
+k_Mev = scipy.constants.physical_constants.get("Boltzmann constant in eV/K")[0]/1.e6
+
 # to support more keywords for cells add them here
-mcnp_cell_keywords = ["imp","u","fill","vol", "tmp"]
+mcnp_cell_keywords = ["imp","u","fill","vol", "tmp", "lat"]
 
 # if the string is a cell card or not
 def is_cell_card(line):
@@ -86,6 +92,12 @@ def write_mcnp_cell(filestream, CellCard, print_importances = True):
     if CellCard.cell_universe != 0:
         string += " u=" + CellCard.cell_universe
 
+    if CellCard.cell_volume is not None:
+        string += " vol=" + CellCard.cell_volume
+
+    if CellCard.cell_temperature is not None:
+        string += " tmp=" + str(CellCard.cell_temperature*k_Mev)
+
     if CellCard.cell_fill != 0:
         string += " fill="+CellCard.cell_fill + " "
         if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:
@@ -143,7 +155,10 @@ class MCNPCellCard(CellCard):
         # print(cell_description)
         # cell_description = [ s = "" for item in cell_description if item == "+"]
         cell_description = list(cell_description)
-
+        
+        # need to reset cell surface list, to exclude removed macrobody, etc.
+        self.cell_surface_list = set()
+    
         idx = 0
         while True:
             s = cell_description[idx]
@@ -158,7 +173,7 @@ class MCNPCellCard(CellCard):
             elif s == ("(" or  ")"):
                 idx += 1
                 continue
-            elif isinstance(s,str) and cell_description[idx-1] != "(" and cell_description[idx] != ")":
+            elif isinstance(s,str) and cell_description[idx] != "(" and cell_description[idx] != ")":
                 cell_description.insert(idx,CellCard.OperationType["AND"])
                 idx += 1
                 try:
@@ -187,7 +202,7 @@ class MCNPCellCard(CellCard):
     # keyword
     def __get_keyword_value(self,keyword,string):
         #regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*")
-        regex = re.regex=re.compile("("+keyword+") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)")
+        regex = re.compile("("+keyword+") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)")
         result = regex.search(string)[0]
         return result.split(" ")[2] #string[offset:end]
 
@@ -232,10 +247,11 @@ class MCNPCellCard(CellCard):
 
         posi = string.find("imp")
         posv = string.find("vol")
+        posl = string.find("lat")
 
         # find the posititon of the first match
-        positions = [posu, posf, posi, posv, post]
-        if posu != -1 or posf != -1 or posi != -1 or posv != -1 or post != -1:
+        positions = [posu, posf, posi, posv, post, posl]
+        if posu != -1 or posf != -1 or posi != -1 or posv != -1 or post != -1 or posl != -1:
             m = min(i for i in positions if i > 0)
         else:
             return string
@@ -252,23 +268,55 @@ class MCNPCellCard(CellCard):
         else:
             self.cell_universe = self.__get_keyword_value('u',end_of_string)
 
+        if posv != -1:
+            self.cell_volume = self.__get_keyword_value('vol',end_of_string)
+
+        if post != -1:
+            regex = re.compile("tmp ?= \d+\.\d+(?:[eE][+\-]?\d+)?")
+            result = regex.search(end_of_string)[0].split("=")[-1].strip()
+            self.cell_temperature = float(result)/k_Mev
+
         if posf == -1:
             self.cell_fill = 0
         else:
-            self.cell_fill = self.__get_keyword_value('fill',end_of_string).strip()
-            # if we have found fill, there may also be a rotation and translation
-            # associated with the universe of the form (0 0 0)
-            if '(' in string[posf:]:
-                rot_trans = self.__extract_string_between(string[posf:],'(',')')
+            # if lattice, assume fully specified fill cell card
+            if posl != -1:
+               # get the lattice element bounds
+               regex = re.compile("fill ?= ([+-]?([0-9]*)):([+-]?([0-9]*)) ([+-]?([0-9]*)):([+-]?([0-9]*)) ([+-]?([0-9]*)):([+-]?([0-9]*))")
+               result = regex.search(end_of_string)[0]
+
+               self.cell_fill = result.split("=")[-1].strip()
+
+               # process the bounds
+               i, j, k  = self.cell_fill.split()
+               i_coords = list(range(int(i.split(":")[0]),int(i.split(":")[1])+1))
+               j_coords = list(range(int(j.split(":")[0]),int(j.split(":")[1])+1))
+               k_coords = list(range(int(k.split(":")[0]),int(k.split(":")[1])+1))
+               total_cells = len(i_coords)*len(j_coords)*len(k_coords)
+
+               # now read in the lattice
+               lattice = string[posf + len(result):].strip().split()[:total_cells]
+               # note this is reshaped in to z,x,y due to how numpy tiles/reshapes the data
+               self.cell_lattice = numpy.array(lattice).reshape(len(k_coords),len(i_coords),len(j_coords)).astype(int)
+
             else:
-                rot_trans = "0"
-
-            self.__set_universe_transform(rot_trans,rot_angle_degrees)
-
+                self.cell_fill = self.__get_keyword_value('fill',end_of_string).strip()
+                # if we have found fill, there may also be a rotation and translation
+                # associated with the universe of the form (0 0 0)
+                if '(' in string[posf:]:
+                    rot_trans = self.__extract_string_between(string[posf:],'(',')')
+                else:
+                    rot_trans = "0"
+                
+                self.__set_universe_transform(rot_trans,rot_angle_degrees)
+ 
         if posi == -1:
             self.cell_importance = 1.
         else:
             self.cell_importance = float(self.__get_keyword_value("imp:[npe|quvfhl+-xyo!<>g/zk%^b_~cw@dtsa*?#,]+",end_of_string))
+
+        if posl != -1:
+            self.cell_lattice_type = int(self.__get_keyword_value("lat",end_of_string))
 
         # return the string upto the posisiotn of the first detected keyword
         return string[:m]
