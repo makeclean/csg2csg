@@ -23,6 +23,7 @@ from copy import deepcopy
 
 import warnings
 import logging
+import os
 import sys
 import re
 
@@ -38,6 +39,35 @@ class MCNPInput(InputDeck):
 
     # TODO - maybe make a function that aribitrarily extract text
     # between one keyword until another keyword is found
+
+    # extend read method to process "read" cards in MCNP input file
+    def read(self):
+        with open(self.filename, 'rU', errors="replace") as f:
+            file_content = f.read()
+
+        # look for and swap read cards
+        read_cards = re.findall("^read .*?\n", file_content, re.DOTALL|re.MULTILINE)
+        for read_card in read_cards:
+            filepath = read_card.split("=")[1].strip().split()[0]
+            # if file exists, read it in and replace
+            if os.path.isfile(filepath):
+                with open(filepath, 'rU', errors="replace") as i:
+                    read_input = i.read()
+                i.close()
+        
+                file_content = re.sub(read_card, read_input, file_content)
+        
+            # else, print error and comment out
+            else:
+                print("WARNING: read file {} does not exist.".format(filepath))
+                file_content = re.sub(read_card, "c " + read_card, file_content)
+
+        self.file_lines = file_content.splitlines(keepends=True)
+
+        # split into lines and count total lines
+        self.file_lines = [x.lower() for x in self.file_lines]
+
+        self.total_num_lines = len(self.file_lines)
 
     def __set_title(self):
         # set the title card
@@ -825,6 +855,11 @@ class MCNPInput(InputDeck):
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
                     card_line += cell_line
+                # if & continuation 
+                elif self.file_lines[jdx-1].rstrip().endswith("&"):
+                    card_line += cell_line
+                    # strip any &
+                    card_line = re.sub("&", "", card_line)
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
