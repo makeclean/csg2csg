@@ -99,6 +99,8 @@ class MaterialCard(Card):
     density = 0
     mat_data = 0
     material_colour = 0
+    thermal_scattering = []
+    temperature = None
     
     # constructor
     def __init__(self, material_number = 0, card_string = ""):

@@ -9,7 +9,7 @@ from csg2csg.MCNPFormatter import strip_dollar_comments
 from csg2csg.MCNPCellCard import MCNPCellCard, is_cell_card, write_mcnp_cell
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, is_surface_card, write_mcnp_surface
 from csg2csg.MCNPDataCard import MCNPTransformCard
-from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
+from csg2csg.MCNPMaterialCard import MCNPMaterialCard, MCNPSABCard, write_mcnp_material
 
 from collections import Counter
 
@@ -219,12 +219,24 @@ class MCNPInput(InputDeck):
                 idx += 1
             break
 
-        material = MCNPMaterialCard(mat_num, material_string)
-        # set the colour based on the number of colours
-        # but only if its really used rather than a tally
-        # multiplier material
-        material.material_colour = get_material_colour(len(self.material_list))
-        self.material_list[material.material_number] = material
+        # process s(alpha, beta) 
+        # assumes that all s(alpha, beta) are input after corresponding material cards in the input file
+        if "t" in mat_num:
+            mat_num = mat_num.replace("t","")
+            material = MCNPSABCard(mat_num, material_string)
+
+            # update the previous material card to include thermal scattering
+            self.material_list[material.material_number].thermal_scattering = material.thermal_scattering
+
+            return 
+
+        else:
+            material = MCNPMaterialCard(mat_num, material_string)
+            # set the colour based on the number of colours
+            # but only if its really used rather than a tally
+            # multiplier material
+            material.material_colour = get_material_colour(len(self.material_list))
+            self.material_list[material.material_number] = material
 
         return
 
@@ -239,7 +251,7 @@ class MCNPInput(InputDeck):
 
             # this crazy makes sure that we find an "m" in the line but that we dont
             # find another keyword with an m in it like prdmp
-            if re.match(" *m[0-9]/*",self.file_lines[idx]):
+            if re.match(" *m(t)?[0-9]/*",self.file_lines[idx]):
 #            if "m" in self.file_lines[idx] and not any(x in self.file_lines[idx] for x in mcnp_keywords):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx)
