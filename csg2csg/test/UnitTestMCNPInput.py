@@ -345,5 +345,68 @@ class TestMCNPInputRegressions(unittest.TestCase):
 
         del input
 
+    def test_duplicate_surface_without_rot(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -1\n")
+        input_string.append("2 1 -1.0  2\n")
+        input_string.append(" \n")
+        input_string.append("1 px 2.0\n")
+        input_string.append("2 px 2.0\n")
+        input_string.append(" \n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)
+        input.quick_process = False
+        input.process()
+        
+        self.assertEqual(len(input.surface_list),1)
+        
+    def test_duplicate_surface_with_rot(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -1\n")
+        input_string.append("2 1 -1.0  2\n")
+        input_string.append(" \n")
+        input_string.append("1 1 px 2.0\n")
+        input_string.append("2 1 px 2.0\n")
+        input_string.append(" \n")
+        input_string.append("*tr1 0 0.15 0 45 90 45 90 0 90 135 90 45\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        
+        self.assertEqual(len(input.surface_list),1)
+
+    def test_duplicate_surface_with_macro(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 0  -1\n")
+        input_string.append("2 0  -2\n")
+        input_string.append(" \n")
+        input_string.append("1 px 2.0\n")
+        input_string.append("2 rpp -2 2 -2 2 -2 2\n")
+        input_string.append(" \n")
+        input_string.append("*tr1 0 0.15 0 45 90 45 90 0 90 135 90 45\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)       
+        input.process()
+        
+        self.assertEqual(len(input.surface_list),6)
+
 if __name__ == '__main__':
     unittest.main()

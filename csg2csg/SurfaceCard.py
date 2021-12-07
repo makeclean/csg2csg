@@ -1,6 +1,8 @@
 from csg2csg.Card import Card
 from enum import Enum
 
+from copy import deepcopy
+
 class SurfaceCard(Card):
     """ Class for the storage of the generic SurfaceCard type
     Methods for the generation of flat geometry surface card data
@@ -56,7 +58,58 @@ class SurfaceCard(Card):
         string += "Boundary Condition " + str(self.boundary_condition)+"\n"
         string += "Comment: " + str(self.comment)+"\n"
         return string
+
+    """
+    Provides the diff of two surfaces
+
+    Surface: An instance of a Surface Class
+    both: check the diff of the inverse of the surface - only meaningful for plains
+    already_generalised: surface has already been generalised
+
+    Returns: Bool,Bool (surface same, inverse_same)
+    e.g. T,F - surface was the same, but it wasnt the inverted one
+         T,T - surface was the same, but it was the inverted one
+         F,F - surfaces wasnt the same
+         F,T - cannot occur
+    """
+    def diff(self, surface, both = True, already_generalised = False):        
+        # generalise the surfaces
+        if not already_generalised:
+            self.generalise()
+            surface.generalise()
         
+        # they arent the same type 
+        if ( surface.surface_type is not self.surface_type):
+            return (False,False)
+
+        # they are the same
+        if surface.surface_coefficients == self.surface_coefficients:
+            return (True,False)
+
+        # comparing the other side
+        elif both:
+            surface.reverse()
+            if surface.surface_coefficients == self.surface_coefficients:
+                surface.reverse()
+                return (True,True)
+            else:
+                surface.reverse()
+                return (False,False)
+            
+        # no matches
+        else:
+            return (False,False)
+
+    """
+    Function to reverse the normal of the surface definition
+
+    modifies the class in place
+    """
+    def reverse(self):
+        surf_coeffs = [i * -1 for i in self.surface_coefficients]
+        self.surface_coefficients = surf_coeffs
+        return
+    
     def set_type(self, surf_id, surf_transform, surf_type, coords):
         self.surface_id = surf_id
         self.surface_transform = surf_transform
@@ -195,8 +248,10 @@ class SurfaceCard(Card):
             h = self.surface_coefficients[7]
             j = self.surface_coefficients[8]
             k = self.surface_coefficients[9]
+        elif self.surface_type in {self.SurfaceType['TORUS_X'],self.SurfaceType['TORUS_Y'],self.SurfaceType['TORUS_Z']}:
+            return
         else:
-            print ("could not classify surface", self.surface_id)
+            print ("could not classify surface", self.surface_id, self.surface_type)
 
 
         new_surface_coefficients = [0.]*10

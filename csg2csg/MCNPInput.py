@@ -32,8 +32,8 @@ class MCNPInput(InputDeck):
     preserve_xsid = False
 
     # constructor
-    def __init__(self, filename =""):
-        InputDeck.__init__(self,filename)
+    def __init__(self, filename ="", quick = False):
+        InputDeck.__init__(self,filename, quick)
 #        self.process()
 
     # TODO - maybe make a function that aribitrarily extract text
@@ -190,10 +190,14 @@ class MCNPInput(InputDeck):
             break
 
         material = MCNPMaterialCard(mat_num, material_string)
+        logging.debug("%s", "material found on line " + str(material))
+
         # set the colour based on the number of colours
         # but only if its really used rather than a tally
         # multiplier material
-        material.material_colour = get_material_colour(len(self.material_list))
+        if material.density > 0:
+            material.material_colour = get_material_colour(len(self.material_list))
+
         self.material_list[material.material_number] = material
 
         return
@@ -287,6 +291,7 @@ class MCNPInput(InputDeck):
     # overloadable materials
     def __reorganise_materials(self):
         material_density = {}
+    
         for cell in self.cell_list:
             # if the material number already exists
             if cell.cell_material_number in material_density:
@@ -295,11 +300,12 @@ class MCNPInput(InputDeck):
                     material_density[cell.cell_material_number].append(cell.cell_density)
             else:
                 material_density[cell.cell_material_number] = [cell.cell_density]
+
         # remove density 0.0 and material 0
         if 0 in material_density.keys(): del material_density[0]
 
         # maybe void problem
-        if not len(material_density): return
+        if len(material_density) == 0: return
 
         # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):
@@ -813,6 +819,9 @@ class MCNPInput(InputDeck):
                 idx += 1
                 break
 
+            card_line = cell_line
+            jdx = idx + 1
+            # scan until we are all done                                                             
 
             card_line = cell_line
             jdx = idx + 1
@@ -884,6 +893,109 @@ class MCNPInput(InputDeck):
             idx = jdx
         return idx
 
+    """ Identify and remove duplicate surfaces
+    """
+    def __remove_duplicate_surfaces(self):
+        # dictionaries to contain the duplicate surfaces
+        # and the senses if needed
+        duplicates = {}
+        senses = {}
+
+        # get a copy of the surface list
+
+        # loop over the surfaces and compare them
+        print('comparing surfaces...')
+
+        surfs_for_comparison = {}
+
+        # loop over the surfaces
+        for surf in self.surface_list:
+            # take a copy so we dont peturb state
+            new_surf = deepcopy(surf)
+            # generalise the surface - this list is build because
+            # generalisation is quite expensive
+            new_surf.generalise()
+            surfs_for_comparison[new_surf] = surf
+
+        surf_by_type = {}
+        # segregate surfs for comparison by type
+        for surf in surfs_for_comparison:
+            if surf.surface_type in surf_by_type:
+                surf_by_type[surf.surface_type].append(surf)
+            else:
+                surf_by_type[surf.surface_type] = [surf]
+
+        # loop over the types
+        for type in surf_by_type.keys():
+            # loop over the surfaces of the same type
+            for idx,surf in enumerate(surf_by_type[type]):
+                # loop over surface of the same type
+                for compare in surf_by_type[type]:
+                    # this looks wrong but doesnt do double comparing
+                    if surf == compare:
+                        break
+
+                    # compare surfaces including the reverse
+                    (same,reverse) = surf.diff(compare,True,True)
+                    # surface is duplicated
+                    if(same):
+                        # convert the surface 
+                        match = surfs_for_comparison[compare]
+                        original = surfs_for_comparison[surf]
+                        duplicates[match] = original
+                        senses[match] = reverse
+                        logging.debug("%s", "Surface %s and Surface %s match with the sense %s" % (match.surface_id, original.surface_id,reverse))
+
+
+        """
+
+        num_surf = len(self.surface_list)
+
+        for idx,surf in enumerate(self.surface_list):
+            # compare surfaces against all others
+            # dont compare surfaces that we already have duplicates 
+            # for
+            if surf in duplicates:
+                continue
+
+            print(idx, num_surf)
+
+            # build a new list not including the current surf
+            for compare in self.surface_list:
+                if compare == surf:
+                    break
+
+                # base surf for comparison
+                surf1 = surfs_for_comparison[surf]
+                surf2 = surfs_for_comparison[compare]
+                
+                # compare surfaces including the reverse
+                (same,reverse) = surf1.diff(surf2,True,True)
+                # surface is duplicated
+                if(same):
+                    duplicates[compare] = surf
+                    senses[compare] = reverse
+        """
+
+        # may need to check for surfaces that have multiple
+        # similarities e.g. 3 and 1 are the same and so are
+        # 4 and 1, but I think 3 and 4 would also be recognised
+        # as the same, 
+        
+        # update the cell definition
+        for cell in self.cell_list:
+            # loop over the surface and replace where appropriate
+            for surf in duplicates.keys():
+                # TODO really we should be replacing the surface instance
+                # rather than the id
+                cell.replace_surface(duplicates[surf].surface_id, surf.surface_id, senses[surf])
+
+        # remove the duplicate surface
+        for surf in duplicates:
+            self.surface_list.remove(surf)
+                
+        return
+
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
     def process(self):
@@ -944,11 +1056,21 @@ class MCNPInput(InputDeck):
 
         self.__apply_boundary_conditions() # must be done after explode & flatten
 
-        self.__generate_bounding_coordinates()
         # update the bounding coordinates of surfaces that need it
         # cones for example
+        self.__generate_bounding_coordinates()
+        # update surface definitions that need it
         self.__update_surfaces()
-
+        
+        # if quick processing is on dont remove duplicate surfaces
+        # its rather slow
+        if not self.quick_process:
+            # identify and remove identical surfaces
+            # update cell definition accordingly
+            self.__remove_duplicate_surfaces()
+ 
+        # split complex cells into simple convex solids composed 
+        # of as few peices as possible
         self.split_unions()
 
         return
