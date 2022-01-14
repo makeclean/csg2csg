@@ -1,3 +1,4 @@
+
 from csg2csg.SurfaceCard import SurfaceCard
 from csg2csg.Vector import add,subtract,cross
 from csg2csg.MCNPFormatter import mcnp_line_formatter
@@ -114,8 +115,7 @@ def mcnp_cone_x(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3]) + " " 
-    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write the mcnp form of an cone aligned along the y axis
@@ -124,18 +124,17 @@ def mcnp_cone_y(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3]) + " " 
-    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write the mcnp form of an cone aligned along the z axis
 def mcnp_cone_z(SurfaceCard):
     string = "k/z "
+    print(SurfaceCard.surface_coefficients)
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3]) + " "
-    string += str(SurfaceCard.surface_coefficients[4]) + "\n"
+    string += str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
 # write the mcnp form of an arbitrary sphere
@@ -207,6 +206,7 @@ def write_mcnp_surface(filestream, SurfaceCard):
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Y"]:
         string += mcnp_plane_y(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Z"]:
+        print(SurfaceCard)
         string += mcnp_plane_z(SurfaceCard)
     elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_X"]:
         string += mcnp_cylinder_x(SurfaceCard)

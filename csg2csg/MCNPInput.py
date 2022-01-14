@@ -495,6 +495,107 @@ class MCNPInput(InputDeck):
 
         return new_surf_list, cell_description
 
+    def __simplify_cone(self,surf):
+        print(len(surf.surface_coefficients), surf.surface_coefficients)
+        if len(surf.surface_coefficients) != 5:
+            return ["",""]
+    
+        new_surf_list = []
+
+        id = int(surf.surface_id)
+        self.last_free_surface_index += 1
+                    
+        if surf.surface_type == SurfaceCard.SurfaceType['CONE_X']:
+            new_surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " px " + str(surf.surface_coefficients[0]))
+        if surf.surface_type == SurfaceCard.SurfaceType['CONE_Y']:
+            new_surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " py " + str(surf.surface_coefficients[1]))
+        if surf.surface_type == SurfaceCard.SurfaceType['CONE_Z']:
+            new_surf = MCNPSurfaceCard(str(self.last_free_surface_index) + " pz " + str(surf.surface_coefficients[2]))
+
+        new_surf_list.append(new_surf)
+
+        # make a new ambiguity surface
+        if surf.surface_coefficients[4] == -1:
+            cell_description_inside = "( -" + str(surf.surface_id)
+            cell_description_inside += " -" + str(new_surf_list[0].surface_id)
+            cell_description_inside += " )"
+
+            cell_description_outside = "(  " + str(surf.surface_id)
+            cell_description_outside += " -" + str(new_surf_list[0].surface_id)
+            cell_description_outside += " : " + str(new_surf_list[0].surface_id)
+            cell_description_outside += ")"
+
+        if surf.surface_coefficients[4] == 1:
+            cell_description_inside = "( -" + str(surf.surface_id)
+            cell_description_inside += "  " + str(new_surf_list[0].surface_id)
+            cell_description_inside += " )"
+
+            cell_description_outside = "(  " + str(surf.surface_id)
+            cell_description_outside += "  " + str(new_surf_list[0].surface_id)
+            cell_description_outside += " : -" + str(new_surf_list[0].surface_id)
+            cell_description_outside += ")"
+
+        # update the cone description
+        print(surf.surface_coefficients)
+        surf.surface_coefficients = surf.surface_coefficients[0:4]
+
+        cell_description = [cell_description_inside,cell_description_outside]
+
+        return cell_description, new_surf_list
+
+    # take k-cones and if they use the +1/-1 sheet explode into an inner and 
+    # outer description
+    def __simplify_cones(self):
+        logging.debug("%s ", "Simpifying cones...")
+        # loop over the surfaces
+        for surf in self.surface_list:
+            # if we are a cone
+            print(surf.surface_type, surf.surface_type in [SurfaceCard.SurfaceType['CONE_X'],
+                SurfaceCard.SurfaceType['CONE_Y'],
+                SurfaceCard.SurfaceType['CONE_Z']])
+            if surf.surface_type in [SurfaceCard.SurfaceType['CONE_X'],
+                SurfaceCard.SurfaceType['CONE_Y'],
+                SurfaceCard.SurfaceType['CONE_Z']]:
+
+                # if we are a cone with 5 coefficients for a normal cone
+                cell_description, new_surfaces = self.__simplify_cone(surf)
+
+                # if original surface has transform apply it to new surfaces
+                if surf.surface_transform != 0:
+                    for surface in new_surfaces:
+                        surface.surface_transform = surf.surface_transform
+
+                # insert the new surfaces into the surface_list
+                self.surface_list.extend(new_surfaces)
+
+                # update the cell definition - loop over all cells
+                for jdx, cell in enumerate(self.cell_list):
+                    while True:
+                        # cell text description is contually updated
+                        cell_text_description = cell.cell_text_description
+                        
+                        # if we find the surface id of the macrobdy in the text description
+                        sub = str(surf.surface_id)
+                        regex = re.compile("^-?("+str(surf.surface_id)+")(\.+[1-9])?$")
+                        matches = [m.group(0) for l in cell_text_description for m in [regex.search(l)] if m]
+                        
+                        if matches:                       
+                            # loop over each component and find the macrobody
+                            for idx, surface in enumerate(cell.cell_text_description):
+                                # if it matches we have the simmple form
+                                if str(surf.surface_id) == surface: #outside
+                                    # replace it
+                                    cell.cell_text_description[idx] = cell_description[1]
+                                elif "-"+str(surf.surface_id) == surface: #inside
+                                    cell.cell_text_description[idx] = cell_description[0]
+                        else:
+                            break
+                    # update the text description
+                    text_string = ' '.join(cell.cell_text_description)
+                    self.cell_list[jdx].update(text_string)          
+                
+        return
+
     # explode a macrobody into surfaces
     def explode_macrobody(self,Surface):
         new_surf_list = []
@@ -920,6 +1021,7 @@ class MCNPInput(InputDeck):
         self.__get_material_cards(idx)
         # need to flatten first to get transformed surface in the 
         # correct place 
+        self.__simplify_cones()
         self.__flatten_macrobodies()
         self.__explode_nots()
 
