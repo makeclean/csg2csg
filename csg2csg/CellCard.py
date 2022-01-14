@@ -34,7 +34,7 @@ class CellCard(Card):
         self.cell_universe_rotation = 0
         self.cell_universe_transformation_id = "0" # if there is a cell_universe tr number it should be purged
                                         # and converted into an offset and rotation
-        self.cell_surface_list = set() # list of cells used in the cell definition
+        self.cell_surface_list = set() # list of surfaces used in the cell definition
 
         Card.__init__(self,card_string)
 
@@ -48,4 +48,33 @@ class CellCard(Card):
         string += "Comment " + str(self.cell_comment) + "\n"
         string += "Text Description " + str(self.cell_text_description) + "\n"
         string += "Cell Description " + str(self.cell_interpreted) + "\n"
+        string += "Surfs in Cell " + str(self.cell_surface_list) + "\n"
         return string
+
+    """ Look for surface new in the list
+    and replace with surface reference
+    """
+    def replace_surface(self,reference_surface,new,reverse):
+        #self.cell_surface_list.remove(reference_surface)
+        #self.cell_surface_list.add(new)
+
+        # loop over the cell looking for surfaces
+        for idx,item in enumerate(self.cell_interpreted):
+            # if the surface has -ve or +ve sense and doesnt
+            # need reversing just insert it
+            if not isinstance(item, self.OperationType) and item not in {'(',')'}:                
+                surf = int(item)
+                
+                if abs(surf) == new and surf == new:
+                    if not reverse: 
+                        self.cell_interpreted[idx] = str( int(reference_surface))
+                    else:
+                        self.cell_interpreted[idx] = str(-1*int(reference_surface))
+                
+                elif abs(surf) == new and surf != new:
+                    if not reverse:
+                        self.cell_interpreted[idx] = str( -1*int(reference_surface))
+                    else:
+                        self.cell_interpreted[idx] = str( int(reference_surface))
+               
+        return

@@ -48,6 +48,10 @@ def main():
                         help = 'Output code selections',
                         default = 'all')
 
+    parser.add_argument('-q','--quick', 
+                        help = 'Perform quick translation, skip surface comparison - model may not transport',
+                        action = "store_true")
+
     # parse the arguments
     args = parser.parse_args(argv)
 
@@ -67,7 +71,7 @@ def main():
 
     if args.format == 'mcnp':
         # read the mcnp input
-        input = MCNPInput(filename)
+        input = MCNPInput(filename,args.quick)
         input.read()
         input.process()
     elif args.format == 'serpent':
@@ -114,7 +118,7 @@ def main():
             mkdir("fluka")
             fluka.write_fluka("fluka/fluka.inp")
 
-    logging.info("Finshed")
+    logging.info("Finished")
 
 if __name__ == "__main__":
     main()

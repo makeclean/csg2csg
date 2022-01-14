@@ -2,34 +2,37 @@
 
 class InputDeck:
     """ InputDeck class from which other concrete examples
-    should inherit, for example MCNPInputDeck will inhert
+    should inherit, for example MCNPInputDeck will inherit
     from this class
     """
-    filename = ""
-    file_lines = ""
-    title = ""
-    total_num_lines = 0
-
-    # if doing a direct tranlation store here
-    # TODO maybe these should be dictionaries by index
-    cell_list = []
-    surface_list = []
-    last_free_surface_index = 0
-    importance_list = {} # dictionary of importances
-    material_list = {}
-    transform_list = {}
     
-    # this calculates coordinates that bound the placement of
-    # surfaces we do this by checking the manifold surfaces
-    # for the their value and adding to the list
-    bounding_coordinates = [0,0,0,0,0,0]
-    
-    # if doing a hierachy transform store here
-    cell_card_collection = {}
-    surface_card_collection = {}
-    
-    def __init__(self, filename):
+    """ Constructor
+    """
+    def __init__(self, filename, quick = False):
         self.filename = filename
+        self.quick_process = quick
+
+        self.file_lines = ""
+        self.title = ""
+        self.total_num_lines = 0
+
+        # if doing a direct tranlation store here
+        # TODO maybe these should be dictionaries by index
+        self.cell_list = []
+        self.surface_list = []
+        self.last_free_surface_index = 0
+        self.importance_list = {} # dictionary of importances
+        self.material_list = {}
+        self.transform_list = {}
+    
+        # this calculates coordinates that bound the placement of
+        # surfaces we do this by checking the manifold surfaces
+        # for the their value and adding to the list
+        self.bounding_coordinates = [0,0,0,0,0,0]
+    
+        # if doing a hierachy transform store here
+        self.cell_card_collection = {}
+        self.surface_card_collection = {}
 
     # find the cell with a given id
     def find_cell(self, cell_id):
@@ -64,13 +67,13 @@ class InputDeck:
                 return cell
         return None 
 
-
+    # instanciate from input
     def from_input(self,InputDeckClass):
-        InputDeck.filename = InputDeckClass.filename
-        InputDeck.title = InputDeckClass.title
-        InputDeck.cell_list = InputDeckClass.cell_list
-        InputDeck.surfcace_list = InputDeckClass.surface_list
-        InputDeck.material_list = InputDeckClass.material_list
+        self.filename = InputDeckClass.filename
+        self.title = InputDeckClass.title
+        self.cell_list = InputDeckClass.cell_list
+        self.surface_list = InputDeckClass.surface_list
+        self.material_list = InputDeckClass.material_list
         return
 
     # step through each cell and determine if the cell can 

@@ -14,8 +14,8 @@ from csg2csg.MCNPMaterialCard import MCNPMaterialCard, write_mcnp_material
 from collections import Counter
 
 from numpy import linalg as np
-from numpy import dot 
-from numpy import cross 
+from numpy import dot
+from numpy import cross
 from numpy import inf as npinf
 from numpy import around as nparound
 
@@ -27,13 +27,13 @@ import sys
 import re
 
 class MCNPInput(InputDeck):
-    """ MCNPInputDeck class - does the actuall processing 
+    """ MCNPInputDeck class - does the actuall processing
     """
     preserve_xsid = False
 
     # constructor
-    def __init__(self, filename =""):
-        InputDeck.__init__(self,filename)
+    def __init__(self, filename ="", quick = False):
+        InputDeck.__init__(self,filename, quick)
 #        self.process()
 
     # TODO - maybe make a function that aribitrarily extract text
@@ -74,11 +74,11 @@ class MCNPInput(InputDeck):
                     repeat = int(value.replace("r","")) - 1
                     # this is safe since r cannot be the first
                     # value in the list
-                    last_importance = importance_list[idx-1]  
+                    last_importance = importance_list[idx-1]
                     to_insert = [last_importance]*repeat
                     importance_list[idx] = ' '.join(str(e) for e in to_insert)
             # flatten the list
-            self.importance_list[particle] = ' '.join(str(e) for e in importance_list)         
+            self.importance_list[particle] = ' '.join(str(e) for e in importance_list)
 
         return
 
@@ -96,10 +96,10 @@ class MCNPInput(InputDeck):
             # check for importance keyword
             if "imp" in self.file_lines[idx]:
                 particle = self.file_lines[idx].split()[0].split(":")[1]
-               
-                # TODO mcnp allows the following forms imp:n imp:n,p etc 
+
+                # TODO mcnp allows the following forms imp:n imp:n,p etc
                 particle = mcnpToParticle(particle)
-                logging.debug("%s", "found importance statement for particle " + 
+                logging.debug("%s", "found importance statement for particle " +
                               particleToGeneric(particle) + " on line" + str(idx))
 
                 self.importance_list[particle] = self.file_lines[idx][5:].rstrip()
@@ -113,7 +113,7 @@ class MCNPInput(InputDeck):
                     continue
             else:
                 # otherwise advance the line by one
-                idx += 1        
+                idx += 1
 
         return
 
@@ -122,7 +122,7 @@ class MCNPInput(InputDeck):
     Supports at least two forms of reading weight
     window information
 
-    1) a wwe card 
+    1) a wwe card
     """
     def __get_weight_windows(self, start_line):
         return
@@ -146,7 +146,7 @@ class MCNPInput(InputDeck):
 
             if "tr" in self.file_lines[line]:
                 self.__make_transform_card(self.file_lines[line])
-                
+
             line += 1
         return
 
@@ -158,9 +158,9 @@ class MCNPInput(InputDeck):
         mat_num = tokens[0]
         mat_num = mat_num.replace("m","")
         # set the material number
-        
+
         # rebuild the first mat string
-        material_string = ' '.join(tokens[1:]) + " " 
+        material_string = ' '.join(tokens[1:]) + " "
         if '$' in material_string:
             pos = material_string.find('$')
             material_string = material_string[:pos]
@@ -184,18 +184,22 @@ class MCNPInput(InputDeck):
                         line = line[:pos]
                     material_string += line
                 else: # else we have found a new cell card
-                    break 
+                    break
                 # increment the line that we are looking at
                 idx += 1
             break
 
         material = MCNPMaterialCard(mat_num, material_string)
+        logging.debug("%s", "material found on line " + str(material))
+
         # set the colour based on the number of colours
         # but only if its really used rather than a tally
         # multiplier material
-        material.material_colour = get_material_colour(len(self.material_list))
+        if material.density > 0:
+            material.material_colour = get_material_colour(len(self.material_list))
+
         self.material_list[material.material_number] = material
-                
+
         return
 
     # get the material cards definitions
@@ -218,7 +222,7 @@ class MCNPInput(InputDeck):
 
     # get the material cards definitions
     def __get_transform_cards(self, start_line):
-        idx = start_line     
+        idx = start_line
         while True:
             #cell_line = self.file_lines[jdx]
             if idx == len(self.file_lines):
@@ -233,13 +237,13 @@ class MCNPInput(InputDeck):
                     logging.debug("%s", "trn card has continue line " + str(idx))
                     card_line += self.file_lines[idx]
                     idx += 1
-                idx -=1 
+                idx -=1
                 self.__make_transform_card(card_line)
                 card_line = ""
             idx += 1
         return
 
-        
+
         while True:
             if idx == len(self.file_lines):
                 break
@@ -267,13 +271,13 @@ class MCNPInput(InputDeck):
         # loop over all the cells
         for cell in self.cell_list:
             # if the transform id is not 0
-            if cell.cell_universe_transformation_id is not "0":
+            if cell.cell_universe_transformation_id != "0":
                 # apply the transform
                 cell.apply_universe_transform(self.transform_list[cell.cell_universe_transformation_id])
-                
 
-    # find the next free material number 
-    def __next_free_int(self):  
+
+    # find the next free material number
+    def __next_free_int(self):
         idx = 1
         while True:
             if str(idx) in self.material_list.keys():
@@ -282,11 +286,12 @@ class MCNPInput(InputDeck):
                 break
         return str(idx)
 
-    # reorganise materials such that we get a new set of unique 
+    # reorganise materials such that we get a new set of unique
     # material number/ density pairs - this to avoid mcnp's
     # overloadable materials
     def __reorganise_materials(self):
         material_density = {}
+    
         for cell in self.cell_list:
             # if the material number already exists
             if cell.cell_material_number in material_density:
@@ -295,11 +300,12 @@ class MCNPInput(InputDeck):
                     material_density[cell.cell_material_number].append(cell.cell_density)
             else:
                 material_density[cell.cell_material_number] = [cell.cell_density]
+
         # remove density 0.0 and material 0
         if 0 in material_density.keys(): del material_density[0]
 
         # maybe void problem
-        if not len(material_density): return
+        if len(material_density) == 0: return
 
         # loop over the material_number density pairs
         for mat in sorted(material_density.keys()):
@@ -361,11 +367,11 @@ class MCNPInput(InputDeck):
 
         # form the gq quadratic terms
         gq_coeffs[0] = 1. - axis_vector[0]**2
-        gq_coeffs[1] = 1. - axis_vector[1]**2        
-        gq_coeffs[2] = 1. - axis_vector[2]**2 
+        gq_coeffs[1] = 1. - axis_vector[1]**2
+        gq_coeffs[2] = 1. - axis_vector[2]**2
         # form the rotational terms
-        gq_coeffs[3] = -2.*axis_vector[0]*axis_vector[1]        
-        gq_coeffs[4] = -2.*axis_vector[1]*axis_vector[2]        
+        gq_coeffs[3] = -2.*axis_vector[0]*axis_vector[1]
+        gq_coeffs[4] = -2.*axis_vector[1]*axis_vector[2]
         gq_coeffs[5] = -2.*axis_vector[0]*axis_vector[2]
         # form the linear offset terms
         gq_coeffs[6] =  -Surface.surface_coefficients[1]*gq_coeffs[3] \
@@ -413,7 +419,7 @@ class MCNPInput(InputDeck):
         # plane offset 2
         d2 =   axis_vector[0]*(Surface.surface_coefficients[0] + vector[0]) \
              + axis_vector[1]*(Surface.surface_coefficients[1] + vector[1]) \
-             + axis_vector[2]*(Surface.surface_coefficients[2] + vector[2]) 
+             + axis_vector[2]*(Surface.surface_coefficients[2] + vector[2])
 
         self.last_free_surface_index += 1
         surface_string = str(self.last_free_surface_index) + " p "
@@ -461,11 +467,11 @@ class MCNPInput(InputDeck):
             cylinder = " c/x "
             c1 = Surface.surface_coefficients[1]
             c2 = Surface.surface_coefficients[2]
-            top = Surface.surface_coefficients[3] + Surface.surface_coefficients[0] 
+            top = Surface.surface_coefficients[3] + Surface.surface_coefficients[0]
             bottom = Surface.surface_coefficients[0]
 
 
-        # if coefficients 4 & 5 are zero then its a cz with planes at 
+        # if coefficients 4 & 5 are zero then its a cz with planes at
         self.last_free_surface_index += 1
         surf = MCNPSurfaceCard(str(self.last_free_surface_index) + cylinder +
                                 str(c1) + " " +
@@ -640,19 +646,19 @@ class MCNPInput(InputDeck):
             cell_description_outside += " : " + str(new_surf_list[4].surface_id)
             cell_description_outside += " : " + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
-            
+
             cell_description = [cell_description_inside,cell_description_outside]
-            
+
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
             id = int(Surface.surface_id)
-            
+
             vector = [Surface.surface_coefficients[3],Surface.surface_coefficients[4],Surface.surface_coefficients[5]]
             new_surf_list, cell_description = self.__macro_rcc_cylinder_arbitrary(Surface,vector)
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
 
             id = int(Surface.surface_id)
-            
+
             origin = [Surface.surface_coefficients[0], Surface.surface_coefficients[1], Surface.surface_coefficients[2]]
 
             vec1 = [Surface.surface_coefficients[3], Surface.surface_coefficients[4], Surface.surface_coefficients[5]]
@@ -663,14 +669,14 @@ class MCNPInput(InputDeck):
             vec2n = vec2/np.norm(vec2)
             vec3n = vec3/np.norm(vec3)
 
-            d1 = vec1n[0]*origin[0] + vec1n[1]*origin[1] + vec1n[2]*origin[2] 
+            d1 = vec1n[0]*origin[0] + vec1n[1]*origin[1] + vec1n[2]*origin[2]
             d2 = vec1n[0]*(origin[0] + vec1[0]) + vec1n[1]*(origin[1]+vec1[1]) + vec1n[2]*(origin[2]+vec1[2])
             d3 = vec2n[0]*origin[0] + vec2n[1]*origin[1] + vec2n[2]*origin[2]
             d4 = vec2n[0]*(origin[0] + vec2[0]) + vec2n[1]*(origin[1]+vec2[1]) + vec2n[2]*(origin[2]+vec2[2])
             d5 = vec3n[0]*origin[0] + vec3n[1]*origin[1] + vec3n[2]*origin[2]
             d6 = vec3n[0]*(origin[0] + vec3[0]) + vec3n[1]*(origin[1]+vec3[1]) + vec3n[2]*(origin[2]+vec3[2])
 
-            
+
             # cannonical facet ordering is done such that the surfaces
             # making up the macrobody all point inwards
             p1 = self.__make_new_plane(vec1n,d2)
@@ -690,7 +696,7 @@ class MCNPInput(InputDeck):
             cell_description_inside += " -" + str(new_surf_list[2].surface_id)
             cell_description_inside += " -" + str(new_surf_list[3].surface_id)
             cell_description_inside += " -" + str(new_surf_list[4].surface_id)
-            cell_description_inside += " -" + str(new_surf_list[5].surface_id)          
+            cell_description_inside += " -" + str(new_surf_list[5].surface_id)
             cell_description_inside += ")"
 
             cell_description_outside = "("
@@ -699,17 +705,17 @@ class MCNPInput(InputDeck):
             cell_description_outside += ":"  + str(new_surf_list[2].surface_id)
             cell_description_outside += ":" + str(new_surf_list[3].surface_id)
             cell_description_outside += ":"  + str(new_surf_list[4].surface_id)
-            cell_description_outside += ":" + str(new_surf_list[5].surface_id)          
+            cell_description_outside += ":" + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
-            
+
             cell_description = [cell_description_inside,cell_description_outside]
         else:
             warnings.warn('Found an unsupported macrobody, files will not be correct',Warning)
             cell_description = ["",""]
-            
+
         return cell_description, new_surf_list
 
-    # if we find a macrobody in the surface list 
+    # if we find a macrobody in the surface list
     # explode it into a surface based definition
     def __flatten_macrobodies(self):
         # look through the list until we find
@@ -740,14 +746,14 @@ class MCNPInput(InputDeck):
                     while True:
                         # cell text description is contually updated
                         cell_text_description = cell.cell_text_description
-                        
+
                         # if we find the surface id of the macrobdy in the text description
                         sub = str(surf.surface_id)
                         regex = re.compile("^-?("+str(surf.surface_id)+")(\.+[1-9])?$")
                         matches = [m.group(0) for l in cell_text_description for m in [regex.search(l)] if m]
                         #if str(surf.surface_id) in cell_text_description or str(surf.surface_id)+"." in cell_text_description:
-                        
-                        if matches:                       
+
+                        if matches:
                             # loop over each component and find the macrobody
                             for idx, surface in enumerate(cell.cell_text_description):
                                 # if it matches we have the simmple form
@@ -756,9 +762,9 @@ class MCNPInput(InputDeck):
                                     cell.cell_text_description[idx] = cell_description[1]
                                 elif "-"+str(surf.surface_id) == surface:
                                     cell.cell_text_description[idx] = cell_description[0]
-                   
+
                                 # else we have the facet form
-                                if str(surf.surface_id)+"." in surface:                                    
+                                if str(surf.surface_id)+"." in surface:
                                     surface_index = int(surface.split(".")[1]) # get just the mcnp surface index
                                     new_surface_id = new_surfaces[surface_index-1].surface_id # mcnp numbers them 1->n
                                     if "-" in surface: # need to take care of the -sign
@@ -770,7 +776,7 @@ class MCNPInput(InputDeck):
                     # update the text description
                     text_string = ' '.join(cell.cell_text_description)
                     self.cell_list[jdx].update(text_string)
-                
+
         # clear up removed surfaces
         logging.debug("%s", "Deleting macrobody surfaces")
         for surf in to_remove:
@@ -791,12 +797,12 @@ class MCNPInput(InputDeck):
     def __split_nots(self,cell):
         # if the cell has a not in it
         pos = 0
-        count = 0 
+        count = 0
         # loop over the constituents of the cell
         # we have to do this rookie looking stuff
         # because cell.OperationType is not iterable
         for i in cell.cell_interpreted:
-            # if its not an operation 
+            # if its not an operation
             if not isinstance(i,cell.OperationType):
                 if "#" in  i:
                     pos = count
@@ -816,17 +822,17 @@ class MCNPInput(InputDeck):
         # build the cell into the interpreted form
         cell_text = [cell.OperationType(2)] + ["("] + cell_text
         cell_text = cell_text + [")"]
-        
+
         # remove the #cell and insert the full new form
         cell_part = cell.cell_interpreted[:pos]
-        
+
         cell_part.extend(cell_text)
         cell_part2 = cell.cell_interpreted[pos+1:]
         cell_part.extend(cell_part2)
         cell.cell_interpreted = cell_part
 
         return
-        
+
     # loop through the cells and insert
     # cell definititons where needed
     # assuming that we have nots of the form #33 #44 and
@@ -836,9 +842,9 @@ class MCNPInput(InputDeck):
             while self.__nots_remaining(cell):
                 self.__split_nots(cell)
             continue
-            
 
-    # generate bounding coordinates 
+
+    # generate bounding coordinates
     def __generate_bounding_coordinates(self):
         # loop through the surfaces and generate the bounding coordinates
         # condisder only manifold or simple infinite surfaces, like planes
@@ -856,11 +862,11 @@ class MCNPInput(InputDeck):
                 self.bounding_coordinates[4] = box[4]
             if box[5] > self.bounding_coordinates[5]:
                 self.bounding_coordinates[5] = box[5]
-        logging.debug("%s ", "bounding box of geometry is " + str(self.bounding_coordinates[0]) + " " + 
+        logging.debug("%s ", "bounding box of geometry is " + str(self.bounding_coordinates[0]) + " " +
                       str(self.bounding_coordinates[1]) + " " +
-                      str(self.bounding_coordinates[2]) + " " + 
-                      str(self.bounding_coordinates[3]) + " " + 
-                      str(self.bounding_coordinates[4]) + " " + 
+                      str(self.bounding_coordinates[2]) + " " +
+                      str(self.bounding_coordinates[3]) + " " +
+                      str(self.bounding_coordinates[4]) + " " +
                       str(self.bounding_coordinates[5]) + "\n")
 
     # update surfaces that need their bounding coordinates updated
@@ -882,15 +888,32 @@ class MCNPInput(InputDeck):
                     pass
         return
 
+    # remove inline comment and return the new line
+    def __remove_inline_comment(self, cell_line):
+        if "$" in cell_line:
+            pos_comment = cell_line.find("$")
+            cell_comment = cell_line[pos_comment:]
+            line_out = cell_line[:pos_comment]
+
+            # debug output
+            if line_out.isspace() and cell_comment:
+                print(line_out,cell_comment, line_out.isspace(), cell_comment.isspace())
+            return line_out
+        else:
+            return cell_line
+
     # extract all the cell cards
     def __get_cell_cards(self):
         # line by line insert into dictionary of cell descriptions
         # until we find a blank line
         idx = 0
         while True:
+            # remove inline comment ($) if needed
+            self.file_lines[idx] = self.__remove_inline_comment(self.file_lines[idx])
             cell_line = self.file_lines[idx]
+
             # this relies upon us checking correctly for all other
-            # cases where there may be blank lines due to our 
+            # cases where there may be blank lines due to our
             # processing of the string
             if cell_line.isspace():
                 logging.info('%s',"found end of cell cards at line " + str(idx))
@@ -899,37 +922,33 @@ class MCNPInput(InputDeck):
 
             card_line = cell_line
             jdx = idx + 1
-            # scan until we are all done
+            # scan until we are all done                                                             
+
+            card_line = cell_line
+            jdx = idx + 1
+            # scan lines until a complete cell card is created
             while True:
+                # remove inline comment ($) if needed
+                self.file_lines[jdx] = self.__remove_inline_comment(self.file_lines[jdx])
                 cell_line = self.file_lines[jdx]
-                pos_comment = cell_line.find("$")
-                cell_comment = ""
-                if pos_comment != -1:
-                    cell_line = cell_line[:pos_comment]
-                    cell_comment = self.file_lines[jdx][pos_comment:] # set the comment 
-                    self.file_lines[jdx] = cell_line # update the file data
-                    
+
                 # mcnp continue line is indicated by 5 spaces
-                if cell_line[0:5] == "     " and not cell_line.isspace():
+                if cell_line.startswith("     ") and not cell_line.isspace():
                     card_line += cell_line
-                # we have found a $comment line with nothing before it
-                elif cell_line.isspace() and cell_comment:
-                    print(cell_line,cell_comment, cell_line.isspace(), cell_comment.isspace())
-                    pass
                 else: # else we have found a new cell card
                     logging.debug("%s\n", "Found new cell card " + card_line)
                     cellcard = MCNPCellCard(card_line)
                     # we should set the comment here
                     self.cell_list.append(cellcard)
-                    break 
+                    break
                 jdx += 1
-            idx = jdx                   
+            idx = jdx
         return idx
 
     # set the boundary conditions
     def __apply_boundary_conditions(self):
-        
-        # apply the importances to cells 
+
+        # apply the importances to cells
         if len(self.importance_list) != 0:
             # TODO make this loop apply to multiple particle
             # types but for now just do neutrons
@@ -938,10 +957,10 @@ class MCNPInput(InputDeck):
                 for idx,value in enumerate(importances):
                     self.cell_list[idx].cell_importance = float(value)
 
-        # loop over the cells and if the cell has 
+        # loop over the cells and if the cell has
         # importance 0, all the sufaces get boundary
-        # condition 
-        for cell in self.cell_list: 
+        # condition
+        for cell in self.cell_list:
             if cell.cell_importance == 0:
                 for surf in cell.cell_surface_list:
                     self.get_surface_with_id(surf).boundary_condition = SurfaceCard.BoundaryCondition["VACUUM"]
@@ -968,12 +987,115 @@ class MCNPInput(InputDeck):
                     surfacecard = MCNPSurfaceCard(surf_card)
                     self.surface_list.append(surfacecard)
                     # update the surface index counter
-                    if surfacecard.surface_id > self.last_free_surface_index: 
+                    if surfacecard.surface_id > self.last_free_surface_index:
                         self.last_free_surface_index = surfacecard.surface_id
-                    break 
+                    break
                 jdx += 1
-            idx = jdx                  
+            idx = jdx
         return idx
+
+    """ Identify and remove duplicate surfaces
+    """
+    def __remove_duplicate_surfaces(self):
+        # dictionaries to contain the duplicate surfaces
+        # and the senses if needed
+        duplicates = {}
+        senses = {}
+
+        # get a copy of the surface list
+
+        # loop over the surfaces and compare them
+        print('comparing surfaces...')
+
+        surfs_for_comparison = {}
+
+        # loop over the surfaces
+        for surf in self.surface_list:
+            # take a copy so we dont peturb state
+            new_surf = deepcopy(surf)
+            # generalise the surface - this list is build because
+            # generalisation is quite expensive
+            new_surf.generalise()
+            surfs_for_comparison[new_surf] = surf
+
+        surf_by_type = {}
+        # segregate surfs for comparison by type
+        for surf in surfs_for_comparison:
+            if surf.surface_type in surf_by_type:
+                surf_by_type[surf.surface_type].append(surf)
+            else:
+                surf_by_type[surf.surface_type] = [surf]
+
+        # loop over the types
+        for type in surf_by_type.keys():
+            # loop over the surfaces of the same type
+            for idx,surf in enumerate(surf_by_type[type]):
+                # loop over surface of the same type
+                for compare in surf_by_type[type]:
+                    # this looks wrong but doesnt do double comparing
+                    if surf == compare:
+                        break
+
+                    # compare surfaces including the reverse
+                    (same,reverse) = surf.diff(compare,True,True)
+                    # surface is duplicated
+                    if(same):
+                        # convert the surface 
+                        match = surfs_for_comparison[compare]
+                        original = surfs_for_comparison[surf]
+                        duplicates[match] = original
+                        senses[match] = reverse
+                        logging.debug("%s", "Surface %s and Surface %s match with the sense %s" % (match.surface_id, original.surface_id,reverse))
+
+
+        """
+
+        num_surf = len(self.surface_list)
+
+        for idx,surf in enumerate(self.surface_list):
+            # compare surfaces against all others
+            # dont compare surfaces that we already have duplicates 
+            # for
+            if surf in duplicates:
+                continue
+
+            print(idx, num_surf)
+
+            # build a new list not including the current surf
+            for compare in self.surface_list:
+                if compare == surf:
+                    break
+
+                # base surf for comparison
+                surf1 = surfs_for_comparison[surf]
+                surf2 = surfs_for_comparison[compare]
+                
+                # compare surfaces including the reverse
+                (same,reverse) = surf1.diff(surf2,True,True)
+                # surface is duplicated
+                if(same):
+                    duplicates[compare] = surf
+                    senses[compare] = reverse
+        """
+
+        # may need to check for surfaces that have multiple
+        # similarities e.g. 3 and 1 are the same and so are
+        # 4 and 1, but I think 3 and 4 would also be recognised
+        # as the same, 
+        
+        # update the cell definition
+        for cell in self.cell_list:
+            # loop over the surface and replace where appropriate
+            for surf in duplicates.keys():
+                # TODO really we should be replacing the surface instance
+                # rather than the id
+                cell.replace_surface(duplicates[surf].surface_id, surf.surface_id, senses[surf])
+
+        # remove the duplicate surface
+        for surf in duplicates:
+            self.surface_list.remove(surf)
+                
+        return
 
     # process the mcnp input deck and read into a generic datastructure
     # that we can translate to other formats
@@ -995,7 +1117,7 @@ class MCNPInput(InputDeck):
             logging.debug("%s", "Input Echo")
             for idx,line in enumerate(self.file_lines):
                 logging.debug("%i %s",idx,line)
-            
+
 
         # get the cell cards
         idx = self.__get_cell_cards()
@@ -1013,7 +1135,7 @@ class MCNPInput(InputDeck):
         # also idx will never be advanced from this point
 
         # try to get importances defined in the data block
-        self.__get_importances(idx)  
+        self.__get_importances(idx)
         # try to get weights defined the data block
         self.__get_weight_windows(idx)
 
@@ -1036,16 +1158,26 @@ class MCNPInput(InputDeck):
 
         self.__apply_boundary_conditions() # must be done after explode & flatten
 
-        self.__generate_bounding_coordinates()
         # update the bounding coordinates of surfaces that need it
         # cones for example
+        self.__generate_bounding_coordinates()
+        # update surface definitions that need it
         self.__update_surfaces()
-
+        
+        # if quick processing is on dont remove duplicate surfaces
+        # its rather slow
+        if not self.quick_process:
+            # identify and remove identical surfaces
+            # update cell definition accordingly
+            self.__remove_duplicate_surfaces()
+ 
+        # split complex cells into simple convex solids composed 
+        # of as few peices as possible
         self.split_unions()
-       
+
         return
 
-    # perhaps these write functions should actually build strings 
+    # perhaps these write functions should actually build strings
     # and then write at once?
     # write all surfaces to mcnp format
     def __write_mcnp_surfaces(self, filestream):
@@ -1075,5 +1207,5 @@ class MCNPInput(InputDeck):
         self.__write_mcnp_surfaces(f)
         self.__write_mcnp_materials(f)
         f.close()
-        
-    
+
+

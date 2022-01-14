@@ -6,9 +6,12 @@ from csg2csg.MCNPFormatter import get_fortran_formatted_number
 import sys
 
 # writes an mcnp material card given the generic description
-def write_mcnp_material(filestream, Material, preserve_xs):
+def write_mcnp_material(filestream, Material, preserve_xs, write_comment = True):
 
-    filestream.write("C Material " + str(Material.material_name) + "\n")
+    # if you want the comment
+    if write_comment:
+        filestream.write("C Material " + str(Material.material_name) + "\n")
+
     filestream.write("M"+ str(Material.material_number))
     for nucid in Material.composition_dictionary:
         string = "     " + str(nucid)
@@ -37,7 +40,16 @@ class MCNPMaterialCard(MaterialCard):
         mat_string = mat_string.replace("\n","")
         
         # split string
-        tokens = mat_string.split()
+        all_tokens = mat_string.split()
+
+        # need to remove other material keywords not zaids
+        tokens = []
+        keywords = []
+        for token in all_tokens:
+            if "=" in token:
+                keywords.append(token)
+            else:
+                tokens.append(token)
 
         if len(tokens)%2 != 0:
             print ("Material string not correctly processed")

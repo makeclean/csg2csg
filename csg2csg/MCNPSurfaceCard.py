@@ -752,9 +752,9 @@ class MCNPSurfaceCard(SurfaceCard):
         surf_type = surface["type"]
                
         # classify surface types
-        if "p" in surf_type and surf_type is "p":
+        if "p" in surf_type and surf_type == "p":
             self.__classify_general_planes(surface)
-        elif "p" in surf_type and surf_type is not "p":
+        elif "p" in surf_type and surf_type != "p":
             self.__classify_xyz_planes(surface)
         elif "s" in surf_type:
             if surf_type == "so":
@@ -763,7 +763,7 @@ class MCNPSurfaceCard(SurfaceCard):
                 self.__classify_xyz_sphere(surface)
             elif "q" in surf_type:
                 self.__classify_gq(surface) # this is intentional
-            elif surf_type is "s":
+            elif surf_type == "s":
                 self.__classify_general_sphere(surface)
             else:
                 print ("im a sphere that I dont understand")

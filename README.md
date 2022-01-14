@@ -17,7 +17,7 @@ The default is to attempt to translate the input file into all neutronics codes 
 To see all the run options type ``csg2csg -h`` in the terminal
 
 ## Caveats
-Several! Right now only MCNP can be read, and then written to MCNP Serpent and OpenMC. 
+Several! Right now only MCNP can be read, and then written to MCNP, Serpent and OpenMC. 
 When the file can be read only a subset of MCNP surfaces can be read
 
 MCNP Surfaces Supported
@@ -36,5 +36,5 @@ MCNP Surfaces Not Yet Supported
  - X, Y, Z - three coefficient
  - Macrobodies - BOX, RHP, HEX, REC, TRC, ELL, WEB, ARB
 
-Tranforms
+Transforms
  - Are read and interpretted, but nothing is done with them, in the future codes that support cell transformations will use it, but right now MCNP is the only code that does surface transformations 
