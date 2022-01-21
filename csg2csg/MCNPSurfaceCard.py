@@ -1,5 +1,5 @@
 
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard,SurfaceType
 from csg2csg.Vector import add,subtract,cross
 from csg2csg.MCNPFormatter import mcnp_line_formatter
 
@@ -130,7 +130,6 @@ def mcnp_cone_y(SurfaceCard):
 # write the mcnp form of an cone aligned along the z axis
 def mcnp_cone_z(SurfaceCard):
     string = "k/z "
-    print(SurfaceCard.surface_coefficients)
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
@@ -199,36 +198,35 @@ def write_mcnp_surface(filestream, SurfaceCard):
 
     string += str(SurfaceCard.surface_id) + " "
     
-    if SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_GENERAL"]:
+    if SurfaceCard.surface_type == SurfaceType["PLANE_GENERAL"]:
         string += mcnp_plane_string(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_X"]:
+    elif SurfaceCard.surface_type == SurfaceType["PLANE_X"]:
         string += mcnp_plane_x(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Y"]:
+    elif SurfaceCard.surface_type == SurfaceType["PLANE_Y"]:
         string += mcnp_plane_y(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["PLANE_Z"]:
-        print(SurfaceCard)
+    elif SurfaceCard.surface_type == SurfaceType["PLANE_Z"]:
         string += mcnp_plane_z(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_X"]:
+    elif SurfaceCard.surface_type == SurfaceType["CYLINDER_X"]:
         string += mcnp_cylinder_x(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_Y"]:
+    elif SurfaceCard.surface_type == SurfaceType["CYLINDER_Y"]:
         string += mcnp_cylinder_y(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CYLINDER_Z"]:
+    elif SurfaceCard.surface_type == SurfaceType["CYLINDER_Z"]:
         string += mcnp_cylinder_z(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_X"]:
+    elif SurfaceCard.surface_type == SurfaceType["CONE_X"]:
         string += mcnp_cone_x(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Y"]:
+    elif SurfaceCard.surface_type == SurfaceType["CONE_Y"]:
         string += mcnp_cone_y(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["CONE_Z"]:
+    elif SurfaceCard.surface_type == SurfaceType["CONE_Z"]:
         string += mcnp_cone_z(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
+    elif SurfaceCard.surface_type == SurfaceType["SPHERE_GENERAL"]:
         string += mcnp_sphere(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
+    elif SurfaceCard.surface_type == SurfaceType["GENERAL_QUADRATIC"]:
         string += mcnp_gq(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_X"]:
+    elif SurfaceCard.surface_type == SurfaceType["TORUS_X"]:
         string += mcnp_tx(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Y"]:
+    elif SurfaceCard.surface_type == SurfaceType["TORUS_Y"]:
         string += mcnp_ty(SurfaceCard)
-    elif SurfaceCard.surface_type == SurfaceCard.SurfaceType["TORUS_Z"]:
+    elif SurfaceCard.surface_type == SurfaceType["TORUS_Z"]:
         string += mcnp_tz(SurfaceCard)
     else:
         string += "Unknown surface type"
@@ -285,7 +283,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[3] = float(surface["coefficients"][0])
 
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["PLANE_X"],
+                          SurfaceType["PLANE_X"],
                           coords)
         # identify plane y
         if surface["type"] == "py":
@@ -295,7 +293,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[3] = float(surface["coefficients"][0])
 
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["PLANE_Y"],
+                          SurfaceType["PLANE_Y"],
                           coords)
         # idenfity plane z
         if surface["type"] == "pz":
@@ -305,7 +303,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[3] = float(surface["coefficients"][0])
 
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["PLANE_Z"],
+                          SurfaceType["PLANE_Z"],
                           coords)
         return
 
@@ -355,7 +353,7 @@ class MCNPSurfaceCard(SurfaceCard):
             raise Exception('Surface with id {} does not have enough coefficents'.format(surface["id"]))
              
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["PLANE_GENERAL"],
+                      SurfaceType["PLANE_GENERAL"],
                       coords)
         return
 
@@ -367,7 +365,7 @@ class MCNPSurfaceCard(SurfaceCard):
         coords[2] = float(surface["coefficients"][2])
         coords[3] = float(surface["coefficients"][3])
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                      SurfaceType["SPHERE_GENERAL"],
                       coords)
         return
     
@@ -379,7 +377,7 @@ class MCNPSurfaceCard(SurfaceCard):
         coords[2] = 0.
         coords[3] = float(surface["coefficients"][0])
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                      SurfaceType["SPHERE_GENERAL"],
                       coords)
         return
                           
@@ -393,7 +391,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = 0.
             coords[3] = float(surface["coefficients"][1])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                          SurfaceType["SPHERE_GENERAL"],
                           coords)
         # identify sphere y
         if surface["type"] == "sy":
@@ -402,7 +400,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = 0.
             coords[3] = float(surface["coefficients"][1])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                          SurfaceType["SPHERE_GENERAL"],
                           coords)
         # idenfity sphere z
         if surface["type"] == "sz":
@@ -411,7 +409,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[2] = float(surface["coefficients"][0])
             coords[3] = float(surface["coefficients"][1])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                          SurfaceType["SPHERE_GENERAL"],
                           coords)
         return
 
@@ -423,21 +421,21 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[1] = float(surface["coefficients"][1])
             coords[2] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_X"],
+                          SurfaceType["CYLINDER_X"],
                           coords)
         if surface["type"] == "c/y":
             coords[0] = float(surface["coefficients"][0])
             coords[1] = float(surface["coefficients"][1])
             coords[2] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_Y"],
+                          SurfaceType["CYLINDER_Y"],
                           coords)
         if surface["type"] == "c/z":
             coords[0] = float(surface["coefficients"][0])
             coords[1] = float(surface["coefficients"][1])
             coords[2] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_Z"],
+                          SurfaceType["CYLINDER_Z"],
                           coords)
         return
 
@@ -449,21 +447,21 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[1] = 0.
             coords[2] = float(surface["coefficients"][0])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_X"],
+                          SurfaceType["CYLINDER_X"],
                           coords)
         if surface["type"] == "cy":
             coords[0] = 0.
             coords[1] = 0.
             coords[2] = float(surface["coefficients"][0])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_Y"],
+                          SurfaceType["CYLINDER_Y"],
                           coords)
         if surface["type"] == "cz":
             coords[0] = 0.
             coords[1] = 0.
             coords[2] = float(surface["coefficients"][0])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CYLINDER_Z"],
+                          SurfaceType["CYLINDER_Z"],
                           coords)
         return
 
@@ -480,15 +478,15 @@ class MCNPSurfaceCard(SurfaceCard):
 
         if surface["type"] == "k/x":
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_X"],
+                          SurfaceType["CONE_X"],
                           coords)
         if surface["type"] == "k/y":
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_Y"],
+                          SurfaceType["CONE_Y"],
                           coords)
         if surface["type"] == "k/z":
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_Z"],
+                          SurfaceType["CONE_Z"],
                           coords)
         return
 
@@ -504,7 +502,7 @@ class MCNPSurfaceCard(SurfaceCard):
             if len(surface["coefficients"]) == 3:
                 coords[4] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_X"],
+                          SurfaceType["CONE_X"],
                           coords)
         if surface["type"] == "ky":
             coords[0] = 0.
@@ -515,7 +513,7 @@ class MCNPSurfaceCard(SurfaceCard):
             if len(surface["coefficients"]) == 3:
                 coords[4] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_Y"],
+                          SurfaceType["CONE_Y"],
                           coords)
         if surface["type"] == "kz":
             coords[0] = 0.
@@ -526,8 +524,14 @@ class MCNPSurfaceCard(SurfaceCard):
             if len(surface["coefficients"]) == 3:
                 coords[4] = float(surface["coefficients"][2])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["CONE_Z"],
+                          SurfaceType["CONE_Z"],
                           coords)
+
+        # check if the last coefficient for a half cone is 0
+        if len(self.surface_coefficients) == 5:
+            if self.surface_coefficients[4] == 0:
+                del self.surface_coefficients[4]
+
         return
 
     def __classify_gq(self, surface):
@@ -537,7 +541,7 @@ class MCNPSurfaceCard(SurfaceCard):
             for i in range(10):
                 coords[i] = float(surface["coefficients"][i])
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
+                          SurfaceType["GENERAL_QUADRATIC"],
                           coords)
         elif surface["type"] == "sq":
             a = float(surface["coefficients"][0])
@@ -570,7 +574,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[9] = k
                                     
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["GENERAL_QUADRATIC"],
+                          SurfaceType["GENERAL_QUADRATIC"],
                           coords)
             
         return
@@ -582,15 +586,15 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[i] = float(surface["coefficients"][i])
         if surface["type"] == "tx":
             self.set_type(surface["id"], surface["transform"],
-                          SurfaceCard.SurfaceType["TORUS_X"],
+                          SurfaceType["TORUS_X"],
                           coords)
         if surface["type"] == "ty":
             self.set_type(surface["id"], surface["transform"],
-                          SurfaceCard.SurfaceType["TORUS_Y"],
+                          SurfaceType["TORUS_Y"],
                           coords)
         if surface["type"] == "tz":
             self.set_type(surface["id"], surface["transform"],
-                          SurfaceCard.SurfaceType["TORUS_Z"],
+                          SurfaceType["TORUS_Z"],
                           coords)
         return
 
@@ -623,7 +627,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[4] = vz
             coords[5] = vz + a3z
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["MACRO_RPP"],
+                          SurfaceType["MACRO_RPP"],
                           coords)
         # we cant, its aligned along some arbitrary axis
         else:
@@ -641,7 +645,7 @@ class MCNPSurfaceCard(SurfaceCard):
             coords[10] = a3y
             coords[11] = a3z
             self.set_type(surface["id"],surface["transform"],
-                          SurfaceCard.SurfaceType["MACRO_BOX"],
+                          SurfaceType["MACRO_BOX"],
                           coords)          
         return
 
@@ -653,7 +657,7 @@ class MCNPSurfaceCard(SurfaceCard):
         coords[2] = float(surface["coefficients"][2])
         coords[3] = float(surface["coefficients"][3])
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["SPHERE_GENERAL"],
+                      SurfaceType["SPHERE_GENERAL"],
                       coords)
         return
 
@@ -663,7 +667,7 @@ class MCNPSurfaceCard(SurfaceCard):
         for i in range(6):
             coords[i] = float(surface["coefficients"][i])
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["MACRO_RPP"],
+                      SurfaceType["MACRO_RPP"],
                       coords)
         return
 
@@ -673,7 +677,7 @@ class MCNPSurfaceCard(SurfaceCard):
         for i in range(7):
             coords[i] = float(surface["coefficients"][i])
         self.set_type(surface["id"],surface["transform"],
-                      SurfaceCard.SurfaceType["MACRO_RCC"],
+                      SurfaceType["MACRO_RCC"],
                       coords)
         return
 

@@ -4,7 +4,7 @@ import unittest
 import sys
 sys.path.append("..")
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard, surface_has_transform
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SurfaceType
 
 class TestMCNPSurfaceMethods(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         card_string = "1 px 12.0"
         card = MCNPSurfaceCard(card_string)
         self.assertEqual(card.text_string, card_string)
-        self.assertEqual(card.surface_type,SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(card.surface_type,SurfaceType["PLANE_X"])
         self.assertEqual(card.surface_coefficients[0], 1.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
         self.assertEqual(card.surface_coefficients[2], 0.0)
@@ -22,7 +22,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         card_string = "1 py 12.0"
         card = MCNPSurfaceCard(card_string)
         self.assertEqual(card.text_string, card_string)
-        self.assertEqual(card.surface_type,SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(card.surface_type,SurfaceType["PLANE_Y"])
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 1.0)
         self.assertEqual(card.surface_coefficients[2], 0.0)
@@ -32,7 +32,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         card_string = "1 pz 12.0"
         card = MCNPSurfaceCard(card_string)
         self.assertEqual(card.text_string, card_string)
-        self.assertEqual(card.surface_type,SurfaceCard.SurfaceType["PLANE_Z"])
+        self.assertEqual(card.surface_type,SurfaceType["PLANE_Z"])
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
         self.assertEqual(card.surface_coefficients[2], 1.0)
@@ -42,7 +42,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         card_string = "1 p 0 0 1 15"
         card = MCNPSurfaceCard(card_string)
         self.assertEqual(card.text_string, card_string)
-        self.assertEqual(card.surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(card.surface_type,SurfaceType["PLANE_GENERAL"])
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
         self.assertEqual(card.surface_coefficients[2], 1.0)
@@ -52,7 +52,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
         card_string = "15 s 0 0 1 15"
         card = MCNPSurfaceCard(card_string)
         self.assertEqual(card.text_string, card_string)
-        self.assertEqual(card.surface_type,SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type,SurfaceType["SPHERE_GENERAL"])
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
         self.assertEqual(card.surface_coefficients[2], 1.0)
@@ -62,7 +62,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_gq(self):
         card_string = "15000 gq 1 1 0 0 0 0 1 1 1 1"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["GENERAL_QUADRATIC"])
+        self.assertEqual(card.surface_type, SurfaceType["GENERAL_QUADRATIC"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 1.0)
         self.assertEqual(card.surface_coefficients[1], 1.0)
@@ -78,7 +78,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_so(self):
         card_string = "15000 so 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type, SurfaceType["SPHERE_GENERAL"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
@@ -88,7 +88,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_sx(self):
         card_string = "15000 sx 3.0 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type, SurfaceType["SPHERE_GENERAL"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 3.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
@@ -98,7 +98,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_sy(self):
         card_string = "15000 sy 3.0 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        self.assertEqual(card.surface_type, SurfaceType["SPHERE_GENERAL"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 3.0)
@@ -108,7 +108,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_cz(self):
         card_string = "15000 cz 2.5"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["CYLINDER_Z"])
+        self.assertEqual(card.surface_type, SurfaceType["CYLINDER_Z"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], 0.0)
         self.assertEqual(card.surface_coefficients[1], 0.0)
@@ -117,7 +117,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_rpp(self):
         card_string = "15000 rpp -1 1 -1 1 -1 1"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_type, SurfaceType["MACRO_RPP"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], -1.0)
         self.assertEqual(card.surface_coefficients[1],  1.0)
@@ -129,7 +129,7 @@ class TestMCNPSurfaceMethods(unittest.TestCase):
     def test_box(self):
         card_string = "15000 box -1 -1 -1 2 0 0 0 2 0 0 0 2"
         card = MCNPSurfaceCard(card_string)
-        self.assertEqual(card.surface_type, SurfaceCard.SurfaceType["MACRO_RPP"])
+        self.assertEqual(card.surface_type, SurfaceType["MACRO_RPP"])
         self.assertEqual(card.surface_id, 15000)
         self.assertEqual(card.surface_coefficients[0], -1.0)
         self.assertEqual(card.surface_coefficients[1],  1.0)

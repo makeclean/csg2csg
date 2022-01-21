@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-from SurfaceCard import SurfaceCard
+from SurfaceCard import SurfaceCard, SurfaceType
 
 class SurfaceMethods(unittest.TestCase):
 
@@ -11,31 +11,31 @@ class SurfaceMethods(unittest.TestCase):
         surface = SurfaceCard('')
         surface_coefficients = [1.0,1.0,0.0,10.]
         transform_id = 0
-        surface_type = surface.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface.simplify()
-        self.assertEqual(surface.surface_type, surface.SurfaceType['PLANE_GENERAL'])
+        self.assertEqual(surface.surface_type, SurfaceType['PLANE_GENERAL'])
 
     def test_simplify_gq_to_plane(self):
         surface = SurfaceCard('')
         surface_coefficients = [0,0,0,0,0,0,1.0,1.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface.SurfaceType['GENERAL_QUADRATIC']
+        surface_type = SurfaceType['GENERAL_QUADRATIC']
         surface_id = 1
         surface.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface.simplify()
-        self.assertEqual(surface.surface_type, surface.SurfaceType['PLANE_GENERAL'])
+        self.assertEqual(surface.surface_type, SurfaceType['PLANE_GENERAL'])
 
     def test_generalise(self):
         surface = SurfaceCard('')
         surface_coefficients = [1.0,1.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface.generalise()
-        self.assertEqual(surface.surface_type, surface.SurfaceType['GENERAL_QUADRATIC'])
+        self.assertEqual(surface.surface_type, SurfaceType['GENERAL_QUADRATIC'])
         for i in range(6):
             self.assertEqual(surface.surface_coefficients[i],0.0)
 
@@ -43,16 +43,16 @@ class SurfaceMethods(unittest.TestCase):
         surface = SurfaceCard('')
         surface_coefficients = [1.0,1.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface.generalise()
-        self.assertEqual(surface.surface_type, surface.SurfaceType['GENERAL_QUADRATIC'])
+        self.assertEqual(surface.surface_type, SurfaceType['GENERAL_QUADRATIC'])
         for i in range(6):
             self.assertEqual(surface.surface_coefficients[i],0.0)
         surface.simplify()
         # make sure we get a general plane back
-        self.assertEqual(surface.surface_type, surface.SurfaceType['PLANE_GENERAL'])
+        self.assertEqual(surface.surface_type, SurfaceType['PLANE_GENERAL'])
         self.assertEqual(surface.surface_coefficients[0],1.0)
         self.assertEqual(surface.surface_coefficients[1],1.0)
         self.assertEqual(surface.surface_coefficients[2],0.0)
@@ -64,7 +64,7 @@ class SurfaceMethods(unittest.TestCase):
         surface1 = SurfaceCard('')
         surface_coefficients = [1.0,0.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface1.generalise()
@@ -77,7 +77,7 @@ class SurfaceMethods(unittest.TestCase):
         surface1 = SurfaceCard('')
         surface_coefficients = [1.0,0.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
         surface1.generalise()
@@ -90,7 +90,7 @@ class SurfaceMethods(unittest.TestCase):
         surface1 = SurfaceCard('')
         surface_coefficients = [1.0,0.0,0.0,10.]
         transform_id = 0
-        surface_type = surface1.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 1
         surface1.set_type(surface_id,transform_id,surface_type,surface_coefficients)
 
@@ -98,7 +98,7 @@ class SurfaceMethods(unittest.TestCase):
         surface2 = SurfaceCard('')
         surface_coefficients = [-1.0,0.0,0.0,-10.]
         transform_id = 0
-        surface_type = surface2.SurfaceType['PLANE_GENERAL']
+        surface_type = SurfaceType['PLANE_GENERAL']
         surface_id = 2
         surface2.set_type(surface_id,transform_id,surface_type,surface_coefficients)
 

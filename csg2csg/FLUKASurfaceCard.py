@@ -1,6 +1,6 @@
 #!/usr/env/python3
 
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SurfaceType
 from math import sqrt
 
 import warnings
@@ -275,55 +275,55 @@ def write_fluka_surface(filestream, SurfaceCard):
    # NOTE this appears to be a nice way to get a pythonic case statement
    # is it equally ugly as below?
    # return {
-   #     SurfaceCard.SurfaceType["PLANE_GENERAL"]: surface_plane_write(Surface,
-   #     SurfaceCard.SurfaceType["CYLINDER_Y"]: "cylinder_y\n"
+   #     SurfaceType["PLANE_GENERAL"]: surface_plane_write(Surface,
+   #     SurfaceType["CYLINDER_Y"]: "cylinder_y\n"
    #     }.get(SurfaceCard.surface_type,"surface not supported")
 
     #string = "surf " + str(SurfaceCard.surface_id)
     string = "" 
-    if SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_GENERAL"]:
+    if SurfaceCard.surface_type is SurfaceType["PLANE_GENERAL"]:
         string += fluka_plane_string(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_X"]:
+    elif SurfaceCard.surface_type is SurfaceType["PLANE_X"]:
         string += fluka_plane_x_string(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_Y"]:
+    elif SurfaceCard.surface_type is SurfaceType["PLANE_Y"]:
         string += fluka_plane_y_string(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_Z"]:
+    elif SurfaceCard.surface_type is SurfaceType["PLANE_Z"]:
         string += fluka_plane_z_string(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_X"]:
+    elif SurfaceCard.surface_type is SurfaceType["CYLINDER_X"]:
         string += fluka_cylinder_x(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_Y"]:
+    elif SurfaceCard.surface_type is SurfaceType["CYLINDER_Y"]:
         string += fluka_cylinder_y(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CYLINDER_Z"]:
+    elif SurfaceCard.surface_type is SurfaceType["CYLINDER_Z"]:
         string += fluka_cylinder_z(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["SPHERE_GENERAL"]:
+    elif SurfaceCard.surface_type is SurfaceType["SPHERE_GENERAL"]:
         string += fluka_sphere(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_X"]:
+    elif SurfaceCard.surface_type is SurfaceType["CONE_X"]:
         string += fluka_cone_x(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Y"]:
+    elif SurfaceCard.surface_type is SurfaceType["CONE_Y"]:
         string += fluka_cone_y(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["CONE_Z"]:
+    elif SurfaceCard.surface_type is SurfaceType["CONE_Z"]:
         string += fluka_cone_z(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_X"]:
+    elif SurfaceCard.surface_type is SurfaceType["TORUS_X"]:
         string += fluka_torus_x(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Y"]:
+    elif SurfaceCard.surface_type is SurfaceType["TORUS_Y"]:
         string += fluka_torus_y(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["TORUS_Z"]:
+    elif SurfaceCard.surface_type is SurfaceType["TORUS_Z"]:
         string += fluka_torus_z(SurfaceCard)
         filestream.write(string)
-    elif SurfaceCard.surface_type is SurfaceCard.SurfaceType["GENERAL_QUADRATIC"]:
+    elif SurfaceCard.surface_type is SurfaceType["GENERAL_QUADRATIC"]:
         string += fluka_gq(SurfaceCard)
         filestream.write(string)
     else:

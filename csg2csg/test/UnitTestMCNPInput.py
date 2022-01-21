@@ -7,7 +7,7 @@ import logging
 sys.path.append("..")
 from csg2csg.MCNPInput import MCNPInput #, explode_macrobody
 from csg2csg.MCNPSurfaceCard import MCNPSurfaceCard
-from csg2csg.SurfaceCard import SurfaceCard
+from csg2csg.SurfaceCard import SurfaceCard, SurfaceType
 
 
 class TestBlockBreaks(unittest.TestCase):
@@ -100,17 +100,17 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(cells[0], "( -1 -2 -3 -4 -5 -6 )")
         self.assertEqual(cells[1], "( 1 : 2 : 3 : 4 : 5 : 6)")
         self.assertEqual(len(new_surfaces),6)
-        self.assertEqual(new_surfaces[0].surface_type,SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(new_surfaces[0].surface_type,SurfaceType["PLANE_X"])
         self.assertEqual(new_surfaces[0].surface_coefficients[3],1)
-        self.assertEqual(new_surfaces[1].surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(new_surfaces[1].surface_type,SurfaceType["PLANE_GENERAL"])
         self.assertEqual(new_surfaces[1].surface_coefficients[0],-1)
-        self.assertEqual(new_surfaces[2].surface_type,SurfaceCard.SurfaceType["PLANE_Y"])
+        self.assertEqual(new_surfaces[2].surface_type,SurfaceType["PLANE_Y"])
         self.assertEqual(new_surfaces[2].surface_coefficients[3],1)
-        self.assertEqual(new_surfaces[3].surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(new_surfaces[3].surface_type,SurfaceType["PLANE_GENERAL"])
         self.assertEqual(new_surfaces[3].surface_coefficients[1],-1)
-        self.assertEqual(new_surfaces[4].surface_type,SurfaceCard.SurfaceType["PLANE_Z"])
+        self.assertEqual(new_surfaces[4].surface_type,SurfaceType["PLANE_Z"])
         self.assertEqual(new_surfaces[4].surface_coefficients[3],1)
-        self.assertEqual(new_surfaces[5].surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(new_surfaces[5].surface_type,SurfaceType["PLANE_GENERAL"])
         self.assertEqual(new_surfaces[5].surface_coefficients[2],-1)
 
     def test_flatten_macrobodies(self):
@@ -163,9 +163,9 @@ class TestMCNPInputMethods(unittest.TestCase):
         # surface card
         surface1 = input.surface_list[0]
         surface2 = input.surface_list[1]
-        self.assertEqual(surface1.surface_type,SurfaceCard.SurfaceType["PLANE_X"])
+        self.assertEqual(surface1.surface_type,SurfaceType["PLANE_X"])
         self.assertEqual(surface1.surface_coefficients,[1,0,0,1])
-        self.assertEqual(surface2.surface_type,SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(surface2.surface_type,SurfaceType["PLANE_GENERAL"])
         self.assertEqual(surface2.surface_coefficients,[-1,0,0,1])
         
     def test_flatten_macrobodies_with_other_surfs(self):
@@ -209,14 +209,14 @@ class TestMCNPInputMethods(unittest.TestCase):
             self.assertEqual(input.surface_list[i].surface_id, 7 + i)
             
         # surface 7 should be a sphere
-        # self.assertEqual(input.surface_list[0].surface_type, SurfaceCard.SurfaceType["SPHERE_GENERAL"])
+        # self.assertEqual(input.surface_list[0].surface_type, SurfaceType["SPHERE_GENERAL"])
         # 8-9 px 10-11 py 12-13 pz
-        self.assertEqual(input.surface_list[1].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
-        self.assertEqual(input.surface_list[2].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[3].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
-        self.assertEqual(input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
-        self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[1].surface_type, SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[2].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[3].surface_type, SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[4].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[5].surface_type, SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[6].surface_type, SurfaceType["PLANE_GENERAL"])
 
 
     def test_flatten_macrobodies_with_multiple_macrobodies(self):
@@ -254,26 +254,26 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(len(input.cell_list),4)
 
         # are surfaces correctly processed
-        self.assertEqual(input.surface_list[0].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
-        self.assertEqual(input.surface_list[1].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[2].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
-        self.assertEqual(input.surface_list[3].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[4].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
-        self.assertEqual(input.surface_list[5].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[0].surface_type, SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[1].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[2].surface_type, SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[3].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[4].surface_type, SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[5].surface_type, SurfaceType["PLANE_GENERAL"])
 
-        self.assertEqual(input.surface_list[6].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
-        self.assertEqual(input.surface_list[7].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[8].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
-        self.assertEqual(input.surface_list[9].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[10].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
-        self.assertEqual(input.surface_list[11].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[6].surface_type, SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[7].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[8].surface_type, SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[9].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[10].surface_type, SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[11].surface_type, SurfaceType["PLANE_GENERAL"])
 
-        self.assertEqual(input.surface_list[12].surface_type, SurfaceCard.SurfaceType["PLANE_X"])
-        self.assertEqual(input.surface_list[13].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[14].surface_type, SurfaceCard.SurfaceType["PLANE_Y"])
-        self.assertEqual(input.surface_list[15].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
-        self.assertEqual(input.surface_list[16].surface_type, SurfaceCard.SurfaceType["PLANE_Z"])
-        self.assertEqual(input.surface_list[17].surface_type, SurfaceCard.SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[12].surface_type, SurfaceType["PLANE_X"])
+        self.assertEqual(input.surface_list[13].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[14].surface_type, SurfaceType["PLANE_Y"])
+        self.assertEqual(input.surface_list[15].surface_type, SurfaceType["PLANE_GENERAL"])
+        self.assertEqual(input.surface_list[16].surface_type, SurfaceType["PLANE_Z"])
+        self.assertEqual(input.surface_list[17].surface_type, SurfaceType["PLANE_GENERAL"])
 
 
         # surface numbering should start at 6
@@ -313,7 +313,7 @@ class TestMCNPInputMethods(unittest.TestCase):
         input.process()
 
         # are surfaces correctly processed
-        self.assertEqual(input.surface_list[0].surface_type, SurfaceCard.SurfaceType["CONE_Z"])
+        self.assertEqual(input.surface_list[0].surface_type, SurfaceType["CONE_Z"])
 
         # surface numbering should start at 6
         cell1 = input.cell_list[0] 
@@ -322,6 +322,41 @@ class TestMCNPInputMethods(unittest.TestCase):
         self.assertEqual(cell2.text_string, "2 0 (  1 -2 : 2)")
 
         return       
+
+    def test_cone_expansion_2(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -1 3\n")
+        input_string.append("2 0      -2 3\n")
+        input_string.append("\n")
+        input_string.append("1 k/z 0 -20 5 0.5 -1\n")
+        input_string.append("2 k/z 0  20 5 0.5 -1\n")
+        input_string.append("3 pz 10\n")
+        input_string.append("\n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+        input_string.append("\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.surface_list = []
+        input.material_list = {}
+        input.transform_list = {}
+
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)   
+        input.process()
+
+        # are surfaces correctly processed
+        self.assertEqual(input.surface_list[0].surface_type, SurfaceType["CONE_Z"])
+
+        # surface numbering should start at 6
+        cell1 = input.cell_list[0] 
+        cell2 = input.cell_list[1] 
+        self.assertEqual(cell1.text_string, "1 1 -1.0 ( -1 -4 ) 3")
+        self.assertEqual(cell2.text_string, "2 0 ( -2 -5 ) 3")
+
+        return   
 
 class TestMCNPInputRegressions(unittest.TestCase):
 
@@ -440,6 +475,38 @@ class TestMCNPInputRegressions(unittest.TestCase):
         input.process()
         
         self.assertEqual(len(input.surface_list),6)
+
+    """ whilst the below input is not valid MCNP, it illustrates
+    a multiply defined surface
+    """
+    def test_duplicate_surface_repeat(self):
+        input_string = ["this is a title\n"]
+        input_string.append("1 1 -1.0 -1\n")
+        input_string.append("2 1 -1.0  2\n")
+        input_string.append("3 1 -1.0  3\n")
+        input_string.append("4 1 -1.0  -4\n")
+        input_string.append(" \n")
+        input_string.append("1 px 2.0\n")
+        input_string.append("2 px 2.0\n")
+        input_string.append("3 px 2.0\n")
+        input_string.append("4 px 2.0\n")
+        input_string.append(" \n")
+        input_string.append("m1 1001 1.0\n")
+        input_string.append("   1002 1.0\n")
+
+        # setup input
+        input = MCNPInput()
+        input.cell_list = []
+        input.file_lines = input_string
+        input.total_num_lines = len(input_string)
+        input.quick_process = False
+        input.process()
+        
+        self.assertEqual(len(input.surface_list),1)
+        self.assertEqual(len(input.cell_list),4)
+        
+        for cell in input.cell_list:
+            print(cell)
 
 if __name__ == '__main__':
     unittest.main()
