@@ -4,7 +4,7 @@ from csg2csg.MaterialCard import MaterialCard
 from csg2csg.MCNPFormatter import get_fortran_formatted_number
 
 # write a specific serpent material card
-def write_serpent_material(filestream, material):
+def write_serpent_material(filestream, material, preserve_xs):
 
     string = "% " + material.material_name  +"\n"
     string += "mat " + str(material.material_number) + " "
@@ -17,7 +17,11 @@ def write_serpent_material(filestream, material):
         string += "\n"
         
     for nuc in material.composition_dictionary:
-        string += '{} {:e} \n'.format(nuc, material.composition_dictionary[nuc])
+        if preserve_xs:
+            string += '{}.{} {:e} \n'.format(nuc, material.xsid_dictionary[nuc], material.composition_dictionary[nuc])
+        else:    
+            string += '{} {:e} \n'.format(nuc, material.composition_dictionary[nuc])
+
     filestream.write(string)
     return
 
