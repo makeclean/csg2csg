@@ -173,7 +173,7 @@ class MCNPCellCard(CellCard):
         self.cell_interpreted = cell_description
         #print(self.cell_id)
         #print(self.cell_interpreted)
-        #logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
+        logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
 
         return
 
