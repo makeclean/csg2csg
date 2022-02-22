@@ -6,10 +6,13 @@ from csg2csg.MCNPFormatter import get_fortran_formatted_number
 import sys
 
 # writes an mcnp material card given the generic description
-def write_mcnp_material(filestream, Material, preserve_xs):
+def write_mcnp_material(filestream, Material, preserve_xs, write_comment=True):
 
-    filestream.write("C Material " + str(Material.material_name) + "\n")
-    filestream.write("M"+ str(Material.material_number))
+    # if you want the comment
+    if write_comment:
+        filestream.write("C Material " + str(Material.material_name) + "\n")
+
+    filestream.write("M" + str(Material.material_number))
     for nucid in Material.composition_dictionary:
         string = "     " + str(nucid)
         if preserve_xs:
@@ -18,12 +21,12 @@ def write_mcnp_material(filestream, Material, preserve_xs):
         filestream.write(string)
     return
 
+
 # Class to handle MCNP Material Card
 class MCNPMaterialCard(MaterialCard):
-    
     def __init__(self, material_number, card_string):
         MaterialCard.__init__(self, material_number, card_string)
-        self.material_name = "M"+str(material_number)
+        self.material_name = "M" + str(material_number)
         self.material_number = material_number
         self.__process_string()
 
@@ -34,13 +37,22 @@ class MCNPMaterialCard(MaterialCard):
         self.composition_dictionary = {}
 
         mat_string = self.text_string
-        mat_string = mat_string.replace("\n","")
-        
-        # split string
-        tokens = mat_string.split()
+        mat_string = mat_string.replace("\n", "")
 
-        if len(tokens)%2 != 0:
-            print ("Material string not correctly processed")
+        # split string
+        all_tokens = mat_string.split()
+
+        # need to remove other material keywords not zaids
+        tokens = []
+        keywords = []
+        for token in all_tokens:
+            if "=" in token:
+                keywords.append(token)
+            else:
+                tokens.append(token)
+
+        if len(tokens) % 2 != 0:
+            print("Material string not correctly processed")
             sys.exit(1)
         while len(tokens) != 0:
             nuclide = tokens[0].split(".")
@@ -53,6 +65,9 @@ class MCNPMaterialCard(MaterialCard):
             frac = get_fortran_formatted_number(tokens[1])
             tokens.pop(0)
             tokens.pop(0)
-            self.composition_dictionary[nucid] = frac
+            if nucid in self.composition_dictionary.keys():
+                self.composition_dictionary[nucid] += frac
+            else:
+                self.composition_dictionary[nucid] = frac
             self.xsid_dictionary[nucid] = xsid
         return

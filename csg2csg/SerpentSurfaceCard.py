@@ -11,20 +11,24 @@ def serpent_plane_string(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
+
 # write the specific x form of the plane
 def serpent_plane_x_string(SurfaceCard):
     string = " px " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
+
 
 # write the specific y form of the plane
 def serpent_plane_y_string(SurfaceCard):
     string = " py " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
 
+
 # write the specific z form of the plane
 def serpent_plane_z_string(SurfaceCard):
     string = " pz " + str(SurfaceCard.surface_coefficients[3]) + "\n"
     return string
+
 
 # write a cylinder_x
 def serpent_cylinder_x(SurfaceCard):
@@ -34,6 +38,7 @@ def serpent_cylinder_x(SurfaceCard):
     string += "\n"
     return string
 
+
 # write a cylinder_y
 def serpent_cylinder_y(SurfaceCard):
     string = " cyly " + str(SurfaceCard.surface_coefficients[0]) + " "
@@ -42,6 +47,7 @@ def serpent_cylinder_y(SurfaceCard):
     string += "\n"
     return string
 
+
 # write a cylinder_z
 def serpent_cylinder_z(SurfaceCard):
     string = " cylz " + str(SurfaceCard.surface_coefficients[0]) + " "
@@ -49,6 +55,7 @@ def serpent_cylinder_z(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[2]) + " "
     string += "\n"
     return string
+
 
 # write a sphere
 def serpent_sphere(SurfaceCard):
@@ -59,13 +66,15 @@ def serpent_sphere(SurfaceCard):
     string += "\n"
     return string
 
+
 # write a general quadratic
 def serpent_gq(SurfaceCard):
-    string = " quadratic " 
+    string = " quadratic "
     for coefficient in SurfaceCard.surface_coefficients:
-        string += " " + str(coefficient) + " " 
+        string += " " + str(coefficient) + " "
     string += "\n"
     return string
+
 
 # its not clear how we deal with +-1 cones for serpent}
 # write a cone along x - jaakko has implemented a special
@@ -76,13 +85,14 @@ def serpent_cone_x(SurfaceCard):
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
 
-    if (len(SurfaceCard.surface_coefficients) > 4):
-        side = SurfaceCard.surface_coefficients[4] 
-        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r,side)
+    if len(SurfaceCard.surface_coefficients) > 4:
+        side = SurfaceCard.surface_coefficients[4]
+        string = " {} {:f} {:f} {:f} {:f} {:f}\n".format("ckx", x, y, z, r, side)
     else:
-        string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckx",x,y,z,r)
+        string = " {} {:f} {:f} {:f} {:f}\n".format("ckx", x, y, z, r)
 
     return string
+
 
 # serpent a cone along y
 def serpent_cone_y(SurfaceCard):
@@ -91,13 +101,14 @@ def serpent_cone_y(SurfaceCard):
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
 
-    if (len(SurfaceCard.surface_coefficients) > 4):
-        side = SurfaceCard.surface_coefficients[4] 
-        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r,side)
+    if len(SurfaceCard.surface_coefficients) > 4:
+        side = SurfaceCard.surface_coefficients[4]
+        string = " {} {:f} {:f} {:f} {:f} {:f}\n".format("cky", x, y, z, r, side)
     else:
-        string = ' {} {:f} {:f} {:f} {:f}\n'.format("cky",x,y,z,r)
+        string = " {} {:f} {:f} {:f} {:f}\n".format("cky", x, y, z, r)
 
     return string
+
 
 # serpent a cone along z
 def serpent_cone_z(SurfaceCard):
@@ -105,15 +116,16 @@ def serpent_cone_z(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     r = SurfaceCard.surface_coefficients[3]
-    
-    if (len(SurfaceCard.surface_coefficients) > 4):
-        side = SurfaceCard.surface_coefficients[4] 
-        string = ' {} {:f} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r,side)
+
+    if len(SurfaceCard.surface_coefficients) > 4:
+        side = SurfaceCard.surface_coefficients[4]
+        string = " {} {:f} {:f} {:f} {:f} {:f}\n".format("ckz", x, y, z, r, side)
     else:
-        string = ' {} {:f} {:f} {:f} {:f}\n'.format("ckz",x,y,z,r)
+        string = " {} {:f} {:f} {:f} {:f}\n".format("ckz", x, y, z, r)
 
     return string
-    
+
+
 # serpent a torus x
 def serpent_torus_x(SurfaceCard):
     x = SurfaceCard.surface_coefficients[0]
@@ -122,8 +134,9 @@ def serpent_torus_x(SurfaceCard):
     a = SurfaceCard.surface_coefficients[3]
     b = SurfaceCard.surface_coefficients[4]
     c = SurfaceCard.surface_coefficients[5]
-    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torx",x,y,z,a,b,c)
+    string = " {} {:f} {:f} {:f} {:f} {:f} {:f}\n".format("torx", x, y, z, a, b, c)
     return string
+
 
 # serpent a torus y
 def serpent_torus_y(SurfaceCard):
@@ -133,8 +146,9 @@ def serpent_torus_y(SurfaceCard):
     a = SurfaceCard.surface_coefficients[3]
     b = SurfaceCard.surface_coefficients[4]
     c = SurfaceCard.surface_coefficients[5]
-    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("tory",x,y,z,a,b,c)
+    string = " {} {:f} {:f} {:f} {:f} {:f} {:f}\n".format("tory", x, y, z, a, b, c)
     return string
+
 
 # serpent a torus z
 def serpent_torus_z(SurfaceCard):
@@ -144,8 +158,9 @@ def serpent_torus_z(SurfaceCard):
     a = SurfaceCard.surface_coefficients[3]
     b = SurfaceCard.surface_coefficients[4]
     c = SurfaceCard.surface_coefficients[5]
-    string = ' {} {:f} {:f} {:f} {:f} {:f} {:f}\n'.format("torz",x,y,z,a,b,c)
+    string = " {} {:f} {:f} {:f} {:f} {:f} {:f}\n".format("torz", x, y, z, a, b, c)
     return string
+
 
 """
 # write a conex
@@ -253,12 +268,12 @@ def serpent_cone_z(SurfaceCard):
 
 # write the surface description to file
 def write_serpent_surface(filestream, SurfaceCard):
-   # NOTE this appears to be a nice way to get a pythonic case statement
-   # is it equally ugly as below?
-   # return {
-   #     SurfaceCard.SurfaceType["PLANE_GENERAL"]: surface_plane_write(Surface,
-   #     SurfaceCard.SurfaceType["CYLINDER_Y"]: "cylinder_y\n"
-   #     }.get(SurfaceCard.surface_type,"surface not supported")
+    # NOTE this appears to be a nice way to get a pythonic case statement
+    # is it equally ugly as below?
+    # return {
+    #     SurfaceCard.SurfaceType["PLANE_GENERAL"]: surface_plane_write(Surface,
+    #     SurfaceCard.SurfaceType["CYLINDER_Y"]: "cylinder_y\n"
+    #     }.get(SurfaceCard.surface_type,"surface not supported")
 
     string = "surf " + str(SurfaceCard.surface_id)
 
@@ -313,9 +328,8 @@ def write_serpent_surface(filestream, SurfaceCard):
 
 
 class SerpentSurfaceCard(SurfaceCard):
-
     def __init__(self, card_string):
         SurfaceCard.__init__(self, card_string)
 
     def write(self):
-        print ('hello')
+        print("hello")

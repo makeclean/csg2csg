@@ -1,6 +1,7 @@
-#!/usr/env/python3 
+#!/usr/env/python3
 
 from csg2csg.ParticleNames import ParticleNames
+
 
 def particleToMCNP(particle_name):
     if particle_name == ParticleNames["NEUTRON"]:
@@ -29,6 +30,7 @@ def particleToMCNP(particle_name):
         return "s"
     if particle_name == ParticleNames["MUON_NEG"]:
         return "|"
+
 
 def mcnpToParticle(particle_name):
     if particle_name == "n":

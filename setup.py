@@ -13,8 +13,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/makeclean/csg2csg",
     packages=setuptools.find_packages(),
-    scripts=['csg2csg/csg2csg'], #puts files in /usr/local/bin
-    install_requires=['numpy'],
+    entry_points=dict(console_scripts=["csg2csg=csg2csg.__main__:main"]),
+    install_requires=["numpy"],
     classifiers=[
         "Programming Language :: Python :: 3",
         # "License :: OSI Approved :: License name here",
