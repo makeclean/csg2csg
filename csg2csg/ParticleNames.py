@@ -5,6 +5,8 @@ from enum import Enum
 """ Class for the storage of the generic particle names
 for translation of metadata downstream
 """
+
+
 class ParticleNames(Enum):
     NEUTRON = 0
     PHOTON = 1
@@ -19,6 +21,7 @@ class ParticleNames(Enum):
     PION_NEG = 10
     HELION = 11
     MUON_NEG = 12
+
 
 def particleToGeneric(particle_name):
     if particle_name == ParticleNames["NEUTRON"]:

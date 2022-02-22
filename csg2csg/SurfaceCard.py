@@ -3,21 +3,22 @@ from enum import Enum
 
 from copy import deepcopy
 
+
 class SurfaceCard(Card):
-    """ Class for the storage of the generic SurfaceCard type
+    """Class for the storage of the generic SurfaceCard type
     Methods for the generation of flat geometry surface card data
-    should be place here. Classes needing to write flat 
+    should be place here. Classes needing to write flat
     surface card data should be implemented in its own
     CodeSurfaceCard.py file
     """
-    
+
     class BoundaryCondition(Enum):
         TRANSMISSION = 0
         VACUUM = 1
         REFLECTING = 2
         PERIODIC = 3
         WHITE = 4
-    
+
     class SurfaceType(Enum):
         PLANE_GENERAL = 0
         PLANE_X = 1
@@ -37,26 +38,26 @@ class SurfaceCard(Card):
         MACRO_RPP = 15
         MACRO_BOX = 16
         MACRO_RCC = 17
-    
+
     # constructor for building a surface card
-    def __init__(self,card_string):
+    def __init__(self, card_string):
         self.surface_type = 0
         self.surface_id = 0
         self.surface_transform = 0
         self.surface_coefficients = []
-        self.boundary_condition = self.BoundaryCondition["TRANSMISSION"] 
+        self.boundary_condition = self.BoundaryCondition["TRANSMISSION"]
         self.comment = ""
-        self.b_box = [0,0,0,0,0,0] # b 
-        Card.__init__(self,card_string)
+        self.b_box = [0, 0, 0, 0, 0, 0]  # b
+        Card.__init__(self, card_string)
 
     def __str__(self):
         string = "SurfaceCard: \n"
-        string += "Surface ID " + str(self.surface_id)+"\n"
+        string += "Surface ID " + str(self.surface_id) + "\n"
         string += "Transform ID " + str(self.surface_transform) + "\n"
-        string += "Surface Type " + str(self.surface_type)+"\n"
-        string += "Surface Coefficients " + str(self.surface_coefficients)+"\n"
-        string += "Boundary Condition " + str(self.boundary_condition)+"\n"
-        string += "Comment: " + str(self.comment)+"\n"
+        string += "Surface Type " + str(self.surface_type) + "\n"
+        string += "Surface Coefficients " + str(self.surface_coefficients) + "\n"
+        string += "Boundary Condition " + str(self.boundary_condition) + "\n"
+        string += "Comment: " + str(self.comment) + "\n"
         return string
 
     """
@@ -72,90 +73,92 @@ class SurfaceCard(Card):
          F,F - surfaces wasnt the same
          F,T - cannot occur
     """
-    def diff(self, surface, both = True, already_generalised = False):        
+
+    def diff(self, surface, both=True, already_generalised=False):
         # generalise the surfaces
         if not already_generalised:
             self.generalise()
             surface.generalise()
-        
-        # they arent the same type 
-        if ( surface.surface_type is not self.surface_type):
-            return (False,False)
+
+        # they arent the same type
+        if surface.surface_type is not self.surface_type:
+            return (False, False)
 
         # they are the same
         if surface.surface_coefficients == self.surface_coefficients:
-            return (True,False)
+            return (True, False)
 
         # comparing the other side
         elif both:
             surface.reverse()
             if surface.surface_coefficients == self.surface_coefficients:
                 surface.reverse()
-                return (True,True)
+                return (True, True)
             else:
                 surface.reverse()
-                return (False,False)
-            
+                return (False, False)
+
         # no matches
         else:
-            return (False,False)
+            return (False, False)
 
     """
     Function to reverse the normal of the surface definition
 
     modifies the class in place
     """
+
     def reverse(self):
         surf_coeffs = [i * -1 for i in self.surface_coefficients]
         self.surface_coefficients = surf_coeffs
         return
-    
+
     def set_type(self, surf_id, surf_transform, surf_type, coords):
         self.surface_id = surf_id
         self.surface_transform = surf_transform
         self.surface_type = surf_type
         self.surface_coefficients = coords
-        
+
     # test if the current surface is a macrobody or not
     def is_macrobody(self):
-        if self.surface_type == self.SurfaceType['MACRO_RPP']:
+        if self.surface_type == self.SurfaceType["MACRO_RPP"]:
             return True
-        if self.surface_type == self.SurfaceType['MACRO_BOX']:
+        if self.surface_type == self.SurfaceType["MACRO_BOX"]:
             return True
-        if self.surface_type == self.SurfaceType['MACRO_RCC']:
+        if self.surface_type == self.SurfaceType["MACRO_RCC"]:
             return True
         return False
-    
-    # get the bounding box 
+
+    # get the bounding box
     def bounding_box(self):
         # bounding box return value
-        b_box = [0,0,0,0,0,0]
+        b_box = [0, 0, 0, 0, 0, 0]
 
-        if self.surface_type == self.SurfaceType['PLANE_X']:
+        if self.surface_type == self.SurfaceType["PLANE_X"]:
             b_box[0] = self.surface_coefficients[3]
             b_box[1] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType['PLANE_Y']:
+        elif self.surface_type == self.SurfaceType["PLANE_Y"]:
             b_box[2] = self.surface_coefficients[3]
             b_box[3] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType['PLANE_Z']:
+        elif self.surface_type == self.SurfaceType["PLANE_Z"]:
             b_box[4] = self.surface_coefficients[3]
             b_box[5] = self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType['CYLINDER_X']:
+        elif self.surface_type == self.SurfaceType["CYLINDER_X"]:
             b_box[2] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[3] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType['CYLINDER_Y']:
+        elif self.surface_type == self.SurfaceType["CYLINDER_Y"]:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[4] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[5] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType['CYLINDER_Z']:
+        elif self.surface_type == self.SurfaceType["CYLINDER_Z"]:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[2]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[2]
             b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[2]
             b_box[3] = self.surface_coefficients[1] + self.surface_coefficients[2]
-        elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
+        elif self.surface_type == self.SurfaceType["SPHERE_GENERAL"]:
             b_box[0] = self.surface_coefficients[0] - self.surface_coefficients[3]
             b_box[1] = self.surface_coefficients[0] + self.surface_coefficients[3]
             b_box[2] = self.surface_coefficients[1] - self.surface_coefficients[3]
@@ -166,78 +169,119 @@ class SurfaceCard(Card):
 
     # turn the surface into a gq type in preparation for transformation
     def generalise(self):
-        a = 0 ; b = 0 ; c = 0 ; d = 0 ; e = 0 ; 
-        f = 0 ; g = 0 ; h = 0 ; j = 0 ; k = 0 
-        
+        a = 0
+        b = 0
+        c = 0
+        d = 0
+        e = 0
+        f = 0
+        g = 0
+        h = 0
+        j = 0
+        k = 0
+
         # note the -ve sign is due to the special way that MCNP defines
         # planes (in difference to say FLUKA)
-        if self.surface_type == self.SurfaceType['PLANE_X']:
+        if self.surface_type == self.SurfaceType["PLANE_X"]:
             g = 1.0
-            k = -1.0*self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType['PLANE_Y']:
+            k = -1.0 * self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType["PLANE_Y"]:
             h = 1.0
-            k = -1.0*self.surface_coefficients[3]            
-        elif self.surface_type == self.SurfaceType['PLANE_Z']:
+            k = -1.0 * self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType["PLANE_Z"]:
             j = 1.0
-            k = -1.0*self.surface_coefficients[3]            
-        elif self.surface_type == self.SurfaceType['PLANE_GENERAL']:
-            g = self.surface_coefficients[0]            
+            k = -1.0 * self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType["PLANE_GENERAL"]:
+            g = self.surface_coefficients[0]
             h = self.surface_coefficients[1]
             j = self.surface_coefficients[2]
-            k = -1.0*self.surface_coefficients[3]            
+            k = -1.0 * self.surface_coefficients[3]
         # all spheres are general
-        elif self.surface_type == self.SurfaceType['SPHERE_GENERAL']:
-            a = 1 ; b = 1 ; c = 1 ; d = 0 ; e = 0 ; f = 0;
-            g = -2*self.surface_coefficients[0]
-            h = -2*self.surface_coefficients[1]
-            j = -2*self.surface_coefficients[2]
-            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 \
-                + self.surface_coefficients[2]**2 - self.surface_coefficients[3]**2
+        elif self.surface_type == self.SurfaceType["SPHERE_GENERAL"]:
+            a = 1
+            b = 1
+            c = 1
+            d = 0
+            e = 0
+            f = 0
+            g = -2 * self.surface_coefficients[0]
+            h = -2 * self.surface_coefficients[1]
+            j = -2 * self.surface_coefficients[2]
+            k = (
+                self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                + self.surface_coefficients[2] ** 2
+                - self.surface_coefficients[3] ** 2
+            )
         # todo need to check cylinder equation
-        elif self.surface_type == self.SurfaceType['CYLINDER_X']:
-            b = 1 
-            c = 1
-            h = -2*self.surface_coefficients[0]
-            j = -2*self.surface_coefficients[1]
-            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
-        elif self.surface_type == self.SurfaceType['CYLINDER_Y']:
-            a = 1 
-            c = 1
-            g = -2*self.surface_coefficients[0]
-            j = -2*self.surface_coefficients[1]
-            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
-        elif self.surface_type == self.SurfaceType['CYLINDER_Z']:
-            a = 1 
+        elif self.surface_type == self.SurfaceType["CYLINDER_X"]:
             b = 1
-            g = -2*self.surface_coefficients[0]
-            h = -2*self.surface_coefficients[1]
-            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2
+            c = 1
+            h = -2 * self.surface_coefficients[0]
+            j = -2 * self.surface_coefficients[1]
+            k = (
+                self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                - self.surface_coefficients[2] ** 2
+            )
+        elif self.surface_type == self.SurfaceType["CYLINDER_Y"]:
+            a = 1
+            c = 1
+            g = -2 * self.surface_coefficients[0]
+            j = -2 * self.surface_coefficients[1]
+            k = (
+                self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                - self.surface_coefficients[2] ** 2
+            )
+        elif self.surface_type == self.SurfaceType["CYLINDER_Z"]:
+            a = 1
+            b = 1
+            g = -2 * self.surface_coefficients[0]
+            h = -2 * self.surface_coefficients[1]
+            k = (
+                self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                - self.surface_coefficients[2] ** 2
+            )
         # todo check cone equation
-        elif self.surface_type == self.SurfaceType['CONE_X']:
-            a = -1*self.surface_coefficients[3]
+        elif self.surface_type == self.SurfaceType["CONE_X"]:
+            a = -1 * self.surface_coefficients[3]
             b = 1
             c = 1
-            g =  2*self.surface_coefficients[0]*self.surface_coefficients[3]
-            h = -2*self.surface_coefficients[1]
-            j = -2*self.surface_coefficients[2]
-            k = -self.surface_coefficients[3]*self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 + self.surface_coefficients[2]**2
-        elif self.surface_type == self.SurfaceType['CONE_Y']:
+            g = 2 * self.surface_coefficients[0] * self.surface_coefficients[3]
+            h = -2 * self.surface_coefficients[1]
+            j = -2 * self.surface_coefficients[2]
+            k = (
+                -self.surface_coefficients[3] * self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                + self.surface_coefficients[2] ** 2
+            )
+        elif self.surface_type == self.SurfaceType["CONE_Y"]:
             a = 1
-            b = -1*self.surface_coefficients[3]
+            b = -1 * self.surface_coefficients[3]
             c = 1
-            g = -2*self.surface_coefficients[0]
-            h =  2*self.surface_coefficients[1]*self.surface_coefficients[3]
-            j = -2*self.surface_coefficients[2]
-            k = self.surface_coefficients[0]**2 - self.surface_coefficients[3]*self.surface_coefficients[1]**2 + self.surface_coefficients[2]**2
-        elif self.surface_type == self.SurfaceType['CONE_Z']:
+            g = -2 * self.surface_coefficients[0]
+            h = 2 * self.surface_coefficients[1] * self.surface_coefficients[3]
+            j = -2 * self.surface_coefficients[2]
+            k = (
+                self.surface_coefficients[0] ** 2
+                - self.surface_coefficients[3] * self.surface_coefficients[1] ** 2
+                + self.surface_coefficients[2] ** 2
+            )
+        elif self.surface_type == self.SurfaceType["CONE_Z"]:
             a = 1
             b = 1
-            c = -1*self.surface_coefficients[3]
-            g = -2*self.surface_coefficients[0]
-            h = -2*self.surface_coefficients[1]
-            j = 2*self.surface_coefficients[2]*self.surface_coefficients[3]
-            k = self.surface_coefficients[0]**2 + self.surface_coefficients[1]**2 - self.surface_coefficients[2]**2*self.surface_coefficients[3]
-        elif self.surface_type == self.SurfaceType['GENERAL_QUADRATIC']:
+            c = -1 * self.surface_coefficients[3]
+            g = -2 * self.surface_coefficients[0]
+            h = -2 * self.surface_coefficients[1]
+            j = 2 * self.surface_coefficients[2] * self.surface_coefficients[3]
+            k = (
+                self.surface_coefficients[0] ** 2
+                + self.surface_coefficients[1] ** 2
+                - self.surface_coefficients[2] ** 2 * self.surface_coefficients[3]
+            )
+        elif self.surface_type == self.SurfaceType["GENERAL_QUADRATIC"]:
             a = self.surface_coefficients[0]
             b = self.surface_coefficients[1]
             c = self.surface_coefficients[2]
@@ -248,13 +292,16 @@ class SurfaceCard(Card):
             h = self.surface_coefficients[7]
             j = self.surface_coefficients[8]
             k = self.surface_coefficients[9]
-        elif self.surface_type in {self.SurfaceType['TORUS_X'],self.SurfaceType['TORUS_Y'],self.SurfaceType['TORUS_Z']}:
+        elif self.surface_type in {
+            self.SurfaceType["TORUS_X"],
+            self.SurfaceType["TORUS_Y"],
+            self.SurfaceType["TORUS_Z"],
+        }:
             return
         else:
-            print ("could not classify surface", self.surface_id, self.surface_type)
+            print("could not classify surface", self.surface_id, self.surface_type)
 
-
-        new_surface_coefficients = [0.]*10
+        new_surface_coefficients = [0.0] * 10
 
         new_surface_coefficients[0] = a
         new_surface_coefficients[1] = b
@@ -268,27 +315,27 @@ class SurfaceCard(Card):
         new_surface_coefficients[9] = k
 
         # dont forget to turn the type into a gq
-        self.surface_type = self.SurfaceType['GENERAL_QUADRATIC'] 
+        self.surface_type = self.SurfaceType["GENERAL_QUADRATIC"]
         self.surface_coefficients = new_surface_coefficients
-        return 
+        return
 
     def simplify(self):
-        if(self.surface_type != self.SurfaceType['GENERAL_QUADRATIC']):
-            return  
+        if self.surface_type != self.SurfaceType["GENERAL_QUADRATIC"]:
+            return
         # then its a plane!
-        if all( value == 0. for value in self.surface_coefficients[0:5]) :
+        if all(value == 0.0 for value in self.surface_coefficients[0:5]):
             self.surface_coefficients[0] = self.surface_coefficients[6]
             self.surface_coefficients[1] = self.surface_coefficients[7]
             self.surface_coefficients[2] = self.surface_coefficients[8]
-            self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_coefficients[3] = -1.0 * self.surface_coefficients[9]
             self.surface_coefficients = self.surface_coefficients[0:4]
-            self.surface_type = self.SurfaceType['PLANE_GENERAL']
-        elif all( value == 0. for value in self.surface_coefficients[0:7]) :
+            self.surface_type = self.SurfaceType["PLANE_GENERAL"]
+        elif all(value == 0.0 for value in self.surface_coefficients[0:7]):
             self.surface_coefficients[0] = 0.0
             self.surface_coefficients[1] = 0.0
             self.surface_coefficients[2] = 1.0
-            self.surface_coefficients[3] = -1.*self.surface_coefficients[9]
+            self.surface_coefficients[3] = -1.0 * self.surface_coefficients[9]
             self.surface_coefficients = self.surface_coefficients[0:4]
-            self.surface_type = self.SurfaceType['PLANE_Z']
+            self.surface_type = self.SurfaceType["PLANE_Z"]
         else:
             return
