@@ -6,7 +6,7 @@ from csg2csg.MCNPFormatter import get_fortran_formatted_number
 # write a specific serpent material card
 def write_serpent_material(filestream, material, preserve_xs):
 
-    string = "% " + material.material_name  +"\n"
+    string = "% " + material.material_name + "\n"
     string += "mat " + str(material.material_number) + " "
     string += str(material.density)
 
@@ -15,20 +15,21 @@ def write_serpent_material(filestream, material, preserve_xs):
         string += " rgb " + material.material_colour + "\n"
     else:
         string += "\n"
-        
+
     for nuc in material.composition_dictionary:
         if preserve_xs:
             string += '{}.{} {:e} \n'.format(nuc, material.xsid_dictionary[nuc], material.composition_dictionary[nuc])
         else:    
             string += '{} {:e} \n'.format(nuc, material.composition_dictionary[nuc])
-
     filestream.write(string)
     return
 
+
 """ Class to handle SerpentMaterialCard tranlation
 """
+
+
 class SerpentMaterialCard(MaterialCard):
-    
     def __init__(self, material_number, material_name, material_density, card_string):
         MaterialCard.__init__(self, material_number, card_string)
         self.material_name = material_name
@@ -43,12 +44,12 @@ class SerpentMaterialCard(MaterialCard):
         self.composition_dictionary = {}
 
         mat_string = self.text_string
-        mat_string = mat_string.replace("\n"," ")
-        
+        mat_string = mat_string.replace("\n", " ")
+
         # split string
         tokens = mat_string.split()
-        
-        if len(tokens)%2 != 0:
+
+        if len(tokens) % 2 != 0:
             raise Exception("Material string not correctly processed")
 
         while len(tokens) != 0:

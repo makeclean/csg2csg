@@ -1,4 +1,4 @@
-#/usr/env/python3
+# /usr/env/python3
 
 from csg2csg.Input import InputDeck
 from csg2csg.SerpentSurfaceCard import SerpentSurfaceCard, write_serpent_surface
@@ -8,14 +8,14 @@ from csg2csg.SerpentMaterialCard import SerpentMaterialCard, write_serpent_mater
 import logging
 import re
 
+
 class SerpentInput(InputDeck):
-    """ SerpentInput class - does the actual processing
-    """
+    """SerpentInput class - does the actual processing"""
 
     # constructor
     def __init__(self,filename = "",preserve_xsid=False):
         InputDeck.__init__(self,filename,preserve_xsid)
-        
+
     # extract a material card from the start line until
     def __get_material_card(self, start_line, mat_num):
         # we already know that the start line has an mat name
@@ -25,9 +25,9 @@ class SerpentInput(InputDeck):
         # set the material name
 
         mat_density = float(tokens[2])
-        
+
         # build the first mat string
-        material_string = ' '
+        material_string = " "
         idx += 1
 
         while True:
@@ -37,24 +37,23 @@ class SerpentInput(InputDeck):
             while True:
                 # its possible that we will have advanced to the end of the
                 # file
-                if (idx == len(self.file_lines)):
+                if idx == len(self.file_lines):
                     break
-                if ('mat' == self.file_lines[idx].split()[0]):
-                    break                
+                if "mat" == self.file_lines[idx].split()[0]:
+                    break
                 line = self.file_lines[idx]
-                if '%' in line:
-                    pos = line.find('%')
+                if "%" in line:
+                    pos = line.find("%")
                     line = line[:pos]
                 material_string += line
                 # increment the line that we are looking at
                 idx += 1
             break
-            
+
         material = SerpentMaterialCard(mat_num, mat_name, mat_density, material_string)
 
         self.material_list[material.material_number] = material
-        
-        
+
         return
 
     # get the material cards definitions
@@ -67,13 +66,12 @@ class SerpentInput(InputDeck):
                 break
 
             # this crazy makes sure that we find an "mat " in the line
-            if re.match(" *mat /*",self.file_lines[idx]):
+            if re.match(" *mat /*", self.file_lines[idx]):
                 logging.debug("%s", "material found on line " + str(idx))
                 self.__get_material_card(idx, mat_num)
                 mat_num += 1
             idx += 1
         return
-
 
     # process the serpent input deck and read into a generic datastructure
     # that we can translate to other formats
@@ -93,8 +91,8 @@ class SerpentInput(InputDeck):
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             logging.debug("%s", "Input Echo")
-            for idx,line in enumerate(self.file_lines):
-                logging.debug("%i %s",idx,line)
+            for idx, line in enumerate(self.file_lines):
+                logging.debug("%i %s", idx, line)
 
         self.__get_material_cards()
 
@@ -106,14 +104,14 @@ class SerpentInput(InputDeck):
     def __write_serpent_cells(self, filestream):
         filestream.write("% --- cell definitions --- %\n")
         for cell in self.cell_list:
-            write_serpent_cell(filestream,cell)
+            write_serpent_cell(filestream, cell)
         return
-    
-    # write the serpent surface definitions 
+
+    # write the serpent surface definitions
     def __write_serpent_surfaces(self, filestream):
         filestream.write("% --- surface definitions --- %\n")
         for surface in self.surface_list:
-            write_serpent_surface(filestream,surface)
+            write_serpent_surface(filestream, surface)
         return
 
     # write the material compositions
@@ -122,11 +120,11 @@ class SerpentInput(InputDeck):
         for material in self.material_list:
             write_serpent_material(filestream, self.material_list[material], self.preserve_xsid)
         return
-    
+
     # main write serpent method, depending upon where the geometry
-    # came from 
-    def write_serpent(self, filename, flat = True):
-        f = open(filename,'w')   
+    # came from
+    def write_serpent(self, filename, flat=True):
+        f = open(filename, "w")
         self.__write_serpent_surfaces(f)
         self.__write_serpent_cells(f)
         self.__write_serpent_materials(f)

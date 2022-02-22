@@ -19,38 +19,45 @@ def mkdir(directory):
     except:
         pass
 
+
 # the main worker
 def main():
 
     argv = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description='csg conversion tool.')
+    parser = argparse.ArgumentParser(description="csg conversion tool.")
 
-    parser.add_argument('-d','--debug',
-                        help = 'Turn on debug logging',
-                        action="store_true")
+    parser.add_argument(
+        "-d", "--debug", help="Turn on debug logging", action="store_true"
+    )
 
-    parser.add_argument('-i','--input',
-                        help = 'Filename to read in',
-                        required=True)
+    parser.add_argument("-i", "--input", help="Filename to read in", required=True)
 
-    parser.add_argument('-f','--format',
-                        choices=["mcnp","serpent","openmc","phits","fluka"],
-                        help = 'format of the input file',
-                        default = 'mcnp')
+    parser.add_argument(
+        "-f",
+        "--format",
+        choices=["mcnp", "serpent", "openmc", "phits", "fluka"],
+        help="format of the input file",
+        default="mcnp",
+    )
 
-    parser.add_argument('-p','--preserve',
-                        help = 'Preserve existing cross section id numbers on write',
-                        action = "store_true")
+    parser.add_argument(
+        "-p",
+        "--preserve",
+        help="Preserve existing cross section id numbers on write",
+        action="store_true",
+    )
 
-    parser.add_argument('-o','--output',
-                        nargs='+',
-                        help = 'Output code selections',
-                        default = 'all')
+    parser.add_argument(
+        "-o", "--output", nargs="+", help="Output code selections", default="all"
+    )
 
-    parser.add_argument('-q','--quick', 
-                        help = 'Perform quick translation, skip surface comparison - model may not transport',
-                        action = "store_true")
+    parser.add_argument(
+        "-q",
+        "--quick",
+        help="Perform quick translation, skip surface comparison - model may not transport",
+        action="store_true",
+    )
 
     parser.add_argument('-xs','--preserve_xsid', 
                         help = 'Retain xs library for materials',
@@ -67,28 +74,27 @@ def main():
 
     filename = args.input
 
-
     if "all" in args.output:
-        codes = ["mcnp","serpent","openmc","phits","fluka"]
+        codes = ["mcnp", "serpent", "openmc", "phits", "fluka"]
     else:
         codes = args.output
 
-    if args.format == 'mcnp':
+    if args.format == "mcnp":
         # read the mcnp input
         input = MCNPInput(filename,args.quick,args.preserve_xsid)
         input.read()
         input.process()
-    elif args.format == 'serpent':
+    elif args.format == "serpent":
         # read the serpent input
         input = SerpentInput(filename,args.preserve_xsid)
         input.read()
         input.process()
-    elif args.format == 'openmc':
-        raise NotImplementedError('OpenMC input files are not supported yet')
-    elif args.format == 'phits':
-        raise NotImplementedError('Phits input files are not supported yet')
-    elif args.format == 'fluka':
-        raise NotImplementedError('Fluka input files are not supported yet')
+    elif args.format == "openmc":
+        raise NotImplementedError("OpenMC input files are not supported yet")
+    elif args.format == "phits":
+        raise NotImplementedError("Phits input files are not supported yet")
+    elif args.format == "fluka":
+        raise NotImplementedError("Fluka input files are not supported yet")
 
     for code in codes:
         if "serpent" in code:
@@ -124,6 +130,6 @@ def main():
 
     logging.info("Finished")
 
+
 if __name__ == "__main__":
     main()
-
