@@ -8,9 +8,9 @@ A tool to translate common Monte Carlo geometry formats between each other.
 Right now the code is petty rough.
 
 Install the latest version released on PyPi using pip
-``bash
+```bash
 pip3 install csg2csg --user
-``
+```
 
 Install the latest version on the repository using pip
 ```bash
