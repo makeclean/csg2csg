@@ -28,14 +28,15 @@ import re
 
 
 class MCNPInput(InputDeck):
-    """ MCNPInputDeck class - does the actuall processing
-    """
-    #preserve_xsid = False
+    """MCNPInputDeck class - does the actuall processing"""
+
+    # preserve_xsid = False
 
     # constructor
-    def __init__(self, filename ="", quick = False, preserve_xsid = False):
-        InputDeck.__init__(self,filename, quick, preserve_xsid)
-#        self.process()
+    def __init__(self, filename="", quick=False, preserve_xsid=False):
+        InputDeck.__init__(self, filename, quick, preserve_xsid)
+
+    #        self.process()
 
     # TODO - maybe make a function that aribitrarily extract text
     # between one keyword until another keyword is found

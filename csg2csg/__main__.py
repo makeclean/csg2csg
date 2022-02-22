@@ -59,9 +59,12 @@ def main():
         action="store_true",
     )
 
-    parser.add_argument('-xs','--preserve_xsid', 
-                        help = 'Retain xs library for materials',
-                        action = "store_true")
+    parser.add_argument(
+        "-xs",
+        "--preserve_xsid",
+        help="Retain xs library for materials",
+        action="store_true",
+    )
 
     # parse the arguments
     args = parser.parse_args(argv)
@@ -81,12 +84,12 @@ def main():
 
     if args.format == "mcnp":
         # read the mcnp input
-        input = MCNPInput(filename,args.quick,args.preserve_xsid)
+        input = MCNPInput(filename, args.quick, args.preserve_xsid)
         input.read()
         input.process()
     elif args.format == "serpent":
         # read the serpent input
-        input = SerpentInput(filename,args.preserve_xsid)
+        input = SerpentInput(filename, args.preserve_xsid)
         input.read()
         input.process()
     elif args.format == "openmc":

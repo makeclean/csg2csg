@@ -18,9 +18,11 @@ def write_serpent_material(filestream, material, preserve_xs):
 
     for nuc in material.composition_dictionary:
         if preserve_xs:
-            string += '{}.{} {:e} \n'.format(nuc, material.xsid_dictionary[nuc], material.composition_dictionary[nuc])
-        else:    
-            string += '{} {:e} \n'.format(nuc, material.composition_dictionary[nuc])
+            string += "{}.{} {:e} \n".format(
+                nuc, material.xsid_dictionary[nuc], material.composition_dictionary[nuc]
+            )
+        else:
+            string += "{} {:e} \n".format(nuc, material.composition_dictionary[nuc])
     filestream.write(string)
     return
 

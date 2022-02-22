@@ -10,7 +10,7 @@ class InputDeck:
     """ Constructor
     """
 
-    def __init__(self, filename, quick = False, preserve_xsid = False):
+    def __init__(self, filename, quick=False, preserve_xsid=False):
         self.filename = filename
         self.quick_process = quick
         self.preserve_xsid = preserve_xsid
