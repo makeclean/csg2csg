@@ -28,7 +28,8 @@ import re
 
 
 class MCNPInput(InputDeck):
-    """ MCNPInputDeck class - does the actuall processing"""
+    """MCNPInputDeck class - does the actuall processing"""
+
     preserve_xsid = False
 
     # constructor
@@ -77,11 +78,11 @@ class MCNPInput(InputDeck):
                     repeat = int(value.replace("r", "")) - 1
                     # this is safe since r cannot be the first
                     # value in the list
-                    last_importance = importance_list[idx-1]
-                    to_insert = [last_importance]*repeat
-                    importance_list[idx] = ' '.join(str(e) for e in to_insert)
+                    last_importance = importance_list[idx - 1]
+                    to_insert = [last_importance] * repeat
+                    importance_list[idx] = " ".join(str(e) for e in to_insert)
             # flatten the list
-            self.importance_list[particle] = ' '.join(str(e) for e in importance_list)
+            self.importance_list[particle] = " ".join(str(e) for e in importance_list)
 
         return
 
@@ -102,9 +103,13 @@ class MCNPInput(InputDeck):
 
                 # TODO mcnp allows the following forms imp:n imp:n,p etc
                 particle = mcnpToParticle(particle)
-                logging.debug("%s", "found importance statement for particle " +
-                              particleToGeneric(particle) + " on line" + str(idx))
-
+                logging.debug(
+                    "%s",
+                    "found importance statement for particle "
+                    + particleToGeneric(particle)
+                    + " on line"
+                    + str(idx),
+                )
 
                 self.importance_list[particle] = self.file_lines[idx][5:].rstrip()
                 idx += 1
@@ -166,9 +171,9 @@ class MCNPInput(InputDeck):
         # set the material number
 
         # rebuild the first mat string
-        material_string = ' '.join(tokens[1:]) + " "
-        if '$' in material_string:
-            pos = material_string.find('$')
+        material_string = " ".join(tokens[1:]) + " "
+        if "$" in material_string:
+            pos = material_string.find("$")
             material_string = material_string[:pos]
         idx += 1
 
@@ -189,7 +194,7 @@ class MCNPInput(InputDeck):
                         pos = line.find("$")
                         line = line[:pos]
                     material_string += line
-                else: # else we have found a new cell card
+                else:  # else we have found a new cell card
                     break
                 # increment the line that we are looking at
                 idx += 1
@@ -258,7 +263,7 @@ class MCNPInput(InputDeck):
                     logging.debug("%s", "trn card has continue line " + str(idx))
                     card_line += self.file_lines[idx]
                     idx += 1
-                idx -=1
+                idx -= 1
                 self.__make_transform_card(card_line)
                 card_line = ""
             idx += 1
@@ -293,7 +298,10 @@ class MCNPInput(InputDeck):
             # if the transform id is not 0
             if cell.cell_universe_transformation_id != "0":
                 # apply the transform
-                cell.apply_universe_transform(self.transform_list[cell.cell_universe_transformation_id])
+                cell.apply_universe_transform(
+                    self.transform_list[cell.cell_universe_transformation_id]
+                )
+
     # find the next free material number
     def __next_free_int(self):
         idx = 1
@@ -398,13 +406,13 @@ class MCNPInput(InputDeck):
         gq_coeffs = [0] * 10
 
         # form the gq quadratic terms
-        gq_coeffs[0] = 1. - axis_vector[0]**2
-        gq_coeffs[1] = 1. - axis_vector[1]**2
-        gq_coeffs[2] = 1. - axis_vector[2]**2
+        gq_coeffs[0] = 1.0 - axis_vector[0] ** 2
+        gq_coeffs[1] = 1.0 - axis_vector[1] ** 2
+        gq_coeffs[2] = 1.0 - axis_vector[2] ** 2
         # form the rotational terms
-        gq_coeffs[3] = -2.*axis_vector[0]*axis_vector[1]
-        gq_coeffs[4] = -2.*axis_vector[1]*axis_vector[2]
-        gq_coeffs[5] = -2.*axis_vector[0]*axis_vector[2]
+        gq_coeffs[3] = -2.0 * axis_vector[0] * axis_vector[1]
+        gq_coeffs[4] = -2.0 * axis_vector[1] * axis_vector[2]
+        gq_coeffs[5] = -2.0 * axis_vector[0] * axis_vector[2]
         # form the linear offset terms
         gq_coeffs[6] = (
             -Surface.surface_coefficients[1] * gq_coeffs[3]
@@ -468,9 +476,11 @@ class MCNPInput(InputDeck):
         new_surf_list.append(surf)
 
         # plane offset 2
-        d2 =   axis_vector[0]*(Surface.surface_coefficients[0] + vector[0]) \
-             + axis_vector[1]*(Surface.surface_coefficients[1] + vector[1]) \
-             + axis_vector[2]*(Surface.surface_coefficients[2] + vector[2])
+        d2 = (
+            axis_vector[0] * (Surface.surface_coefficients[0] + vector[0])
+            + axis_vector[1] * (Surface.surface_coefficients[1] + vector[1])
+            + axis_vector[2] * (Surface.surface_coefficients[2] + vector[2])
+        )
 
         self.last_free_surface_index += 1
         surface_string = str(self.last_free_surface_index) + " p "
@@ -759,23 +769,43 @@ class MCNPInput(InputDeck):
             cell_description_outside += " : " + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
 
-            cell_description = [cell_description_inside,cell_description_outside]
-
+            cell_description = [cell_description_inside, cell_description_outside]
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
             id = int(Surface.surface_id)
-            vector = [Surface.surface_coefficients[3],Surface.surface_coefficients[4],Surface.surface_coefficients[5]]
-            new_surf_list, cell_description = self.__macro_rcc_cylinder_arbitrary(Surface,vector)
+            vector = [
+                Surface.surface_coefficients[3],
+                Surface.surface_coefficients[4],
+                Surface.surface_coefficients[5],
+            ]
+            new_surf_list, cell_description = self.__macro_rcc_cylinder_arbitrary(
+                Surface, vector
+            )
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
 
             id = int(Surface.surface_id)
-            origin = [Surface.surface_coefficients[0], Surface.surface_coefficients[1], Surface.surface_coefficients[2]]
+            origin = [
+                Surface.surface_coefficients[0],
+                Surface.surface_coefficients[1],
+                Surface.surface_coefficients[2],
+            ]
 
-            vec1 = [Surface.surface_coefficients[3], Surface.surface_coefficients[4], Surface.surface_coefficients[5]]
-            vec2 = [Surface.surface_coefficients[6], Surface.surface_coefficients[7], Surface.surface_coefficients[8]]
-            vec3 = [Surface.surface_coefficients[9], Surface.surface_coefficients[10], Surface.surface_coefficients[11]]
-
+            vec1 = [
+                Surface.surface_coefficients[3],
+                Surface.surface_coefficients[4],
+                Surface.surface_coefficients[5],
+            ]
+            vec2 = [
+                Surface.surface_coefficients[6],
+                Surface.surface_coefficients[7],
+                Surface.surface_coefficients[8],
+            ]
+            vec3 = [
+                Surface.surface_coefficients[9],
+                Surface.surface_coefficients[10],
+                Surface.surface_coefficients[11],
+            ]
 
             origin = [
                 Surface.surface_coefficients[0],
@@ -822,12 +852,24 @@ class MCNPInput(InputDeck):
                 + vec3n[2] * (origin[2] + vec3[2])
             )
 
-            d1 = vec1n[0]*origin[0] + vec1n[1]*origin[1] + vec1n[2]*origin[2]
-            d2 = vec1n[0]*(origin[0] + vec1[0]) + vec1n[1]*(origin[1]+vec1[1]) + vec1n[2]*(origin[2]+vec1[2])
-            d3 = vec2n[0]*origin[0] + vec2n[1]*origin[1] + vec2n[2]*origin[2]
-            d4 = vec2n[0]*(origin[0] + vec2[0]) + vec2n[1]*(origin[1]+vec2[1]) + vec2n[2]*(origin[2]+vec2[2])
-            d5 = vec3n[0]*origin[0] + vec3n[1]*origin[1] + vec3n[2]*origin[2]
-            d6 = vec3n[0]*(origin[0] + vec3[0]) + vec3n[1]*(origin[1]+vec3[1]) + vec3n[2]*(origin[2]+vec3[2])
+            d1 = vec1n[0] * origin[0] + vec1n[1] * origin[1] + vec1n[2] * origin[2]
+            d2 = (
+                vec1n[0] * (origin[0] + vec1[0])
+                + vec1n[1] * (origin[1] + vec1[1])
+                + vec1n[2] * (origin[2] + vec1[2])
+            )
+            d3 = vec2n[0] * origin[0] + vec2n[1] * origin[1] + vec2n[2] * origin[2]
+            d4 = (
+                vec2n[0] * (origin[0] + vec2[0])
+                + vec2n[1] * (origin[1] + vec2[1])
+                + vec2n[2] * (origin[2] + vec2[2])
+            )
+            d5 = vec3n[0] * origin[0] + vec3n[1] * origin[1] + vec3n[2] * origin[2]
+            d6 = (
+                vec3n[0] * (origin[0] + vec3[0])
+                + vec3n[1] * (origin[1] + vec3[1])
+                + vec3n[2] * (origin[2] + vec3[2])
+            )
 
             # cannonical facet ordering is done such that the surfaces
             # making up the macrobody all point inwards
@@ -856,15 +898,16 @@ class MCNPInput(InputDeck):
             cell_description_outside += ":" + str(new_surf_list[1].surface_id)
             cell_description_outside += ":" + str(new_surf_list[2].surface_id)
             cell_description_outside += ":" + str(new_surf_list[3].surface_id)
-            cell_description_outside += ":"  + str(new_surf_list[4].surface_id)
+            cell_description_outside += ":" + str(new_surf_list[4].surface_id)
             cell_description_outside += ":" + str(new_surf_list[5].surface_id)
             cell_description_outside += ")"
 
-            cell_description = [cell_description_inside,cell_description_outside]
+            cell_description = [cell_description_inside, cell_description_outside]
         else:
-            warnings.warn('Found an unsupported macrobody, files will not be correct',Warning)
-            cell_description = ["",""]
-
+            warnings.warn(
+                "Found an unsupported macrobody, files will not be correct", Warning
+            )
+            cell_description = ["", ""]
 
         return cell_description, new_surf_list
 
@@ -904,10 +947,16 @@ class MCNPInput(InputDeck):
 
                         # if we find the surface id of the macrobdy in the text description
                         sub = str(surf.surface_id)
-                        regex = re.compile("^-?("+str(surf.surface_id)+")(\.+[1-9])?$")
-                        matches = [m.group(0) for l in cell_text_description for m in [regex.search(l)] if m]
-                        #if str(surf.surface_id) in cell_text_description or str(surf.surface_id)+"." in cell_text_description:
-
+                        regex = re.compile(
+                            "^-?(" + str(surf.surface_id) + ")(\.+[1-9])?$"
+                        )
+                        matches = [
+                            m.group(0)
+                            for l in cell_text_description
+                            for m in [regex.search(l)]
+                            if m
+                        ]
+                        # if str(surf.surface_id) in cell_text_description or str(surf.surface_id)+"." in cell_text_description:
 
                         if matches:
                             # loop over each component and find the macrobody
@@ -1032,13 +1081,22 @@ class MCNPInput(InputDeck):
             if box[5] > self.bounding_coordinates[5]:
                 self.bounding_coordinates[5] = box[5]
 
-        logging.debug("%s ", "bounding box of geometry is " + str(self.bounding_coordinates[0]) + " " +
-                      str(self.bounding_coordinates[1]) + " " +
-                      str(self.bounding_coordinates[2]) + " " +
-                      str(self.bounding_coordinates[3]) + " " +
-                      str(self.bounding_coordinates[4]) + " " +
-                      str(self.bounding_coordinates[5]) + "\n")
-
+        logging.debug(
+            "%s ",
+            "bounding box of geometry is "
+            + str(self.bounding_coordinates[0])
+            + " "
+            + str(self.bounding_coordinates[1])
+            + " "
+            + str(self.bounding_coordinates[2])
+            + " "
+            + str(self.bounding_coordinates[3])
+            + " "
+            + str(self.bounding_coordinates[4])
+            + " "
+            + str(self.bounding_coordinates[5])
+            + "\n",
+        )
 
     # update surfaces that need their bounding coordinates updated
     def __update_surfaces(self):
@@ -1112,14 +1170,13 @@ class MCNPInput(InputDeck):
                 cell_comment = ""
                 if pos_comment != -1:
                     cell_line = cell_line[:pos_comment]
-                    cell_comment = self.file_lines[jdx][pos_comment:] # set the comment
-                    self.file_lines[jdx] = cell_line # update the file data
+                    cell_comment = self.file_lines[jdx][pos_comment:]  # set the comment
+                    self.file_lines[jdx] = cell_line  # update the file data
 
                 # if first token is 'c', skip this line
                 if cell_line.split()[0] == "c":
                     idx += 1
                     continue
-
 
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
@@ -1312,9 +1369,8 @@ class MCNPInput(InputDeck):
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             logging.debug("%s", "Input Echo")
-            for idx,line in enumerate(self.file_lines):
-                logging.debug("%i %s",idx,line)
-
+            for idx, line in enumerate(self.file_lines):
+                logging.debug("%i %s", idx, line)
 
         # get the cell cards
         idx = self.__get_cell_cards()

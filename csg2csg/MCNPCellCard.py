@@ -82,7 +82,7 @@ def write_mcnp_cell(filestream, CellCard, print_importances=True):
     string += " ) "
     string += "\n"
 
-    string = re.sub(" +"," ",string)
+    string = re.sub(" +", " ", string)
 
     string = string.strip()
 
@@ -90,7 +90,7 @@ def write_mcnp_cell(filestream, CellCard, print_importances=True):
         string += " u=" + CellCard.cell_universe
 
     if CellCard.cell_fill != 0:
-        string += " fill="+CellCard.cell_fill + " "
+        string += " fill=" + CellCard.cell_fill + " "
         if CellCard.cell_universe_offset != 0 or CellCard.cell_universe_rotation != 0:
             # universe may have no traslation?
             string += "("
@@ -103,7 +103,7 @@ def write_mcnp_cell(filestream, CellCard, print_importances=True):
             if CellCard.cell_universe_rotation != 0:
                 for i in range(9):
                     value = float(CellCard.cell_universe_rotation[i])
-                    #value = math.cos(value/180.*math.pi)
+                    # value = math.cos(value/180.*math.pi)
 
                     string += str(value) + " "
             string += ")"
@@ -174,16 +174,16 @@ class MCNPCellCard(CellCard):
                     surf_num = abs(int(s))
                     self.cell_surface_list.add(surf_num)
                 except:
-                    pass # its means it was a macrobody
+                    pass  # its means it was a macrobody
 
             idx += 1
             if idx == len(cell_description):
                 break
 
         self.cell_interpreted = cell_description
-        #print(self.cell_id)
-        #print(self.cell_interpreted)
-        #logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
+        # print(self.cell_id)
+        # print(self.cell_interpreted)
+        # logging.debug("%s\n", "Generalised cell card " + ''.join([str(i) for i in self.cell_interpreted]))
 
         return
 
@@ -195,11 +195,13 @@ class MCNPCellCard(CellCard):
 
     # given a valid keyword and string return the value of the
     # keyword
-    def __get_keyword_value(self,keyword,string):
-        #regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*")
-        regex = re.regex=re.compile("("+keyword+") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)")
+    def __get_keyword_value(self, keyword, string):
+        # regex = re.regex=re.compile("("+keyword+") ?= ?[1-9][0-9]*")
+        regex = re.regex = re.compile(
+            "(" + keyword + ") ?= ?(?=.)([+-]?([0-9]*)(\.([0-9]+))?)"
+        )
         result = regex.search(string)[0]
-        return result.split(" ")[2] #string[offset:end]
+        return result.split(" ")[2]  # string[offset:end]
 
     def __extract_string_between(self, string, first_substring, second_substring):
         # print(string, first_substring, second_substring,string.find(first_substring),string.find(second_substring))
@@ -224,7 +226,7 @@ class MCNPCellCard(CellCard):
             return string
 
         #
-        posd = string.find('$')
+        posd = string.find("$")
         if posd != -1:
             string = string[:posd]
 
@@ -260,7 +262,7 @@ class MCNPCellCard(CellCard):
         if posu == -1:
             self.cell_universe = 0
         else:
-            self.cell_universe = self.__get_keyword_value('u',end_of_string)
+            self.cell_universe = self.__get_keyword_value("u", end_of_string)
 
         if posf == -1:
             self.cell_fill = 0
@@ -273,7 +275,7 @@ class MCNPCellCard(CellCard):
             else:
                 rot_trans = "0"
 
-            self.__set_universe_transform(rot_trans,rot_angle_degrees)
+            self.__set_universe_transform(rot_trans, rot_angle_degrees)
 
         if posi == -1:
             self.cell_importance = 1.0
@@ -292,7 +294,7 @@ class MCNPCellCard(CellCard):
         string = self.text_string
         # look for mcnp cell specific keywords
 
-        string = self.__detect_keywords(mcnp_cell_keywords,string)
+        string = self.__detect_keywords(mcnp_cell_keywords, string)
 
         # this is to detect the presence of any importance
         # values only need one - used to indentify the
@@ -375,7 +377,7 @@ class MCNPCellCard(CellCard):
         self.cell_universe_transformation_id = "0"
 
     # update an existing cell description with
-    def update(self,new_cell_description):
+    def update(self, new_cell_description):
         # take the new cell description and make a new
         # cell description
         self.text_string = str(self.cell_id)
