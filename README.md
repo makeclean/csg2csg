@@ -14,7 +14,7 @@ pip3 install csg2csg --user
 
 Install the latest version on the repository using pip
 ```bash
-pip install git+https://github.com/makeclean/csg2csg.git
+pip install git+https://github.com/makeclean/csg2csg.git  --user
 ```
 
 Run from the terminal with ``csg2csg -i filename -f format`` where filename is the input filename and format is the file format of the input file. Options for the file format include several neutronics codes [mcnp, serpent, openmc, phits, fluka] each is at a different level of completeness.
