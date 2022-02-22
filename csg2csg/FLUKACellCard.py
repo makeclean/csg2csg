@@ -9,13 +9,13 @@ def fluka_op_from_generic(Operation):
     # if we are not of type operator - we are string do nowt
     if not isinstance(Operation, CellCard.OperationType):
         if Operation == "(":
-            return " +"+Operation+" "
+            return " +" + Operation + " "
         elif Operation == ")":
-            return " "+Operation+" "
+            return " " + Operation + " "
         elif int(Operation) < 0:
             return " +S" + str(abs(int(Operation)))
         elif int(Operation) > 0:
-            return " -S" + str(int(Operation))            
+            return " -S" + str(int(Operation))
         else:
             return Operation
     else:
@@ -31,28 +31,28 @@ def fluka_op_from_generic(Operation):
     # return the operation
     return string
 
+
 # write the cell card for a fluka cell given a generic cell card
 def write_fluka_cell(filestream, CellCard):
-    
-    string =  " C" + str(CellCard.cell_id) + " 5 " # number of adjacent cells
-            
+
+    string = " C" + str(CellCard.cell_id) + " 5 "  # number of adjacent cells
+
     string += "( "
-    
+
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += fluka_op_from_generic(item)
 
-    string += " ) " 
+    string += " ) "
     string += "\n"
 
     # removes any multiple spaces
-    string = re.sub("  "," ",string)
-    string = re.sub("\- \+"," -",string)
+    string = re.sub("  ", " ", string)
+    string = re.sub("\- \+", " -", string)
 
     filestream.write(string)
+
 
 class FLUKACellCard(CellCard):
     def __init__(self, card_string):
         CellCard.__init__(self, card_string)
-
-    

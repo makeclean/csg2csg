@@ -1,11 +1,13 @@
 #!/usr/env/python3
 
-class MaterialData():
 
-    """ Collection of useful material data for exploding
+class MaterialData:
+
+    """Collection of useful material data for exploding
     material compositions - note the atomic masses and
-    abundances are extracted automatically from PyNE 
+    abundances are extracted automatically from PyNE
     """
+
     atomic_mass_map = {}
     atomic_mass_map[10010000] = 1.00782503223
     atomic_mass_map[10020000] = 2.01410177812
@@ -3651,38 +3653,42 @@ class MaterialData():
     natural_abund_map[922380000] = 99.2742
 
     # get atomic number part of zaid
-    def get_zz(self,nuclide):
+    def get_zz(self, nuclide):
         zaid = int(nuclide)
         zz = int(nuclide / 1000)
         return zz
 
     # get nucleon number part of zaid
-    def get_aa(self,nuclide):
+    def get_aa(self, nuclide):
         zaid = int(nuclide)
         aa = int(nuclide) - 1000 * int(nuclide / 1000)
         return aa
 
-    # given an element zaid get back a list of 
+    # given an element zaid get back a list of
     # isotopes for that element
-    def get_nucs(self,element):
-        nucid = element*10000 #get zaid in nucid
+    def get_nucs(self, element):
+        nucid = element * 10000  # get zaid in nucid
 
         all_nuclides = self.natural_abund_map.keys()
 
         nuclides = []
 
         for nuclide in all_nuclides:
-            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100  :
-                nuclides.append(int(nuclide/10000)) #return the zaid
-                
+            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
+                nuclides.append(int(nuclide / 10000))  # return the zaid
+
         return nuclides
 
     # calculate the atomic mass of an element
-    def atomic_mass(self,element):
-        mass = 0 
-        nucid = element*10000 #get zaid in nucid
+    def atomic_mass(self, element):
+        mass = 0
+        nucid = element * 10000  # get zaid in nucid
 
         for nuclide in self.natural_abund_map.keys():
-            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100  :
-                mass += self.natural_abund_map[nuclide]/100 * self.atomic_mass_map[nuclide] #return the zaid
+            if nuclide - nucid > 0 and nuclide - nucid < nucid / 100:
+                mass += (
+                    self.natural_abund_map[nuclide]
+                    / 100
+                    * self.atomic_mass_map[nuclide]
+                )  # return the zaid
         return mass
