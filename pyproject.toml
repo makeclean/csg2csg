@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "csg2csg"
+version = "0.0.27"
+authors = [
+  { name="Andrew Davis", email="andrew.davis@ukaea.uk" },
+]
+description = "Convert CSG geometry into different formats"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "numpy",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+#   "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+]
+
+[project.scripts]
+csg2csg = "csg2csg.__main__:main"
+
+[project.urls]
+"Homepage" = "https://github.com/makeclean/csg2csg"
+"Bug Tracker" = "https://github.com/makeclean/csg2csg/issues"
+
+[tool.setuptools]
+packages = ["csg2csg"]
