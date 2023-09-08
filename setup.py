@@ -1,7 +1,6 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+long_description = open("README.md").read()
 
 setuptools.setup(
     name="csg2csg",
@@ -14,7 +13,10 @@ setuptools.setup(
     url="https://github.com/makeclean/csg2csg",
     packages=setuptools.find_packages(),
     entry_points=dict(console_scripts=["csg2csg=csg2csg.__main__:main"]),
-    install_requires=["numpy"],
+    requires=["numpy"],
+    extras_require={
+        "dev": ["pytest"],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         # "License :: OSI Approved :: License name here",
