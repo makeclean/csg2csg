@@ -15,7 +15,7 @@ setuptools.setup(
     entry_points=dict(console_scripts=["csg2csg=csg2csg.__main__:main"]),
     requires=["numpy"],
     extras_require={
-        "dev": ["pytest"],
+        "dev": ["pytest", "pytest-cov", "ruff"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
