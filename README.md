@@ -1,5 +1,4 @@
-
-[![CircleCI](https://circleci.com/gh/makeclean/csg2csg.svg?style=svg)](https://circleci.com/gh/makeclean/csg2csg)
+[![CI test results](https://github.com/makeclean/csg2csg/actions/workflows/ci.yaml/badge.svg)](https://github.com/makeclean/csg2csg/actions/workflows/ci.yaml)
 
 # csg2csg
 A tool to translate common Monte Carlo geometry formats between each other.
