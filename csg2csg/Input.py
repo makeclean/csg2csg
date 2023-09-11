@@ -46,7 +46,7 @@ class InputDeck:
     # read the whole file into a big list for further
     # procesing
     def read(self):
-        with open(self.filename, "rU", errors="replace") as f:
+        with open(self.filename, errors="replace") as f:
             self.file_lines = f.readlines()
 
         # sometimes truely monstrous people stuff weird
