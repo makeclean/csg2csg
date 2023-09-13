@@ -773,7 +773,6 @@ class MCNPInput(InputDeck):
 
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_RCC"]:
             id = int(Surface.surface_id)
-
             vector = [
                 Surface.surface_coefficients[3],
                 Surface.surface_coefficients[4],
@@ -786,6 +785,27 @@ class MCNPInput(InputDeck):
         elif Surface.surface_type == SurfaceCard.SurfaceType["MACRO_BOX"]:
 
             id = int(Surface.surface_id)
+            origin = [
+                Surface.surface_coefficients[0],
+                Surface.surface_coefficients[1],
+                Surface.surface_coefficients[2],
+            ]
+
+            vec1 = [
+                Surface.surface_coefficients[3],
+                Surface.surface_coefficients[4],
+                Surface.surface_coefficients[5],
+            ]
+            vec2 = [
+                Surface.surface_coefficients[6],
+                Surface.surface_coefficients[7],
+                Surface.surface_coefficients[8],
+            ]
+            vec3 = [
+                Surface.surface_coefficients[9],
+                Surface.surface_coefficients[10],
+                Surface.surface_coefficients[11],
+            ]
 
             origin = [
                 Surface.surface_coefficients[0],
@@ -812,6 +832,25 @@ class MCNPInput(InputDeck):
             vec1n = vec1 / np.norm(vec1)
             vec2n = vec2 / np.norm(vec2)
             vec3n = vec3 / np.norm(vec3)
+
+            d1 = vec1n[0] * origin[0] + vec1n[1] * origin[1] + vec1n[2] * origin[2]
+            d2 = (
+                vec1n[0] * (origin[0] + vec1[0])
+                + vec1n[1] * (origin[1] + vec1[1])
+                + vec1n[2] * (origin[2] + vec1[2])
+            )
+            d3 = vec2n[0] * origin[0] + vec2n[1] * origin[1] + vec2n[2] * origin[2]
+            d4 = (
+                vec2n[0] * (origin[0] + vec2[0])
+                + vec2n[1] * (origin[1] + vec2[1])
+                + vec2n[2] * (origin[2] + vec2[2])
+            )
+            d5 = vec3n[0] * origin[0] + vec3n[1] * origin[1] + vec3n[2] * origin[2]
+            d6 = (
+                vec3n[0] * (origin[0] + vec3[0])
+                + vec3n[1] * (origin[1] + vec3[1])
+                + vec3n[2] * (origin[2] + vec3[2])
+            )
 
             d1 = vec1n[0] * origin[0] + vec1n[1] * origin[1] + vec1n[2] * origin[2]
             d2 = (
@@ -981,8 +1020,10 @@ class MCNPInput(InputDeck):
         # because cell.OperationType is not iterable
         for i in cell.cell_interpreted:
             # if its not an operation
+
             if not isinstance(i, cell.OperationType):
                 if "#" in i:
+
                     pos = count
                     break
             count = count + 1
@@ -1039,6 +1080,7 @@ class MCNPInput(InputDeck):
                 self.bounding_coordinates[4] = box[4]
             if box[5] > self.bounding_coordinates[5]:
                 self.bounding_coordinates[5] = box[5]
+
         logging.debug(
             "%s ",
             "bounding box of geometry is "
@@ -1124,6 +1166,17 @@ class MCNPInput(InputDeck):
                     self.file_lines[jdx]
                 )
                 cell_line = self.file_lines[jdx]
+                pos_comment = cell_line.find("$")
+                cell_comment = ""
+                if pos_comment != -1:
+                    cell_line = cell_line[:pos_comment]
+                    cell_comment = self.file_lines[jdx][pos_comment:]  # set the comment
+                    self.file_lines[jdx] = cell_line  # update the file data
+
+                # if first token is 'c', skip this line
+                if cell_line.split()[0] == "c":
+                    idx += 1
+                    continue
 
                 # mcnp continue line is indicated by 5 spaces
                 if cell_line.startswith("     ") and not cell_line.isspace():
@@ -1343,7 +1396,9 @@ class MCNPInput(InputDeck):
         self.__get_material_cards(idx)
         # need to flatten first to get transformed surface in the
         # correct place
+
         self.__simplify_cones()
+
         self.__flatten_macrobodies()
         self.__explode_nots()
 

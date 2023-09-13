@@ -72,17 +72,18 @@ def write_mcnp_cell(filestream, CellCard, print_importances=True):
     if CellCard.cell_material_number != 0:
         string += str(CellCard.cell_density) + " "
 
-    # string += " ( "
+    string += " ( "
 
     # build the cell description
     for item in CellCard.cell_interpreted:
         string += mcnp_op_from_generic(item)
 
     # TODO make string no longer than 60 chars
-    # string += " ) "
+    string += " ) "
     string += "\n"
 
     string = re.sub(" +", " ", string)
+
     string = string.strip()
 
     if CellCard.cell_universe != 0:
@@ -103,6 +104,7 @@ def write_mcnp_cell(filestream, CellCard, print_importances=True):
                 for i in range(9):
                     value = float(CellCard.cell_universe_rotation[i])
                     # value = math.cos(value/180.*math.pi)
+
                     string += str(value) + " "
             string += ")"
 
@@ -291,6 +293,7 @@ class MCNPCellCard(CellCard):
 
         string = self.text_string
         # look for mcnp cell specific keywords
+
         string = self.__detect_keywords(mcnp_cell_keywords, string)
 
         # this is to detect the presence of any importance
