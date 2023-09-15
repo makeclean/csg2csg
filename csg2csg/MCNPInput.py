@@ -98,7 +98,7 @@ class MCNPInput(InputDeck):
                 return self.__process_importances()
 
             # check for importance keyword
-            if "imp" in self.file_lines[idx]:
+            if self.file_lines[idx].startswith('imp'):
                 particle = self.file_lines[idx].split()[0].split(":")[1]
 
                 # TODO mcnp allows the following forms imp:n imp:n,p etc
