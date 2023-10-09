@@ -13,8 +13,8 @@ class SerpentInput(InputDeck):
     """SerpentInput class - does the actual processing"""
 
     # constructor
-    def __init__(self, filename=""):
-        InputDeck.__init__(self, filename)
+    def __init__(self, filename="", preserve_xsid=False):
+        InputDeck.__init__(self, filename, preserve_xsid)
 
     # extract a material card from the start line until
     def __get_material_card(self, start_line, mat_num):
@@ -118,7 +118,9 @@ class SerpentInput(InputDeck):
     def __write_serpent_materials(self, filestream):
         filestream.write("% --- material definitions --- %\n")
         for material in self.material_list:
-            write_serpent_material(filestream, self.material_list[material])
+            write_serpent_material(
+                filestream, self.material_list[material], self.preserve_xsid
+            )
         return
 
     # main write serpent method, depending upon where the geometry
