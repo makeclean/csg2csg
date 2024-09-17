@@ -36,7 +36,7 @@ def main():
     parser.add_argument(
         "-f",
         "--format",
-        choices=["mcnp", "serpent", "openmc", "phits", "fluka"],
+        choices=["mcnp", "serpent", "openmc", "phits", "fluka", "scone"],
         help="format of the input file",
         default="mcnp",
     )
@@ -91,6 +91,8 @@ def main():
         raise NotImplementedError("Phits input files are not supported yet")
     elif args.format == "fluka":
         raise NotImplementedError("Fluka input files are not supported yet")
+    elif args.format == "scone":
+        raise NotImplementedError("SCONE input files are not supported yet")
 
     for code in codes:
         if "serpent" in code:
@@ -123,6 +125,12 @@ def main():
             fluka.from_input(input)
             mkdir("fluka")
             fluka.write_fluka("fluka/fluka.inp")
+        if "scone" in code:
+            print("Producing SCONE output...")
+            scone = SCONEInput()
+            scone.from_input(input)
+            mkdir("scone")
+            scone.write_scone("scone/scone.inp")
 
     logging.info("Finished")
 
