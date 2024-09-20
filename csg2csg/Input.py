@@ -22,6 +22,7 @@ class InputDeck:
         # TODO maybe these should be dictionaries by index
         self.cell_list = []
         self.surface_list = []
+        self.universe_list = []
         self.last_free_surface_index = 0
         self.importance_list = {}  # dictionary of importances
         self.material_list = {}
@@ -87,3 +88,13 @@ class InputDeck:
             # match any splitable unions - this will look like (stuff):(stuff):(stuff)
             # so we could make 3 cells from that
             continue
+    
+    # prepare universe entries given cells
+    def create_universes_from_cells(self):
+        universe_ids = set()
+        # count unique universe IDs
+        universe_ids.add(cell.universe for cell in self.cell_list)
+        for uni in universe_ids:
+            self.universe_list.append( 
+                    UniverseCard(universe_ids[uni],self.cell_list)
+                    )

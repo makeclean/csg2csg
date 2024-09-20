@@ -34,24 +34,31 @@ def scone_op_from_generic(Operation):
 # write the cell card for a scone cell given a generic cell card
 def write_scone_cell(filestream, CellCard):
 
+    # If cell is in the root universe and outside the boundary, skip it.
+    # Presently assumes only two cells in the root, with one surface,
+    # as in Serpent.
+    if CellCard.universe == 0 and CellCard.surfaces[0] >= 0:
+        return
+
     #    print (CellCard)
-    string = str(CellCard.cell_id) + "{type unionCell; id " + str(cellCard.cell_id) + "; "
-    string += " " + str(CellCard.cell_universe) + " "
-    # Is it possible to fill with universes???
-    # May need to keep track of universe definitions and return
+    string = str(CellCard.cell_id) + "{type unionCell; id " 
+    string += str(cellCard.cell_id) + "; " 
+    
+    # Need to keep track of universe definitions and return
     # to write these separately
     if CellCard.cell_fill != 0:
-        string += " filltype mat; material " + str(CellCard.cell_fill) + "; "
+        string += " filltype uni; universe " + str(CellCard.cell_fill) + "; "
 
-    # base level universe cant have material
+    # Doesn't have a universe - has a material
     if CellCard.cell_fill == 0:
         # material 0 is void
+        string += " filltype mat; material "
         if CellCard.cell_material_number == 0:
-            string += " filltype mat; material void; "
+            string += " void; "
         else:
             string += str(CellCard.cell_material_number) + " "
 
-    string += "[ "
+    string += "surfaces [ "
 
     # build the cell description
     for item in CellCard.cell_interpreted:
