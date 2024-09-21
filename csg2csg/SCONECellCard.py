@@ -34,15 +34,17 @@ def scone_op_from_generic(Operation):
 # write the cell card for a scone cell given a generic cell card
 def write_scone_cell(filestream, CellCard):
 
-    # If cell is in the root universe and outside the boundary, skip it.
+    # In root universe, identify .......
     # Presently assumes only two cells in the root, with one surface,
     # as in Serpent.
-    if CellCard.universe == 0 and CellCard.surfaces[0] >= 0:
-        return
+    # Allow multiple cells in root. Fix this later!
+    #if (CellCard.cell_universe == 0 and 
+    #CellCard.cell_surface_list[0] >= 0):
+    #    return
 
     #    print (CellCard)
-    string = str(CellCard.cell_id) + "{type unionCell; id " 
-    string += str(cellCard.cell_id) + "; " 
+    string = str(CellCard.cell_id) + " { type unionCell; id " 
+    string += str(CellCard.cell_id) + "; " 
     
     # Need to keep track of universe definitions and return
     # to write these separately
@@ -62,7 +64,7 @@ def write_scone_cell(filestream, CellCard):
 
     # build the cell description
     for item in CellCard.cell_interpreted:
-        string += serpent_op_from_generic(item)
+        string += scone_op_from_generic(item)
 
     string += " ]; }\n"
 
@@ -73,6 +75,3 @@ def write_scone_cell(filestream, CellCard):
 
     filestream.write(string)
 
-class SCONECellCard(CellCard):
-    def __init__(self, card_string):
-        CellCard.__init__(self, card_string)

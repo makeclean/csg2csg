@@ -5,6 +5,7 @@ from csg2csg.SerpentInput import SerpentInput
 from csg2csg.OpenMCInput import OpenMCInput
 from csg2csg.FLUKAInput import FLUKAInput
 from csg2csg.PhitsInput import PhitsInput
+from csg2csg.SCONEInput import SCONEInput
 
 # for debug info
 import logging, sys
@@ -71,7 +72,7 @@ def main():
     filename = args.input
 
     if "all" in args.output:
-        codes = ["mcnp", "serpent", "openmc", "phits", "fluka"]
+        codes = ["mcnp", "serpent", "openmc", "phits", "fluka", "scone"]
     else:
         codes = args.output
 

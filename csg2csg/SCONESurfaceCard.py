@@ -9,25 +9,28 @@ def scone_plane_string(SurfaceCard):
     string += str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3]) + "); "
+    string += str(SurfaceCard.surface_coefficients[3]) + "); } \n"
     return string
 
 
 # write the specific x form of the plane
 def scone_plane_x_string(SurfaceCard):
-    string = " xPlane; x0 " + str(SurfaceCard.surface_coefficients[3]) + ";"
+    string = " xPlane; x0 " + str(SurfaceCard.surface_coefficients[3]) 
+    string += "; } \n"
     return string
 
 
 # write the specific y form of the plane
 def scone_plane_y_string(SurfaceCard):
-    string = " yPlane; y0 " + str(SurfaceCard.surface_coefficients[3]) + ";"
+    string = " yPlane; y0 " + str(SurfaceCard.surface_coefficients[3])
+    string += "; } \n"
     return string
 
 
 # write the specific z form of the plane
 def scone_plane_z_string(SurfaceCard):
-    string = " zPlane; z0 " + str(SurfaceCard.surface_coefficients[3]) + ";"
+    string = " zPlane; z0 " + str(SurfaceCard.surface_coefficients[3])
+    string += "; } \n"
     return string
 
 
@@ -35,7 +38,7 @@ def scone_plane_z_string(SurfaceCard):
 def scone_cylinder_x(SurfaceCard):
     string = " xCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
     string += "; origin ( 0.0 " + str(SurfaceCard.surface_coefficients[1])
-    string += " " + str(SurfaceCard.surface_coefficients[2]) + "); "
+    string += " " + str(SurfaceCard.surface_coefficients[2]) + "); } \n"
     return string
 
 
@@ -43,7 +46,7 @@ def scone_cylinder_x(SurfaceCard):
 def scone_cylinder_y(SurfaceCard):
     string = " yCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
     string += "; origin (" + str(SurfaceCard.surface_coefficients[1]) + " 0 "
-    string += str(SurfaceCard.surface_coefficients[2]) + "); "
+    string += str(SurfaceCard.surface_coefficients[2]) + "); } \n"
     return string
 
 
@@ -51,16 +54,16 @@ def scone_cylinder_y(SurfaceCard):
 def scone_cylinder_z(SurfaceCard):
     string = " zCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
     string += "; origin (" + str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + " 0); "
+    string += str(SurfaceCard.surface_coefficients[2]) + " 0); } \n"
     return string
 
 
 # write a sphere
 def scone_sphere(SurfaceCard):
-    string = " sphere; radius " + str(SurfaceCard.surface_coefficients[0])
-    string += "; origin (" + str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + " "
-    string += str(SurfaceCard.surface_coefficients[3]) + "); "
+    string = " sphere; origin (" + str(SurfaceCard.surface_coefficients[0])
+    string += str(SurfaceCard.surface_coefficients[1]) + " "
+    string += str(SurfaceCard.surface_coefficients[2]) + "); radius "
+    string += str(SurfaceCard.surface_coefficients[3]) + "; } \n"
     return string
 
 
@@ -69,7 +72,7 @@ def scone_gq(SurfaceCard):
     string = " quadric; coeffs ( "
     for coefficient in SurfaceCard.surface_coefficients:
         string += " " + str(coefficient) + " "
-    string += "); "
+    string += "); } \n"
     return string
 
 
@@ -98,7 +101,7 @@ def scone_cone_x(SurfaceCard):
     string = " {} {:f} {:f} {:f} {}\n".format(
             " xCone; vertex (", x, y, z," ); ")
     string += "angle " + str(angle) + "; hMin " + str(hMin)
-    string += "; hMax " + str(hMax) + "; \n"
+    string += "; hMax " + str(hMax) + "; } \n"
 
     return string
 
@@ -129,7 +132,7 @@ def scone_cone_y(SurfaceCard):
     string = " {} {:f} {:f} {:f} {}\n".format(
             " yCone; vertex (", x, y, z," ); ")
     string += "angle " + str(angle) + "; hMin " + str(hMin)
-    string += "; hMax " + str(hMax) + "; \n"
+    string += "; hMax " + str(hMax) + "; } \n"
 
     return string
 
@@ -160,7 +163,7 @@ def scone_cone_z(SurfaceCard):
     string = " {} {:f} {:f} {:f} {}\n".format(
             " zCone; vertex (", x, y, z," ); ")
     string += "angle " + str(angle) + "; hMin " + str(hMin)
-    string += "; hMax " + str(hMax) + "; \n"
+    string += "; hMax " + str(hMax) + "; } \n"
 
     return string
 
@@ -272,7 +275,7 @@ def serpent_cone_z(SurfaceCard):
 # write the surface description to file
 def write_scone_surface(filestream, SurfaceCard):
 
-    string = str(SurfaceCard.surface_id) + "{ id "  
+    string = str(SurfaceCard.surface_id) + " { id "  
     string += str(SurfaceCard.surface_id) + "; type "
 
     if SurfaceCard.surface_type is SurfaceCard.SurfaceType["PLANE_GENERAL"]:
@@ -314,13 +317,5 @@ def write_scone_surface(filestream, SurfaceCard):
     else:
         filestream.write("surface not supported\n")
     
-    string += " }\n"
     return
 
-
-class SCONESurfaceCard(SurfaceCard):
-    def __init__(self, card_string):
-        SurfaceCard.__init__(self, card_string)
-
-    def write(self):
-        print("hello")

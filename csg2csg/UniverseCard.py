@@ -17,7 +17,7 @@ class UniverseCard(Card):
     """
 
     # constructor for the universecard class
-    def __init__(self, card_string):
+    def __init__(self):
         self.universe_comment = ""
         self.universe_id = 0
         self.cell_list = set()
@@ -30,19 +30,19 @@ class UniverseCard(Card):
         self.border_surface = 0
         self.universe_offset = 0
         self.universe_rotation = 0
-        Card.__init__(self, card_string)
+        #Card.__init__(self, card_string)
 
     # print method
     def __str__(self):
         string = "Universe Card: \n"
-        string += "Universe ID " + str(self.cell_id) + "\n"
-        string += "Comment " + str(self.cell_comment) + "\n"
-        string += "Is cell universe? " + str(cell_universe) + "\n"
-        if self.cell_universe:
+        string += "Universe ID " + str(self.universe_id) + "\n"
+        string += "Comment " + str(self.universe_comment) + "\n"
+        string += "Is cell universe? " + str(bool(self.cell_list)) + "\n"
+        if bool(self.cell_list):
             string += "Cells in Universe " + str(self.cell_list) + "\n"
         string += "Is root? " + str(self.is_root) + "\n"
         if self.is_root:
-            string += "Bounding surface " + str(self.bounding_surface) + "\n"
+            string += "Bounding surface " + str(self.border_surface) + "\n"
             if self.fill_type == uni_fill:
                 string += "Contains universe " + str(self.fill_id) + "\n"
             else:
@@ -53,34 +53,46 @@ class UniverseCard(Card):
     # Loops through cell list to identify any cells it contains.
     # Also identifies which cells contain it and takes their
     # cell transformations as its own.
-    def build_from_cell_list(self, id, cell_list):
+    def build_from_cell_list(self, uni_id, cell_list):
         self.cell_list = []
-        self.universe_id = id
+        self.universe_id = uni_id
+
+        #print(self.__str__())
+        #print(uni_id)
 
         # This is the root universe
-        if id == 0:
+        if uni_id == 0:
             self.is_root = 1
         
         for cell in cell_list:
 
             # Universe contains this cell
-            if cell.cell_universe == id:
+            if cell.cell_universe == uni_id:
                 self.cell_list.append(cell.cell_id)
 
-                # Root universe cell must be defined by only one surface
-                if id == 0:
-                    self.bounding_surface = abs(cell.surfaces[0].surface_id)
+                # Search the root universe for a cell which has a single
+                # surface in which it is in the positive halfspace.
+                # This is (probably??) the bounding surface.
+                # The indicator that a cell is definitely in the positive
+                # halfspace comes from cell_text_description. Check it for
+                # a single entry which is positive.
+                numeric_list = [item for item in cell.cell_text_description if item.lstrip('-').isdigit()]
+                halfspaces = [int(x) for x in numeric_list]
+                if (uni_id == 0 and len(halfspaces) == 1): 
+                    surface_id = halfspaces[0]
+                    if surface_id > 0:
+                        self.border_surface = surface_id
                 
 
             # Universe is contained by this cell
-            if cell.cell_fill == id:
+            if cell.cell_fill == uni_id:
 
                 # Apply rotations and transformations as appropriate
                 if cell.cell_universe_rotation != 0:
-                    self.rotation = cell.cell_universe_rotation
+                    self.universe_rotation = cell.cell_universe_rotation
 
-                if cell.cell_universe_translation != 0:
-                    self.translation = cell.cell_universe_translation
+                if cell.cell_universe_offset != 0:
+                    self.universe_offset = cell.cell_universe_offset
 
 
 
