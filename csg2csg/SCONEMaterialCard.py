@@ -9,8 +9,10 @@ def write_scone_material(filestream, MaterialCard):
     string = "! " + MaterialCard.material_name + " \n"
     string += str(MaterialCard.material_number) + " { \n"
     string += "composition { \n"
+    # Stick on .03 regardless until something to read temperature
+    # from MCNP is added!
     for nuc in MaterialCard.composition_dictionary:
-        string += "{} {:e}; \n".format(
+        string += "{}.03 {:e}; \n".format(
                 nuc, MaterialCard.composition_dictionary[nuc]
                 )
     string += "} \n"

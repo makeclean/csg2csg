@@ -313,7 +313,7 @@ class MCNPCellCard(CellCard):
         tokens = self.text_string.split()
 
         tokens = string.split()
-
+        
         self.cell_id = int(tokens[0])
         material_number = int(tokens[1])
         if material_number > 0:

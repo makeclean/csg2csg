@@ -58,7 +58,7 @@ def write_scone_cell(filestream, CellCard):
         if CellCard.cell_material_number == 0:
             string += " void; "
         else:
-            string += str(CellCard.cell_material_number) + " "
+            string += str(CellCard.cell_material_number) + "; "
 
     string += "surfaces [ "
 
