@@ -23,6 +23,7 @@ class SCONEInput(InputDeck):
         # Surely there is a way to customise this? Am I missing a 
         # method somewhere?  For now I will leave as vacuum - should be easy 
         # for the user to change
+        filestream.write("type geometryStd; \n")
         filestream.write("boundary (0 0 0 0 0 0); \n")
         filestream.write("graph {type shrunk;} \n")
         return
@@ -37,7 +38,7 @@ class SCONEInput(InputDeck):
         filestream.write("nuclearData { \n")
         filestream.write("handles { \n")
         filestream.write("ce {type aceNeutronDatabase; ")
-        filestream.write("acelibrary $SCONE_ACE; ures 0;} \n")
+        filestream.write("aceLibrary $SCONE_ACE; ures 0;} \n")
         filestream.write("} \n")
         return
 

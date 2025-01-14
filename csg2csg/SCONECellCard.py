@@ -52,13 +52,14 @@ def write_scone_cell(filestream, CellCard):
         string += " filltype uni; universe " + str(CellCard.cell_fill) + "; "
 
     # Doesn't have a universe - has a material
+    # Due to SCONE weirdness, all materials are preceded with an 'm'
     if CellCard.cell_fill == 0:
         # material 0 is void
         string += " filltype mat; material "
         if CellCard.cell_material_number == 0:
             string += " void; "
         else:
-            string += str(CellCard.cell_material_number) + "; "
+            string += "m" + str(CellCard.cell_material_number) + "; "
 
     string += "surfaces [ "
 

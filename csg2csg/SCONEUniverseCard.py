@@ -11,15 +11,17 @@ def write_scone_universe(filestream, UniverseCard):
 
     # print (UniverseCard)
     # TODO support lattice universes
-    string = str(UniverseCard.universe_id + 1) + " { type "
     if UniverseCard.is_root:
+        string = "root { type "
         string += "rootUniverse; "
         string += "border " + str(UniverseCard.border_surface) + "; "
         if UniverseCard.fill_type == uni_fill:
             string += "fill u<" + str(UniverseCard.fill_id + 1) + ">; "
         if UniverseCard.fill_type == mat_fill:
-            string += "fill " + str(UniverseCard.fill_material) + "; "
+            # Name preceded by an m due to SCONE weirdness
+            string += "fill m" + str(UniverseCard.fill_material) + "; "
     else:
+        string = str(UniverseCard.universe_id + 1) + " { type "
         string += "cellUniverse; cells ("
         for cell_id in UniverseCard.cell_list:
             string += str(cell_id) + " "

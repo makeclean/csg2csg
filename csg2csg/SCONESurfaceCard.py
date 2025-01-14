@@ -36,25 +36,25 @@ def scone_plane_z_string(SurfaceCard):
 
 # write a cylinder_x
 def scone_cylinder_x(SurfaceCard):
-    string = " xCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
-    string += "; origin ( 0.0 " + str(SurfaceCard.surface_coefficients[1])
-    string += " " + str(SurfaceCard.surface_coefficients[2]) + "); } \n"
+    string = " xCylinder; radius " + str(SurfaceCard.surface_coefficients[2])
+    string += "; origin ( 0.0 " + str(SurfaceCard.surface_coefficients[0])
+    string += " " + str(SurfaceCard.surface_coefficients[1]) + "); } \n"
     return string
 
 
 # write a cylinder_y
 def scone_cylinder_y(SurfaceCard):
-    string = " yCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
-    string += "; origin (" + str(SurfaceCard.surface_coefficients[1]) + " 0 "
-    string += str(SurfaceCard.surface_coefficients[2]) + "); } \n"
+    string = " yCylinder; radius " + str(SurfaceCard.surface_coefficients[2])
+    string += "; origin (" + str(SurfaceCard.surface_coefficients[0]) + " 0 "
+    string += str(SurfaceCard.surface_coefficients[1]) + "); } \n"
     return string
 
 
 # write a cylinder_z
 def scone_cylinder_z(SurfaceCard):
-    string = " zCylinder; radius " + str(SurfaceCard.surface_coefficients[0])
-    string += "; origin (" + str(SurfaceCard.surface_coefficients[1]) + " "
-    string += str(SurfaceCard.surface_coefficients[2]) + " 0); } \n"
+    string = " zCylinder; radius " + str(SurfaceCard.surface_coefficients[2])
+    string += "; origin (" + str(SurfaceCard.surface_coefficients[0]) + " "
+    string += str(SurfaceCard.surface_coefficients[1]) + " 0); } \n"
     return string
 
 
