@@ -20,10 +20,10 @@ class SCONEInput(InputDeck):
     # open the geometry card
     def __write_scone_geometry_start(self, filestream):
         filestream.write("geometry { \n")
+        filestream.write("type geometryStd; \n")
         # Surely there is a way to customise this? Am I missing a 
         # method somewhere?  For now I will leave as vacuum - should be easy 
         # for the user to change
-        filestream.write("type geometryStd; \n")
         filestream.write("boundary (0 0 0 0 0 0); \n")
         filestream.write("graph {type shrunk;} \n")
         return

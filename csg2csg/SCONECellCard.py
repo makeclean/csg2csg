@@ -49,7 +49,7 @@ def write_scone_cell(filestream, CellCard):
     # Need to keep track of universe definitions and return
     # to write these separately
     if CellCard.cell_fill != 0:
-        string += " filltype uni; universe " + str(CellCard.cell_fill) + "; "
+        string += " filltype uni; universe " + str(int(CellCard.cell_fill) + 1) + "; "
 
     # Doesn't have a universe - has a material
     # Due to SCONE weirdness, all materials are preceded with an 'm'

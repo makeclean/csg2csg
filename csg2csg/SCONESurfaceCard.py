@@ -60,7 +60,7 @@ def scone_cylinder_z(SurfaceCard):
 
 # write a sphere
 def scone_sphere(SurfaceCard):
-    string = " sphere; origin (" + str(SurfaceCard.surface_coefficients[0])
+    string = " sphere; origin (" + str(SurfaceCard.surface_coefficients[0]) + " "
     string += str(SurfaceCard.surface_coefficients[1]) + " "
     string += str(SurfaceCard.surface_coefficients[2]) + "); radius "
     string += str(SurfaceCard.surface_coefficients[3]) + "; } \n"
@@ -81,22 +81,30 @@ def scone_cone_x(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     t2 = SurfaceCard.surface_coefficients[3]
-    sign = SurfaceCard.surface_coefficients[4]
 
-    # Do trigonometry to convert mcnp tangent squared, t2, into 
+    if (len(SurfaceCard.surface_coefficients) < 5):
+        sign = 0
+    else: 
+        sign = SurfaceCard.surface_coefficients[4]
+
+   # Do trigonometry to convert mcnp tangent squared, t2, into 
     # angle and determine hMin and hMax.
     # If sign is negative, hMax = vertex = 0, hMin = -10E10
     # If sign is positive, hMin = vertex = 0, hMax = 10E10
+    # If +/- 1 is not present in the MCNP definition, make cone infinite 
     # A bit of a fudge for now.
     # Assume no truncation, like in MCNP
     if sign < 0:
         hMin = -1E10
         hMax = 0
-    else:
+    elif sign > 0:
         hMin = 0
         hMax = 1E10
+    else:
+        hMin = -1E10
+        hMax = 1E10
 
-    angle = math.degrees(math.atan(math.sqrt(t2)))
+    angle = degrees(atan(sqrt(t2)))
 
     string = " {} {:f} {:f} {:f} {}\n".format(
             " xCone; vertex (", x, y, z," ); ")
@@ -112,22 +120,30 @@ def scone_cone_y(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     t2 = SurfaceCard.surface_coefficients[3]
-    sign = SurfaceCard.surface_coefficients[4]
 
-    # Do trigonometry to convert mcnp tangent squared, t2, into 
+    if (len(SurfaceCard.surface_coefficients) < 5):
+        sign = 0
+    else: 
+        sign = SurfaceCard.surface_coefficients[4]
+
+   # Do trigonometry to convert mcnp tangent squared, t2, into 
     # angle and determine hMin and hMax.
     # If sign is negative, hMax = vertex = 0, hMin = -10E10
     # If sign is positive, hMin = vertex = 0, hMax = 10E10
+    # If +/- 1 is not present in the MCNP definition, make cone infinite 
     # A bit of a fudge for now.
     # Assume no truncation, like in MCNP
     if sign < 0:
         hMin = -1E10
         hMax = 0
-    else:
+    elif sign > 0:
         hMin = 0
         hMax = 1E10
+    else:
+        hMin = -1E10
+        hMax = 1E10
 
-    angle = math.degrees(math.atan(math.sqrt(t2)))
+    angle = degrees(atan(sqrt(t2)))
 
     string = " {} {:f} {:f} {:f} {}\n".format(
             " yCone; vertex (", x, y, z," ); ")
@@ -143,22 +159,30 @@ def scone_cone_z(SurfaceCard):
     y = SurfaceCard.surface_coefficients[1]
     z = SurfaceCard.surface_coefficients[2]
     t2 = SurfaceCard.surface_coefficients[3]
-    sign = SurfaceCard.surface_coefficients[4]
+    
+    if (len(SurfaceCard.surface_coefficients) < 5):
+        sign = 0
+    else: 
+        sign = SurfaceCard.surface_coefficients[4]
 
     # Do trigonometry to convert mcnp tangent squared, t2, into 
     # angle and determine hMin and hMax.
     # If sign is negative, hMax = vertex = 0, hMin = -10E10
     # If sign is positive, hMin = vertex = 0, hMax = 10E10
+    # If +/- 1 is not present in the MCNP definition, make cone infinite 
     # A bit of a fudge for now.
     # Assume no truncation, like in MCNP
     if sign < 0:
         hMin = -1E10
         hMax = 0
-    else:
+    elif sign > 0:
         hMin = 0
         hMax = 1E10
+    else:
+        hMin = -1E10
+        hMax = 1E10
 
-    angle = math.degrees(math.atan(math.sqrt(t2)))
+    angle = degrees(atan(sqrt(t2)))
 
     string = " {} {:f} {:f} {:f} {}\n".format(
             " zCone; vertex (", x, y, z," ); ")

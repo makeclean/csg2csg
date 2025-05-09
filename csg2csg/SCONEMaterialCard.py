@@ -12,8 +12,17 @@ def write_scone_material(filestream, MaterialCard):
     # Stick on .03 regardless until something to read temperature
     # from MCNP is added!
     # Multiply by adens because SCONE requires absolute densities
+    dens = MaterialCard.density
+    if dens > 0:
+        adens = dens
+    else:
+        molar_mass = 0
+        for nuc in MaterialCard.composition_dictionary:
+            molar_mass += MaterialCard.composition_dictionary[nuc] * (int(nuc) % 1000)
+            
+        adens = -dens * 6.02214e-01 / molar_mass
+    
     for nuc in MaterialCard.composition_dictionary:
-        adens = MaterialCard.density
         string += "{}.03 {:e}; \n".format(
                 nuc, MaterialCard.composition_dictionary[nuc] * adens
                 )
@@ -27,4 +36,3 @@ def write_scone_material(filestream, MaterialCard):
     string += "} \n"
     filestream.write(string)
     return
-

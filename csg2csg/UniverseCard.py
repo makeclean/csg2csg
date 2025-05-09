@@ -7,9 +7,9 @@ uni_fill = 1
 mat_fill = 2
 
 class UniverseCard(Card):
-    """Class for the storage of the Generic UniverseCard type
-    methods for the generation of UniverseCards should be placed
-    here. Classes instanciating UniverseCard objects should be
+    """Class for the storage of the Generic UniverseCard type.
+    Methods for the generation of UniverseCards should be placed
+    here. Classes instantiating UniverseCard objects should be
     implemented in its own CodeUniverseCard.py file.
     This is primarily intended for SCONE - do any other codes
     have explicit cell universe cards? Maybe this is useful for
@@ -67,7 +67,7 @@ class UniverseCard(Card):
         for cell in cell_list:
 
             # Universe contains this cell
-            if cell.cell_universe == uni_id:
+            if int(cell.cell_universe) == uni_id:
                 self.cell_list.append(cell.cell_id)
 
                 # Search the root universe for a cell which has a single
@@ -93,6 +93,12 @@ class UniverseCard(Card):
 
                 if cell.cell_universe_offset != 0:
                     self.universe_offset = cell.cell_universe_offset
+
+            # Make sure there isn't something silly
+            #if (cell.cell_fill == uni_id) and (cell.cell_universe == uni_id):
+            #    print(cell.cell_id)
+            #    print(uni_id)
+            #    raise ValueError('Cell contains and is contained by the same universe')
 
 
 

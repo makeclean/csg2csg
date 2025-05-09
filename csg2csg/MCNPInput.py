@@ -635,15 +635,15 @@ class MCNPInput(InputDeck):
         # loop over the surfaces
         for surf in self.surface_list:
             # if we are a cone
-            print(
-                surf.surface_type,
-                surf.surface_type
-                in [
-                    SurfaceCard.SurfaceType["CONE_X"],
-                    SurfaceCard.SurfaceType["CONE_Y"],
-                    SurfaceCard.SurfaceType["CONE_Z"],
-                ],
-            )
+            #print(
+            #    surf.surface_type,
+            #    surf.surface_type
+            #    in [
+            #        SurfaceCard.SurfaceType["CONE_X"],
+            #        SurfaceCard.SurfaceType["CONE_Y"],
+            #        SurfaceCard.SurfaceType["CONE_Z"],
+            #    ],
+            #)
             if surf.surface_type in [
                 SurfaceCard.SurfaceType["CONE_X"],
                 SurfaceCard.SurfaceType["CONE_Y"],
@@ -1166,7 +1166,7 @@ class MCNPInput(InputDeck):
         while True:
             surf_line = strip_dollar_comments(self.file_lines[idx])
             if surf_line.isspace():
-                logging.debug("%s", "found end of cell cards at line " + str(idx))
+                logging.debug("%s", "found end of surface cards at line " + str(idx))
                 idx += 1
                 break
 
@@ -1343,7 +1343,7 @@ class MCNPInput(InputDeck):
         self.__get_material_cards(idx)
         # need to flatten first to get transformed surface in the
         # correct place
-        self.__simplify_cones()
+        #self.__simplify_cones()
         self.__flatten_macrobodies()
         self.__explode_nots()
 
@@ -1401,7 +1401,7 @@ class MCNPInput(InputDeck):
                 filestream, self.material_list[material], self.preserve_xsid
             )
 
-    # main write MCNP method, depnds on where the geometry
+    # main write MCNP method, depends on where the geometry
     # came from
     def write_mcnp(self, filename, flat=True):
         f = open(filename, "w")

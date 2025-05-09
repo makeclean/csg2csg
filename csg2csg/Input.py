@@ -96,7 +96,7 @@ class InputDeck:
         universe_ids = set()
 
         # count unique universe IDs
-        universe_ids.update(cell.cell_universe for cell in self.cell_list)
+        universe_ids.update(int(cell.cell_universe) for cell in self.cell_list)
 
         # Maybe set is empty? In which case, put every cell in universe 1
         #if not universe_ids:
