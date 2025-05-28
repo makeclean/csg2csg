@@ -1,5 +1,6 @@
 # /usr/env/python3
-
+from csg2csg.UniverseCard import UniverseCard, uni_fill, mat_fill
+import copy
 
 class InputDeck:
     """InputDeck class from which other concrete examples
@@ -22,6 +23,7 @@ class InputDeck:
         # TODO maybe these should be dictionaries by index
         self.cell_list = []
         self.surface_list = []
+        self.universe_list = []
         self.last_free_surface_index = 0
         self.importance_list = {}  # dictionary of importances
         self.material_list = {}
@@ -76,6 +78,7 @@ class InputDeck:
         self.cell_list = InputDeckClass.cell_list
         self.surface_list = InputDeckClass.surface_list
         self.material_list = InputDeckClass.material_list
+        self.universe_list = InputDeckClass.universe_list
         return
 
     # step through each cell and determine if the cell can
@@ -87,3 +90,43 @@ class InputDeck:
             # match any splitable unions - this will look like (stuff):(stuff):(stuff)
             # so we could make 3 cells from that
             continue
+    
+    # prepare universe entries given cells
+    def create_universes_from_cells(self):
+        universe_ids = set()
+
+        # count unique universe IDs
+        universe_ids.update(int(cell.cell_universe) for cell in self.cell_list)
+
+        # Maybe set is empty? In which case, put every cell in universe 1
+        #if not universe_ids:
+        #    universe_ids.add(1)
+        #    for cell in self.cell_list:
+        #        cell.cell_universe = 1
+
+        for uni in universe_ids:
+            newUni = UniverseCard()
+            newUni.build_from_cell_list(uni,self.cell_list)
+            self.universe_list.append(newUni)
+
+        # Need to ensure there is both a root universe and, if cells,
+        # a cell universe to hold them. This may imply adding another
+        # universe to the geometry and changing the cell universe IDs.
+        # First need to identify whether the root universe has cells.
+        # If so, duplicate the universe, make the new universe a cell 
+        # universe without being root, remove cells from the root universe,
+        # and make the root universe contain the new universe.
+        for uni in self.universe_list:
+            if uni.is_root:
+                if uni.cell_list:
+                    newID = max(universe_ids) + 1
+                    newUni = copy.copy(uni)
+                    newUni.universe_id = newID
+                    newUni.is_root = 0
+                    newUni.border_surface = 0
+                    uni.cell_list = []
+                    uni.fill_type = uni_fill
+                    uni.fill_id = newID
+                    self.universe_list.append(newUni)
+
+        return

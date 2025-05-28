@@ -170,3 +170,4 @@ class MaterialCard(Card):
         for key in new_nuclides.keys():
             self.composition_dictionary[key] = new_nuclides[key]
             self.xsid_dictionary[key] = ""
+
