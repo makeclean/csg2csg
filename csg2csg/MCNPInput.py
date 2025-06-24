@@ -30,11 +30,11 @@ import re
 class MCNPInput(InputDeck):
     """MCNPInputDeck class - does the actuall processing"""
 
-    preserve_xsid = False
+    # preserve_xsid = False
 
     # constructor
-    def __init__(self, filename="", quick=False):
-        InputDeck.__init__(self, filename, quick)
+    def __init__(self, filename="", quick=False, preserve_xsid=False):
+        InputDeck.__init__(self, filename, quick, preserve_xsid)
 
     #        self.process()
 

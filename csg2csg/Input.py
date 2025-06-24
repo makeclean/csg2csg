@@ -11,9 +11,10 @@ class InputDeck:
     """ Constructor
     """
 
-    def __init__(self, filename, quick=False):
+    def __init__(self, filename, quick=False, preserve_xsid=False):
         self.filename = filename
         self.quick_process = quick
+        self.preserve_xsid = preserve_xsid
 
         self.file_lines = ""
         self.title = ""
@@ -74,6 +75,7 @@ class InputDeck:
     # instanciate from input
     def from_input(self, InputDeckClass):
         self.filename = InputDeckClass.filename
+        self.preserve_xsid = InputDeckClass.preserve_xsid
         self.title = InputDeckClass.title
         self.cell_list = InputDeckClass.cell_list
         self.surface_list = InputDeckClass.surface_list
